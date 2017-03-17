@@ -55,7 +55,7 @@ namespace RelianceTalk
         /// Allow all fields to be zero if opening printer in read-only mode.
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
-        struct PRINTER_DEFAULTS
+        public class PRINTER_DEFAULTS
         {
             public IntPtr pDatatype;
             public IntPtr pDevMode;
@@ -71,6 +71,16 @@ namespace RelianceTalk
         /// <returns></returns>
         [DllImport("winspool.Drv", EntryPoint = "OpenPrinterA", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
         public static extern bool OpenPrinter([MarshalAs(UnmanagedType.LPStr)] string szPrinter, out IntPtr hPrinter, IntPtr pd);
+
+        /// <summary>
+        /// http://www.pinvoke.net/default.aspx/winspool.OpenPrinter
+        /// </summary>
+        /// <param name="szPrinter"></param>
+        /// <param name="hPrinter"></param>
+        /// <param name="pd"></param>
+        /// <returns></returns>
+        [DllImport("winspool.Drv", EntryPoint = "OpenPrinterA", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool OpenPrinter2([MarshalAs(UnmanagedType.LPStr)] string szPrinter, out IntPtr hPrinter, PRINTER_DEFAULTS pd);
 
         /// <summary>
         /// http://www.pinvoke.net/default.aspx/winspool.ClosePrinter
@@ -114,6 +124,17 @@ namespace RelianceTalk
         public static extern bool WritePrinter(IntPtr hPrinter, IntPtr pBytes, Int32 dwCount, out Int32 dwWritten);
 
         /// <summary>
+        /// http://www.pinvoke.net/default.aspx/winspool.ReadPrinter
+        /// </summary>
+        /// <param name="hPrinter"></param>
+        /// <param name="pBytes"></param>
+        /// <param name="dwCount"></param>
+        /// <param name="dwNoBytesRead"></param>
+        /// <returns></returns>
+        [DllImport("winspool.drv", EntryPoint = "ReadPrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool ReadPrinter(IntPtr hPrinter, out IntPtr pBytes, Int32 dwCount, out Int32 dwNoBytesRead);
+
+        /// <summary>
         /// Send unmanaged data to the target printer.
         /// When the function is given a printer name and an unmanaged array
         /// of bytes, the function sends those bytes to the print queue.
@@ -128,6 +149,7 @@ namespace RelianceTalk
             Int32 dwError = 0, dwWritten = 0;
             IntPtr hPrinter = new IntPtr(0);
             DOCINFOA di = new DOCINFOA();
+
             bool bSuccess = false; // Assume failure unless you specifically succeed.
 
             di.pDocName = "ESCPOSTTester";
@@ -218,6 +240,46 @@ namespace RelianceTalk
             SendBytesToPrinter(szPrinterName, pBytes, dwCount);
             Marshal.FreeCoTaskMem(pBytes);
             return true;
+        }
+
+        public static bool ReadFromPrinter(string szPrinterName, IntPtr pBytes, Int32 dwCount)
+        {
+            // Read the data from the printer.
+            Int32 dwError = 0, dwBytesRead = 0;
+            IntPtr hPrinter = new IntPtr(0);
+            DOCINFOA di = new DOCINFOA();
+            PRINTER_DEFAULTS pd = new PRINTER_DEFAULTS();
+            pd.DesiredAccess = 0x00000020;
+         
+            bool bSuccess = false;
+
+            // Open the printer.
+            if (OpenPrinter2(szPrinterName.Normalize(), out hPrinter, pd))
+            {
+                // Start a document.
+                if (StartDocPrinter(hPrinter, 1, di))
+                {
+                    // Start a page.
+                    if (StartPagePrinter(hPrinter))
+                    {
+                        // read your bytes.
+                        bSuccess = ReadPrinter(hPrinter, out pBytes, dwCount, out dwBytesRead);
+                        
+                        // If you did not succeed, GetLastError may give more information
+                        // about why not.
+                        if (bSuccess == false)
+                        {
+                            dwError = Marshal.GetLastWin32Error();
+                        }
+
+                        EndPagePrinter(hPrinter);
+                    }
+                    EndDocPrinter(hPrinter);
+                }
+                ClosePrinter(hPrinter);
+            }
+
+            return bSuccess;
         }
     }
 }

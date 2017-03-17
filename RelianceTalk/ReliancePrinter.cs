@@ -122,11 +122,23 @@ namespace RelianceTalk
 
             // Send the real time status command, r is the argument
             var command = new byte[] { 0x10, 0x04, (byte)r };
-            var written = WritePort(command);
-
-            // Collect the response
             int respLen = (r == StatusRequests.FullStatus) ? 6 : 1;
-            var data = ReadPort(respLen);
+
+            var data = new byte[0];
+            if (mSerialPort == null)
+            {
+                WritePrinter(command);
+
+                data = ReadPrinter(respLen);
+            }
+            else
+            {
+                var written = WritePort(command);
+
+                // Collect the response
+                data = ReadPort(respLen);
+            }
+
 
             // Invalid response
             if(data.Length != respLen)
@@ -228,6 +240,26 @@ namespace RelianceTalk
             RawPrinterHelper.SendBytesToPrinter(PrinterName, ptr, data.Length);
 
             Marshal.FreeHGlobal(ptr);
+        }
+
+        private byte[] ReadPrinter(int count)
+        {
+            Int32 dwCount = count;
+            IntPtr pBytes = new IntPtr(dwCount);
+
+            byte[] returnbytes = new byte[dwCount];
+            pBytes = Marshal.AllocCoTaskMem(dwCount);
+            bool success = RawPrinterHelper.ReadFromPrinter(PrinterName, pBytes, dwCount);
+            if (success)
+            {
+                Marshal.Copy(returnbytes, 0, pBytes, dwCount);
+            }
+            else
+            {
+                returnbytes = new byte[0];
+            }
+
+            return returnbytes;
         }
 
         /// <summary>

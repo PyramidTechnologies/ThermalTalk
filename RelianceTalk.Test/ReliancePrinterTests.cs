@@ -19,6 +19,33 @@ namespace RelianceTalk.Tests
             Assert.IsNotNull(printer);
 
         }
+        
+        [Test()]
+        public void GetStatusBidiTest()
+        {
+            var printer = new ReliancePrinter("Reliance");
+            var status = printer.GetStatus(StatusRequests.FullStatus);
+
+            // Only these should be set
+            Assert.IsNotNull(status.IsPaperPresent);
+            Assert.IsNotNull(status.IsPaperLevelOkay);
+            Assert.IsNotNull(status.IsTicketPresentAtOutput);
+            Assert.IsNotNull(status.IsCoverClosed);
+            Assert.IsNotNull(status.IsPaperMotorOff);
+            Assert.IsNotNull(status.IsDiagButtonReleased);
+            Assert.IsNotNull(status.IsHeadTemperatureOkay);
+            Assert.IsNotNull(status.IsCommsOkay);
+            Assert.IsNotNull(status.IsPowerSupplyVoltageOkay);
+            Assert.IsNotNull(status.IsPaperPathClear);
+            Assert.IsNotNull(status.IsCutterOkay);
+
+            // All the rest must be null
+            Assert.IsNull(status.IsOnline);
+            Assert.IsNull(status.IsNormalFeed);
+            Assert.IsNull(status.HasError);
+            Assert.IsNull(status.HasFatalError);
+            Assert.IsNull(status.HasRecoverableError);
+        }
 
         [Test()]
         public void GetStatusTest()
