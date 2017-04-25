@@ -36,14 +36,18 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FontEffects.cs" />
+    <Compile Include="Common\FontEffects.cs" />
+    <Compile Include="Common\FontScalar.cs" />
+    <Compile Include="IPrinter.cs" />
     <Compile Include="ISerialConnection.cs" />
-    <Compile Include="RealTimeStatus.cs" />
-    <Compile Include="ReliancePrinter.cs" />
+    <Compile Include="Helpers\RawPrintHelper.cs" />
+    <Compile Include="Reliance\RealTimeStatus.cs" />
+    <Compile Include="Reliance\RelianceConnection.cs" />
+    <Compile Include="Reliance\ReliancePrinter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RawPrintHelper.cs" />
-    <Compile Include="ReturnCode.cs" />
+    <Compile Include="Common\ReturnCode.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

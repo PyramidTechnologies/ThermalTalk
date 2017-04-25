@@ -26,7 +26,7 @@ namespace RelianceTalk
     /// <summary>
     /// Contract for all serialized connection types
     /// </summary>
-    public interface ISerialConnection
+    public interface ISerialConnection : System.IDisposable
     {
         /// <summary>
         /// Attempts to open serial device for communication. Returns
@@ -46,15 +46,35 @@ namespace RelianceTalk
         /// Gets or Sets the name that uniquely identifies this serial 
         /// device to the system
         /// </summary>
-        string Name { get; set; }
+        string Name { get; }
 
         /// <summary>
-        /// Transmits payload and returns response. The implementation
-        /// of this class is responsible for any payload packaging,
-        /// checksums, etc.
+        /// Gets or Sets the read timeout in milliseconds
+        /// </summary>
+        int ReadTimeoutMS { get; set; }
+
+        /// <summary>
+        /// Gets or Sets the write timeout in milliseconds
+        /// </summary>
+        int WriteTimeoutMS { get; set; }
+
+        /// <summary>
+        /// Transmits payload to targets and returns count of 
+        /// bytes that were written. The write operation will return
+        /// once all bytes or written or if the period defined by
+        /// WriteTimeoutMS expires.
         /// </summary>
         /// <param name="payload">Data to send</param>
-        /// <returns>0 or more bytes response data</returns>
-        byte[] Write(byte[] payload);
+        /// <returns>Count of bytes written</returns>
+        int Write(byte[] payload);
+
+        /// <summary>
+        /// Read and return n count of bytes. This function
+        /// will return once n bytes are received or ReadTimeoutMS
+        /// has expired.
+        /// </summary>
+        /// <param name="n">count of bytes to read</param>
+        /// <returns>bytes read</returns>
+        byte[] Read(int n);
     }
 }

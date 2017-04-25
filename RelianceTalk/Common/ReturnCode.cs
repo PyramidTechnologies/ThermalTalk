@@ -21,18 +21,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-
 namespace RelianceTalk
 {
-    public enum FontEffects
+       
+    [System.Flags]
+    public enum ReturnCode
     {
-        Bold,
-        Italic,
-        Underline,
-        Rotated,
-        Reversed,
-        JustifyCenter,
-        JustifyLeft,
-        JustifyRight,        
+        Success = 0,
+
+        // Connection issues
+        ConnectionAlreadyOpen,
+        ConnectionNotFound,
+
+        // Syntax issues
+        UnsupportedCommand,
+        InvalidArgument,
+
+        // General failures
+        ExecutionFailure,
     }
 }

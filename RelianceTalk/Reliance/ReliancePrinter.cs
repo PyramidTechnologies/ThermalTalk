@@ -35,14 +35,11 @@ namespace RelianceTalk
     /// <summary>
     /// Reliance Printer is the primary handle for accessing the printer API
     /// </summary>
-    public class ReliancePrinter
+    public class ReliancePrinter : IPrinter
     {
 
-        const int DefaultReadTimeout = 2000; /// ms
+        const int DefaultReadTimeout = 1000; /// ms
         const int DefaultBaudRate = 19200;
-
-
-        private readonly SerialPort mSerialPort;
 
         /// <summary>
         /// Constructs a new instance of ReliancePrinter. This printer
@@ -69,10 +66,9 @@ namespace RelianceTalk
             {            
                 PrintSerialReadTimeout = DefaultReadTimeout;
                 PrintSerialBaudRate = DefaultBaudRate;
-                PrintSerialPortName = serialPortName;
 
-                mSerialPort = MakePort(PrintSerialPortName, PrintSerialBaudRate, PrintSerialReadTimeout);
-                mSerialPort.Open();
+                Connection = new RelianceConnection(serialPortName, PrintSerialBaudRate);
+                Connection.ReadTimeoutMS = DefaultReadTimeout;              
             }
         }
 
@@ -81,22 +77,19 @@ namespace RelianceTalk
         /// </summary>
         ~ReliancePrinter()
         {
-            if (mSerialPort != null)
+            if (Connection != null)
             {
-                mSerialPort.Close();
-                mSerialPort.Dispose();
+                Connection.Dispose();
             }
         }
+
+
+        public ISerialConnection Connection { get; set; }
 
         /// <summary>
         /// Gets or replaces the name this printer was constructed with
         /// </summary>
         public string PrinterName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the serial port associated with this printer.
-        /// </summary>
-        public string PrintSerialPortName { get; set; }
 
         /// <summary>
         /// Gets or sets the read timeout in milliseconds
@@ -114,37 +107,44 @@ namespace RelianceTalk
         /// If there is no response or an invalid response, all fields of RealTimeStatus will be null.
         /// </summary>
         /// <param name="r">StatusRequest type</param>
-        /// <returns>Instance of RealTimeStatus. Unset fields will be null</returns>
+        /// <returns>Instance of RealTimeStatus,m null on failure, Unset fields will be null</returns>
         public RealTimeStatus GetStatus(StatusRequests r)
         {
             // Result stored here
-            var rts = new RealTimeStatus();
+            RealTimeStatus rts = null;
 
             // Send the real time status command, r is the argument
             var command = new byte[] { 0x10, 0x04, (byte)r };
             int respLen = (r == StatusRequests.FullStatus) ? 6 : 1;
 
             var data = new byte[0];
-            if (mSerialPort == null)
-            {
-                WritePrinter(command);
 
-                data = ReadPrinter(respLen);
-            }
-            else
+            try
             {
-                var written = WritePort(command);
+                Connection.Open();
+
+                var written = Connection.Write(command);
+
+                System.Threading.Thread.Sleep(250);
 
                 // Collect the response
-                data = ReadPort(respLen);
+                data = Connection.Read(respLen);
+
             }
-
-
+            catch
+            { }
+            finally
+            {
+                Connection.Close();
+            }
+            
             // Invalid response
             if(data.Length != respLen)
             {
                 return rts;
             }
+
+            rts = new RealTimeStatus();
 
             switch(r)
             {
@@ -224,128 +224,43 @@ namespace RelianceTalk
             return rts;
         }
 
-        /// <summary>
-        /// Common print hanlder for printing raw data bytes
-        /// </summary>
-        /// <param name="data"></param>
-        private void WritePrinter(byte[] data)
+
+
+       
+
+        public void AddEffect(FontEffects effect)
         {
-            // Gotta get a pointer on the local heap. Fun fact, the naming suggests that
-            // this would be on the stack but it isn't. Windows no longer has a global heap
-            // per se so these naming conventions are legacy cruft.
-            IntPtr ptr = Marshal.AllocHGlobal(data.Length);
-            Marshal.Copy(data, 0, ptr, data.Length);
-
-
-            RawPrinterHelper.SendBytesToPrinter(PrinterName, ptr, data.Length);
-
-            Marshal.FreeHGlobal(ptr);
+            throw new NotImplementedException();
         }
 
-        private byte[] ReadPrinter(int count)
+        public void RemoveEffect(FontEffects effect)
         {
-            Int32 dwCount = count;
-            IntPtr pBytes = new IntPtr(dwCount);
-
-            byte[] returnbytes = new byte[dwCount];
-            pBytes = Marshal.AllocCoTaskMem(dwCount);
-            bool success = RawPrinterHelper.ReadFromPrinter(PrinterName, pBytes, dwCount);
-            if (success)
-            {
-                Marshal.Copy(returnbytes, 0, pBytes, dwCount);
-            }
-            else
-            {
-                returnbytes = new byte[0];
-            }
-
-            return returnbytes;
+            throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Writes data to the printer serial port
-        /// </summary>
-        /// <param name="data">Data to send</param>
-        /// <returns>Number of bytes written</returns>
-        private int WritePort(byte[] data)
+        public void ClearAllEffects()
         {
-            try
-            {
-                // Dump anything not already processed
-                mSerialPort.DiscardInBuffer();
-                mSerialPort.DiscardOutBuffer();
-
-                mSerialPort.Write(data, 0, data.Length);
-                return data.Length;
-            }
-            catch
-            { }            
-
-
-            return 0;
+            throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Reads count bytes from serial port. If count bytes are unavailable, this
-        /// function will block until the read times out. If there is an exception or
-        /// not all expected data is received, an empty buffer will be returned.
-        /// </summary>
-        /// <param name="count">Number of bytes to read from port.</param>
-        /// <returns>Bytes read from port.</returns>
-        private byte[] ReadPort(int count)
+        public void SetFontScalar(FontWidthScalar w, FontHeighScalar h)
         {
-            
-            var buff = new byte[count];
-
-            try
-            {
-                // Give a slight delay to allow the buffer time to more fully fill up
-                System.Threading.Thread.Sleep(100);
-
-                // Attempt to read count bytes
-                var read = mSerialPort.Read(buff, 0, count);
-
-                // If we don't get enough, reset buffer to 0 length
-                if (read != count)
-                {
-                    buff = new byte[0];
-                }
-            }
-            catch
-            {
-                buff = new byte[0];
-            }
-
-            return buff;
+            throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Create a new serial port using 8 databits, no parity, 1 stop bit.
-        /// </summary>
-        /// <param name="portName">OS name of port</param>
-        /// <param name="baudrate">Valid baud rate</param>
-        /// <param name="readTimeout">Time in milliseconds to await buffer to contain data</param>
-        /// <returns></returns>
-        private static SerialPort MakePort(string portName, int baudrate, int readTimeout)
+        public void PrintASCIIString(string str)
         {
+            throw new NotImplementedException();
+        }
 
-            System.Text.Encoding W1252 = System.Text.Encoding.GetEncoding("Windows-1252");
+        public void PrintNewline()
+        {
+            throw new NotImplementedException();
+        }
 
-            var port = new SerialPort();
-            port.BaudRate = baudrate;
-            port.Parity = Parity.None;
-            port.DataBits = 8;
-            port.StopBits = StopBits.One;
-            port.Handshake = Handshake.None;
-            port.ReadTimeout = readTimeout;
-            port.WriteTimeout = 500;
-            port.Encoding = W1252;
-            port.DtrEnable = true;
-            port.RtsEnable = true;
-            port.DiscardNull = false;
-            port.PortName = portName;
-
-            return port;
+        public void SendRaw(byte[] raw)
+        {
+            throw new NotImplementedException();
         }
     }
 }
