@@ -37,7 +37,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\FontEffects.cs" />
+    <Compile Include="Common\FontJustification.cs" />
     <Compile Include="Common\FontScalar.cs" />
+    <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="IPrinter.cs" />
     <Compile Include="ISerialConnection.cs" />
     <Compile Include="Helpers\RawPrintHelper.cs" />

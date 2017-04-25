@@ -3,9 +3,42 @@
     interface IPrinter
     {
         /// <summary>
-        /// Gets or Sets the serial connection to use with this printer
+        /// Gets the serial connection to use with this printer
         /// </summary>
-        ISerialConnection Connection { get; set; }
+        ISerialConnection Connection { get; }
+
+        /// <summary>
+        /// Gets the active font effects      
+        /// </summary>
+        FontEffects Effects { get; }
+
+        /// <summary>
+        /// Gets or sets the active justification
+        /// </summary>
+        FontJustification Justification { get; }
+
+        /// <summary>
+        /// Gets or Sets the font's height scalar        
+        /// </summary>
+        FontHeighScalar Height { get; }
+
+        /// <summary>
+        /// Gets or Sets the font's width scalar
+        /// </summary>
+        FontWidthScalar Width { get; }
+
+        /// <summary>
+        /// Applies the specified scalars
+        /// </summary>
+        /// <param name="w">Width scalar</param>
+        /// <param name="h">Height scalar</param>
+        void SetScalars(FontWidthScalar w, FontHeighScalar h);
+
+        /// <summary>
+        /// Applies the specified justification
+        /// </summary>
+        /// <param name="justification">Justification to use</param>
+        void SetJustification(FontJustification justification);
 
         /// <summary>
         /// Activates effect for next print. This effect
@@ -31,11 +64,9 @@
         void ClearAllEffects();
 
         /// <summary>
-        /// Apply a font width and height scalar
+        /// Sets all ESC/POS options to default
         /// </summary>
-        /// <param name="w">Width scalar as multiplier</param>
-        /// <param name="h">Heigh scalar as multiplier</param>
-        void SetFontScalar(FontWidthScalar w, FontHeighScalar h);
+        void Reinitialize();
 
         /// <summary>
         /// Print str as ASCII text.
@@ -48,6 +79,11 @@
         /// position to start of line.
         /// </summary>
         void PrintNewline();
+
+        /// <summary>
+        /// Mark ticket as complete and present
+        /// </summary>
+        void FormFeed();
 
         /// <summary>
         /// Send raw buffer to target printer.

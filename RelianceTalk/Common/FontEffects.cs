@@ -24,16 +24,18 @@ SOFTWARE.
 
 namespace RelianceTalk
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [System.Flags]
     public enum FontEffects
     {
-        Bold,
-        Italic,
-        Underline,
-        Rotated,
-        Reversed,
-        JustifyCenter,
-        JustifyLeft,
-        JustifyRight,        
+        None            = 0,
+        Bold            = 1 << 0,
+        Italic          = 1 << 1,
+        Underline       = 1 << 2,
+        Rotated         = 1 << 3,
+        Reversed        = 1 << 4,
+        UpsideDown      = 1 << 5,
     }
 }

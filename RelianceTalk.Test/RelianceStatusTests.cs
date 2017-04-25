@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RelianceTalk;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 namespace RelianceTalk.Tests
 {
     [TestFixture()]
@@ -16,7 +10,7 @@ namespace RelianceTalk.Tests
         public void ReliancePrinterTest()
         {
             // Test ctor
-            var printer = new ReliancePrinter("test");
+            var printer = new ReliancePrinter(TEST_PORT);
             Assert.IsNotNull(printer);
         }
         
@@ -25,7 +19,7 @@ namespace RelianceTalk.Tests
         {
             // Tests may run in parallel and since we are using a serial port
             // we should just run all queries in one test to avoid access issues.
-            var printer = new ReliancePrinter("Reliance", TEST_PORT);
+            var printer = new ReliancePrinter(TEST_PORT);
 
             var status = printer.GetStatus(StatusRequests.Status);
 
@@ -58,7 +52,7 @@ namespace RelianceTalk.Tests
         {
             // Tests may run in parallel and since we are using a serial port
             // we should just run all queries in one test to avoid access issues.
-            var printer = new ReliancePrinter("Reliance", TEST_PORT);
+            var printer = new ReliancePrinter(TEST_PORT);
 
             var status = printer.GetStatus(StatusRequests.OffLineStatus);
 
@@ -90,7 +84,7 @@ namespace RelianceTalk.Tests
         {
             // Tests may run in parallel and since we are using a serial port
             // we should just run all queries in one test to avoid access issues.
-            var printer = new ReliancePrinter("Reliance", TEST_PORT);
+            var printer = new ReliancePrinter(TEST_PORT);
 
             var status = printer.GetStatus(StatusRequests.ErrorStatus);
 
@@ -122,7 +116,7 @@ namespace RelianceTalk.Tests
         {
             // Tests may run in parallel and since we are using a serial port
             // we should just run all queries in one test to avoid access issues.
-            var printer = new ReliancePrinter("Reliance", TEST_PORT);
+            var printer = new ReliancePrinter(TEST_PORT);
 
             var status = printer.GetStatus(StatusRequests.PaperRollStatus);
 
@@ -153,7 +147,7 @@ namespace RelianceTalk.Tests
         {
             // Tests may run in parallel and since we are using a serial port
             // we should just run all queries in one test to avoid access issues.
-            var printer = new ReliancePrinter("Reliance", TEST_PORT);
+            var printer = new ReliancePrinter(TEST_PORT);
 
             var status = printer.GetStatus(StatusRequests.PrintStatus);
 
@@ -184,7 +178,7 @@ namespace RelianceTalk.Tests
         {
             // Tests may run in parallel and since we are using a serial port
             // we should just run all queries in one test to avoid access issues.
-            var printer = new ReliancePrinter("Reliance", TEST_PORT);
+            var printer = new ReliancePrinter(TEST_PORT);
 
             var status = printer.GetStatus(StatusRequests.FullStatus);
 

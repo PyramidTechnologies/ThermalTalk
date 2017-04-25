@@ -2,25 +2,25 @@
 {
     public enum FontWidthScalar
     {
-        w1 = 1,
-        w2,
-        w3,
-        w4,
-        w5,
-        w6,
-        w7,
-        w8,
+        w1 = 0,
+        w2 = 16,
+        w3 = 32,
+        w4 = 48,
+        w5 = 64,
+        w6 = 80,
+        w7 = 96,
+        w8 = 112,
     }
 
     public enum FontHeighScalar
     {
-        h1 = 1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6,
-        h7,
-        h8,
+        h1 = 0,
+        h2 = 1,
+        h3 = 2,
+        h4 = 3,
+        h5 = 4,
+        h6 = 5,
+        h7 = 6,
+        h8 = 7,
     }
 }

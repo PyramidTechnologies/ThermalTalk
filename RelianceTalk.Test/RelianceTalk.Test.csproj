@@ -37,7 +37,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HW_ReliancePrintTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RelianceEffectsTest.cs" />
     <Compile Include="RelianceStatusTests.cs" />
   </ItemGroup>
   <ItemGroup>
