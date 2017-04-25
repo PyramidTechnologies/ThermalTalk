@@ -1,4 +1,4 @@
-﻿namespace RelianceTalk
+﻿namespace ThermalTalk
 {
     /// <summary>
     /// Set of multually exclusive font justification

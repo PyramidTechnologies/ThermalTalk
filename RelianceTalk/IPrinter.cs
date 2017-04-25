@@ -1,4 +1,4 @@
-﻿namespace RelianceTalk
+﻿namespace ThermalTalk
 {
     interface IPrinter
     {

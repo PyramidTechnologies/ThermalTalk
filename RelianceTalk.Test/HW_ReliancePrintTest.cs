@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace RelianceTalk.Test
+namespace ThermalTalk.Test
 {
     [TestFixture()]
     public class HW_ReliancePrintTest

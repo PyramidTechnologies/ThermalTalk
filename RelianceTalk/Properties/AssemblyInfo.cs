@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("RelianceTalk")]
-[assembly: AssemblyDescription("Reliance Thermal Printer API")]
+[assembly: AssemblyTitle("ThermalTalk")]
+[assembly: AssemblyDescription("PTI Thermal Printer API")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Pyramid Technologies Inc.")]
-[assembly: AssemblyProduct("RelianceTalk")]
+[assembly: AssemblyProduct("ThermalTalk")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

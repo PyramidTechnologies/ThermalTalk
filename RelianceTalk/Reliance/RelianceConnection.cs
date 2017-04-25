@@ -1,4 +1,4 @@
-﻿namespace RelianceTalk
+﻿namespace ThermalTalk
 {
     using System;
     using System.IO.Ports;

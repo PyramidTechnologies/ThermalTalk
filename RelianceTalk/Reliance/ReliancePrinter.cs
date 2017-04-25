@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-namespace RelianceTalk
+namespace ThermalTalk
 {
     using System.Collections.Generic;
     using System.Text;
@@ -254,6 +254,23 @@ namespace RelianceTalk
         public void PrintASCIIString(string str)
         {
             internalSend(ASCIIEncoding.ASCII.GetBytes(str));
+        }
+
+        /// <summary>
+        /// Encodes the specified string as a center justified 2D barcode. 
+        /// This 2D barcode is compliant with the QR Code® specicification and can be read by all 2D barcode readers.
+        /// Up to 154 8-bit characters are supported.
+        /// f the input string length exceeds the range specified by the k parameter, only the first 154 characters will be 
+        /// encoded. The rest of the characters to be encoded will be printed as regular ESC/POS characters on a new line.
+        /// </summary>
+        /// <param name="encodeThis">String to encode, max length = 154 bytes</param>
+        public void Print2DBarcode(string encodeThis)
+        {
+            var len = encodeThis.Length > 154 ? 154 : encodeThis.Length;
+            var setup = new byte[] { 0x0A, 0x1C, 0x7D, 0x25, (byte)len };
+
+            var fullCmd = Extensions.Concat(setup, ASCIIEncoding.ASCII.GetBytes(encodeThis), new byte[] { 0x0A });
+
         }
 
         public void PrintNewline()

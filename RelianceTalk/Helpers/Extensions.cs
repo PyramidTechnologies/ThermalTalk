@@ -1,11 +1,35 @@
-﻿namespace RelianceTalk
+﻿namespace ThermalTalk
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
 
     public static class Extensions
     {
+
+        /// <summary>
+        /// Concatentates all arrays into one
+        /// </summary>
+        /// <param name="args">1 or more byte arrays</param>
+        /// <returns>byte[]</returns>
+        public static byte[] Concat(params byte[][] args)
+        {
+            using (var buffer = new MemoryStream())
+            {
+                foreach (var ba in args)
+                {
+                    buffer.Write(ba, 0, ba.Length);
+                }
+
+                var bytes = new byte[buffer.Length];
+                buffer.Position = 0;
+                buffer.Read(bytes, 0, bytes.Length);
+
+                return bytes;
+            }
+        }
+
         /// <summary>
         /// Returns all flags that are set in this value in ascending order.
         /// </summary>

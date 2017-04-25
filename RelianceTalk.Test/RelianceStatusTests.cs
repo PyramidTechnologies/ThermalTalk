@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-namespace RelianceTalk.Tests
+namespace ThermalTalk.Tests
 {
     [TestFixture()]
     public class ReliancePrinterTests
@@ -56,6 +56,8 @@ namespace RelianceTalk.Tests
 
             var status = printer.GetStatus(StatusRequests.OffLineStatus);
 
+            Assert.IsNotNull(status);
+
             // Only these should be set
             Assert.IsNotNull(status.IsCoverClosed);
             Assert.IsNotNull(status.IsNormalFeed);
@@ -87,6 +89,8 @@ namespace RelianceTalk.Tests
             var printer = new ReliancePrinter(TEST_PORT);
 
             var status = printer.GetStatus(StatusRequests.ErrorStatus);
+
+            Assert.IsNotNull(status);
 
             // Only these should be set
             Assert.IsNotNull(status.IsCutterOkay);
@@ -120,6 +124,8 @@ namespace RelianceTalk.Tests
 
             var status = printer.GetStatus(StatusRequests.PaperRollStatus);
 
+            Assert.IsNotNull(status);
+
             // Only these should be set
             Assert.IsNotNull(status.IsPaperLevelOkay);
             Assert.IsNotNull(status.IsPaperPresent);
@@ -151,6 +157,8 @@ namespace RelianceTalk.Tests
 
             var status = printer.GetStatus(StatusRequests.PrintStatus);
 
+            Assert.IsNotNull(status);
+
             // Only these should be set
             Assert.IsNotNull(status.IsPaperMotorOff);
             Assert.IsNotNull(status.IsPaperPresent);
@@ -181,6 +189,8 @@ namespace RelianceTalk.Tests
             var printer = new ReliancePrinter(TEST_PORT);
 
             var status = printer.GetStatus(StatusRequests.FullStatus);
+
+            Assert.IsNotNull(status);
 
             // Only these should be set
             Assert.IsNotNull(status.IsPaperPresent);
