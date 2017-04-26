@@ -31,7 +31,7 @@ namespace ThermalTalk
     /// <summary>
     /// Reliance serial port implementation 
     /// </summary>
-    class RelianceConnection : ISerialConnection
+    class RelianceSerialConnection : ISerialConnection
     {
         #region Default SerialPort Params
         const int DefaultBaudRate = 19200;
@@ -48,15 +48,15 @@ namespace ThermalTalk
         #endregion
 
         #region Constructor
-        public RelianceConnection(string portName)
+        public RelianceSerialConnection(string portName)
             : this(portName, DefaultBaudRate)
         { }
 
-        public RelianceConnection(string portName, int baud)
+        public RelianceSerialConnection(string portName, int baud)
             : this(portName, baud, DefaultDatabits, DefaultParity, DefaultStopbits, DefaultHandshake)
         { }
 
-        public RelianceConnection(string portName, 
+        public RelianceSerialConnection(string portName, 
             int baud, 
             int databits, 
             Parity parity, 

@@ -10,7 +10,7 @@ namespace ThermalTalk.Test
         [Test()]
         public void RealHardwareTests()
         {
-            var printer = new ReliancePrinter(TEST_PORT);
+            var printer = new RelianceSerialPrinter(TEST_PORT);
             Assert.IsNotNull(printer);
 
 

@@ -10,7 +10,7 @@ namespace ThermalTalk.Tests
         public void ReliancePrinterTest()
         {
             // Test ctor
-            var printer = new ReliancePrinter(TEST_PORT);
+            var printer = new RelianceSerialPrinter(TEST_PORT);
             Assert.IsNotNull(printer);
         }
         
@@ -19,7 +19,7 @@ namespace ThermalTalk.Tests
         {
             // Tests may run in parallel and since we are using a serial port
             // we should just run all queries in one test to avoid access issues.
-            var printer = new ReliancePrinter(TEST_PORT);
+            var printer = new RelianceSerialPrinter(TEST_PORT);
 
             var status = printer.GetStatus(StatusRequests.Status);
 
@@ -52,7 +52,7 @@ namespace ThermalTalk.Tests
         {
             // Tests may run in parallel and since we are using a serial port
             // we should just run all queries in one test to avoid access issues.
-            var printer = new ReliancePrinter(TEST_PORT);
+            var printer = new RelianceSerialPrinter(TEST_PORT);
 
             var status = printer.GetStatus(StatusRequests.OffLineStatus);
 
@@ -86,7 +86,7 @@ namespace ThermalTalk.Tests
         {
             // Tests may run in parallel and since we are using a serial port
             // we should just run all queries in one test to avoid access issues.
-            var printer = new ReliancePrinter(TEST_PORT);
+            var printer = new RelianceSerialPrinter(TEST_PORT);
 
             var status = printer.GetStatus(StatusRequests.ErrorStatus);
 
@@ -120,7 +120,7 @@ namespace ThermalTalk.Tests
         {
             // Tests may run in parallel and since we are using a serial port
             // we should just run all queries in one test to avoid access issues.
-            var printer = new ReliancePrinter(TEST_PORT);
+            var printer = new RelianceSerialPrinter(TEST_PORT);
 
             var status = printer.GetStatus(StatusRequests.PaperRollStatus);
 
@@ -153,7 +153,7 @@ namespace ThermalTalk.Tests
         {
             // Tests may run in parallel and since we are using a serial port
             // we should just run all queries in one test to avoid access issues.
-            var printer = new ReliancePrinter(TEST_PORT);
+            var printer = new RelianceSerialPrinter(TEST_PORT);
 
             var status = printer.GetStatus(StatusRequests.PrintStatus);
 
@@ -186,7 +186,7 @@ namespace ThermalTalk.Tests
         {
             // Tests may run in parallel and since we are using a serial port
             // we should just run all queries in one test to avoid access issues.
-            var printer = new ReliancePrinter(TEST_PORT);
+            var printer = new RelianceSerialPrinter(TEST_PORT);
 
             var status = printer.GetStatus(StatusRequests.FullStatus);
 

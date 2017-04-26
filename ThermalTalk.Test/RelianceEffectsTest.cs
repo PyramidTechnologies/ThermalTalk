@@ -10,7 +10,7 @@ namespace ThermalTalk.Test
         [Test()]
         public void RelianceEffectsTest()
         {
-            var printer = new ReliancePrinter(TEST_PORT);
+            var printer = new RelianceSerialPrinter(TEST_PORT);
             Assert.IsNotNull(printer);
 
             Assert.AreEqual(FontEffects.None, printer.Effects);
@@ -61,7 +61,7 @@ namespace ThermalTalk.Test
         [Test()]
         public void RelianceJustificationTest()
         {
-            var printer = new ReliancePrinter(TEST_PORT);
+            var printer = new RelianceSerialPrinter(TEST_PORT);
             Assert.IsNotNull(printer);
 
             Assert.AreEqual(FontJustification.JustifyLeft, printer.Justification);
@@ -81,7 +81,7 @@ namespace ThermalTalk.Test
         public void RelianceScalarTest()
         {
             // Test ctor
-            var printer = new ReliancePrinter(TEST_PORT);
+            var printer = new RelianceSerialPrinter(TEST_PORT);
             Assert.IsNotNull(printer);
 
             // Ensure defaults are set
