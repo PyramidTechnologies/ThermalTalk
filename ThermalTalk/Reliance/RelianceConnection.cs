@@ -199,7 +199,7 @@
                 foreach (var s in data.Split(256))
                 {
                     _mPort.Write(s, 0, s.Length);
-                    Thread.Sleep(5);
+                    Thread.Sleep(10);
                 }
 
                 return data.Length;

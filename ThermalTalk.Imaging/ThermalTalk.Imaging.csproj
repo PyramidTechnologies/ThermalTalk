@@ -94,14 +94,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithms.cs" />
-    <Compile Include="BasePrintLogo.cs" />
+    <Compile Include="PrinterImage.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Dither.cs" />
     <Compile Include="DitherFactory.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="ImageExt.cs" />
+    <Compile Include="ImagingException.cs" />
     <Compile Include="IPrintLogo.cs" />
-    <Compile Include="LogoSize.cs" />
     <Compile Include="Pixel.cs" />
     <Compile Include="Webcam.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

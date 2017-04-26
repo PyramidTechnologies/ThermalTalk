@@ -7,42 +7,33 @@
     using System.IO;
     using System.Windows.Media.Imaging;
 
-    public class BasePrintLogo : IDisposable, ThermalTalk.Imaging.IPrintLogo
+    public class PrinterImage : ThermalTalk.Imaging.IPrintLogo
     {
         /// <summary>
-        /// Construct a new logo from source image and scale to ratio.
-        /// Set maxWidthPixels to 0 for full size (no change).
+        /// Construct a new logo from source image on disk
         /// </summary>
         /// <param name="sourcePath">String path to file. Supports all image formats.</param>
-        /// <param name="maxWidth">Maximum width in pixels to enforce. 0 to ignore.</param>
-        /// <param name="maxHeight">Maximum height in pixels to engore. 0 to ignore.</param>
-        public BasePrintLogo(string sourcePath, int maxWidth = 0, int maxHeight = 0, int forceWidth = 0)
+        public PrinterImage(string sourcePath)
         {
             if (string.IsNullOrEmpty(sourcePath))
             {
                 throw new ArgumentException("sourcePath must be a non-empty string.");
             }
 
-            // MaxWidth must always be byte aligned (units are in pixels)
-            MaxWidth = maxWidth.RoundUp(8);
-            MaxHeight = maxHeight;
-            ForceWidth = forceWidth;
-
             SetImageData(sourcePath);
         }
 
+
+        /// <summary>
+        /// Construct a new logo from source image
+        /// </summary>
+        /// <param name="sourcePath">Source image</param>
+        public PrinterImage(Bitmap source)
+        {
+            SetImageData(source);
+        }
+
         #region Properties
-        /// <summary>
-        /// Temporary path for this logo that is used to avoid heap allocating
-        /// a buffer just to pass into libcore.
-        /// </summary>
-        public string TransmitPath { get; set; }
-
-        /// <summary>
-        /// CRC of logo in transmit mode
-        /// </summary>
-        public uint TransmitCRC { get; set; }
-
         /// <summary>
         /// Gets the raw image data
         /// </summary>
@@ -50,43 +41,26 @@
         public BitmapImage ImageData { get; private set; }
 
         /// <summary>
-        /// Gets the dimensions for the current state of the image
+        /// Gets the current bitmap width in pixels
         /// </summary>
-        public LogoSize Dimensions { get; private set; }
+        public int Width { get; private set; }
 
         /// <summary>
-        /// Gets the ideal width of this image. The ideal
-        /// width is the scaled width set at instantiation time.
+        /// Gets the current bitmap height in pixels
         /// </summary>
-        public int IdealWidth { get; private set; }
+        public int Height { get; private set; }
 
         /// <summary>
-        /// Gets the ideal height of this image. The ideal
-        /// height is the scaled height set at instantiation time.
+        /// Returns the size in bytes for this bitmap
         /// </summary>
-        public int IdealHeight { get; private set; }
-
-        /// <summary>
-        /// Gets the enforced max width. Set to 0 to ignore.
-        /// </summary>
-        public int MaxHeight { get; private set; }
-
-        /// <summary>
-        /// Gets the enforced max height. Set to 0 to ignore.
-        /// </summary>
-        public int MaxWidth { get; private set; }
-
-        /// <summary>
-        /// Gets the width to force. Image will be scaled up or down to meet
-        /// this requirement. 0 to ignore.
-        /// </summary>
-        public int ForceWidth { get; private set; }
+        public int Size { get; private set; }
 
         /// <summary>
         /// Returns true if this image is inverted
         /// </summary>
         public bool IsInverted { get; private set; }
         #endregion
+
 
         public void ApplyDithering(Algorithms algorithm, byte threshhold)
         {
@@ -103,8 +77,7 @@
             SetImageData(dithered);
     
             // For Phoenix we don't care about size of logo in flash. Everything is static.
-            Dimensions.SizeInBytes = dithered.ToLogoBuffer().Length;
-            Dimensions.SizeInBytesOnFlash = Dimensions.SizeInBytes;
+            Size = dithered.ToLogoBuffer().Length;
         }
 
         /// <summary>
@@ -143,12 +116,13 @@
             File.WriteAllBytes(outpath, bmpData);
         }
 
+
         /// <summary>
-        /// Export the current state of this logo as a binary file, wrapped in the 1D 76 
-        /// ESC/POS bitmap command.
+        /// Package this bitmap as an ESC/POS raster image which is the 
+        /// 1D 76 command.
         /// </summary>
-        /// <param name="outpath"></param>
-        public void ExportLogoEscPos(string outpath)
+        /// <returns>Byte buffer</returns>
+        public byte[] GetAsEscBuffer()
         {
             // Build up the ESC/POS 1D 76 30 command
             var buffer = new List<byte>();
@@ -160,8 +134,8 @@
             buffer.Add(0x00);
 
             // Get correct dimensions
-            var w = Dimensions.WidthBytes;
-            var h = Dimensions.Height;
+            var w = (int)Math.Ceiling((double)Width / 8);
+            var h = Height;
 
             // https://goo.gl/FFdiZl
             // Calculate xL and xH
@@ -182,8 +156,19 @@
             var bmpData = ImageData.ToBitmap().ToLogoBuffer();
             buffer.AddRange(bmpData);
 
-            // Write to file
-            File.WriteAllBytes(outpath, buffer.ToArray());
+            return buffer.ToArray();
+        }
+
+        /// <summary>
+        /// Export the current state of this logo as a binary file, wrapped in the 1D 76 
+        /// ESC/POS bitmap command.
+        /// </summary>
+        /// <param name="outpath"></param>
+        public void ExportLogoEscPos(string outpath)
+        {
+            var buffer = GetAsEscBuffer();
+
+            File.WriteAllBytes(outpath, buffer);
         }
 
         /// <summary>
@@ -195,7 +180,7 @@
             using(var bitmap = ImageData.ToBitmap())
             {
                 return bitmap.ToBase64String();
-            }            
+            };
         }
 
         /// <summary>
@@ -211,6 +196,65 @@
         }
 
         /// <summary>
+        /// Resize logo using the specific dimensions. To adjustt a single dimension, set 
+        /// maintainAspectRatio to true and the first non-zero parameter.
+        /// </summary>
+        /// <example>
+        /// myLogo.Resize(100, 0, true);  // Scale to 100 pixels wide and maintain ratio
+        /// myLogo.Resize(0, 400, true);  // Scale to 400 pixel tall and maintain ratio
+        /// myLogo.Resize(100, 200, true);// Scale to 100 pixels wide because maintainAspectRatio is true and width is 1st
+        /// myLogo.Resize(640, 480);      // Scale to 640x480 and don't worry about ratio
+        /// </example>
+        /// <param name="pixelWidth">Desired width in pixels, non-zero if maintainAspectRatio is false</param>
+        /// <param name="pixelHeight">Desired height in pixels, non-zero if maintainAspectRatio is false</param>
+        /// <param name="maintainAspectRatio">Keep current ratio</param>
+        /// <exception cref="ImagingException">Raised if invalid dimensions are specified</exception>
+        public void Resize(int pixelWidth, int pixelHeight, bool maintainAspectRatio=false)
+        {
+
+            if (maintainAspectRatio)
+            {
+                if (pixelWidth > 0)
+                {
+                    // Get required height scalar
+                    var scalar = (float)((float)Width / (float)pixelWidth);
+                    Width = pixelWidth;
+                    Height = (int)(Height * scalar);
+                } 
+                else if (pixelHeight > 0)
+                {
+                    // Get required width scalar
+                    var scalar = (float)((float)Height / (float)pixelHeight);
+                    Height = pixelHeight;
+                    Width = (int)(Width * scalar);
+                }
+                else
+                {
+                    throw new ImagingException("Width or Height must be non-zero");
+                }
+            }
+            else
+            {
+                if(pixelWidth == 0 || pixelHeight == 0)
+                {
+                    throw new ImagingException("Width and Height must be non-zero");
+                }
+
+                Width = pixelWidth;
+                Height = pixelHeight;
+            }
+
+            // Ensure we have byte alignment
+            Width = Width.RoundUp(8);
+            Height = Height.RoundUp(8);
+
+            using (var bitmap = new Bitmap(ImageData.ToBitmap(), new Size(Width, Height)))
+            {
+                SetImageData(bitmap);
+            }
+        }
+
+        /// <summary>
         /// Opens image located at sourcepath. Scales image down to MaxWidth if required.
         /// Images smaller than MaxWidth will not be scaled up. Result is stored in ImageData field.
         /// Final result CRC is calculated and assigned to CRC32 field.
@@ -218,84 +262,9 @@
         /// <param name="sourcePath">String path to source image</param>
         private void SetImageData(string sourcePath)
         {
-
             using (Bitmap bitmap = (Bitmap)Image.FromFile(sourcePath))
             {
-                // extract dimensions
-                var actualWidth = bitmap.Width;
-                var actualHeight = bitmap.Height;
-
-
-                // Adjust width if needed
-                if(ForceWidth != 0 && actualWidth != ForceWidth)
-                {
-                    IdealWidth = ForceWidth;
-                }
-                else if (MaxWidth != 0 && MaxWidth < actualWidth)
-                {
-                    IdealWidth = MaxWidth;
-                }
-                else
-                {
-                    IdealWidth = actualWidth;
-                }
-
-
-                // Limit height if needed
-                if (MaxHeight != 0 && MaxHeight < actualHeight)
-                {
-                    IdealHeight = MaxHeight;
-                }
-                else
-                {
-                    IdealHeight = actualHeight;
-                }
-
-                // First, scale width to ideal size
-                if (actualWidth > IdealWidth)
-                {
-                    // Scale down
-                    float factor = (float)IdealWidth / (float)actualWidth;
-                    actualWidth = (int)(factor * actualWidth);
-                    actualHeight = (int)(factor * actualHeight);
-                }
-                else if (actualWidth < IdealWidth)
-                {
-                    // Scale up
-                    float factor = (float)IdealWidth / (float)actualWidth;
-                    actualWidth = (int)(factor * actualWidth);
-                    actualHeight = (int)(factor * actualHeight);
-                }
-                else
-                {
-                    // Width need not be scaled
-                }
-
-
-                // Second scale height -- down only
-                // and don't touch the width, just cut it off
-                if (actualHeight > IdealHeight)
-                {
-                    // Scale down
-                    float factor = (float)IdealHeight / (float)actualHeight;
-                    actualHeight = (int)(factor * actualHeight);
-                }
-
-
-                // Ensure that whatever width we have is byte aligned
-                if (actualWidth % 8 != 0)
-                {
-                    actualWidth = actualWidth.RoundUp(8);
-                }
-
-                // Ensure that our width property matches the final scaled width
-                IdealWidth = actualWidth;
-                IdealHeight = actualHeight;
-
-                using (Bitmap resized = new Bitmap(bitmap, new Size(IdealWidth, IdealHeight)))
-                {
-                    SetImageData(resized);
-                }
+                SetImageData(bitmap);
             }
         }
 
@@ -306,13 +275,10 @@
         /// <param name="sourcePath">String path to source image</param>>
         private void SetImageData(Bitmap bitmap)
         {
-            // Extract dimension info
-            Dimensions = new LogoSize();
-            Dimensions.Height = bitmap.Height;
-            Dimensions.WidthDots = bitmap.Width;
-            Dimensions.WidthBytes = (int)Math.Ceiling((double)Dimensions.WidthDots / 8);
-            Dimensions.SizeInBytes = bitmap.Height * bitmap.Width;
-            Dimensions.SizeInBytesOnFlash = Dimensions.SizeInBytes;
+
+            // extract dimensions
+            Width = bitmap.Width;
+            Height = bitmap.Height;    
 
             using (var memory = new MemoryStream())
             {
