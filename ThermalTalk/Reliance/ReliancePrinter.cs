@@ -256,6 +256,34 @@ namespace ThermalTalk
             internalSend(ASCIIEncoding.ASCII.GetBytes(str));
         }
 
+        public void PrintDocument(IDocument doc)
+        {
+            // Keep track of current settings so we can restore
+            var oldJustification = Justification;
+            var oldWidth = Width;
+            var oldHeight = Height;
+
+            // First apply all effects. The firwmare decides if any there
+            // are any conflicts and there is nothing we can do about that.
+            // Apply the rest of the settings before we send string
+            AddEffect(doc.Effects);
+            SetJustification(doc.Justification);
+            SetScalars(doc.WidthScalar, doc.HeightScalar);
+
+            // Send the actual content
+            internalSend(ASCIIEncoding.ASCII.GetBytes(doc.Content));
+
+            if(doc.AutoNewline)
+            {
+                PrintNewline();
+            }
+
+            // Undo all the settings we just set
+            RemoveEffect(doc.Effects);
+            SetJustification(oldJustification);
+            SetScalars(oldWidth, oldHeight);
+        }
+
         /// <summary>
         /// Encodes the specified string as a center justified 2D barcode. 
         /// This 2D barcode is compliant with the QR Code® specicification and can be read by all 2D barcode readers.

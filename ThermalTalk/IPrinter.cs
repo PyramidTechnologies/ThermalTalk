@@ -92,10 +92,17 @@ namespace ThermalTalk
         void Reinitialize();
 
         /// <summary>
-        /// Print str as ASCII text.
+        /// Print string as ASCII text. Any effects that are currently
+        /// active will be applied to this string.
         /// </summary>
-        /// <param name="str"></param>
+        /// <param name="str">ASCII stirng to print</param>
         void PrintASCIIString(string str);
+
+        /// <summary>
+        /// Prints the specified document
+        /// </summary>
+        /// <param name="doc">Document to print</param>
+        void PrintDocument(IDocument doc);
 
         /// <summary>
         /// Emit one newline character and return print

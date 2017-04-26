@@ -68,6 +68,7 @@
     <Compile Include="Reliance\ReliancePrinter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Common\ReturnCode.cs" />
+    <Compile Include="StandardDocument.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

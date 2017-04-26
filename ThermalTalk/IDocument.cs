@@ -57,11 +57,8 @@ namespace ThermalTalk
         FontHeighScalar HeightScalar { get; set; }
 
         /// <summary>
-        /// Returns a buffer with all content and effect packed up per the 
-        /// ESC/POS protocol. This buffer must contain all effect setup
-        /// commands, the content, and all effect tear down commands.
+        /// Auto-apply a newline after this document
         /// </summary>
-        /// <returns>byte buffer</returns>
-        byte[] ToBuffer();
+        bool AutoNewline { get; set; }
     }
 }
