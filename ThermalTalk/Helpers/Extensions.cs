@@ -9,6 +9,34 @@
     {
 
         /// <summary>
+        /// Split the given array into x number of smaller arrays, each of length len
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="arrayIn"></param>
+        /// <param name="len"></param>
+        /// <returns></returns>
+        public static T[][] Split<T>(this T[] arrayIn, int len)
+        {
+            bool even = arrayIn.Length % len == 0;
+            int totalLength = arrayIn.Length / len;
+            if (!even)
+                totalLength++;
+
+            T[][] newArray = new T[totalLength][];
+            for (int i = 0; i < totalLength; ++i)
+            {
+                int allocLength = len;
+                if (!even && i == totalLength - 1)
+                    allocLength = arrayIn.Length % len;
+
+                newArray[i] = new T[allocLength];
+                Array.Copy(arrayIn, i * len, newArray[i], 0, allocLength);
+            }
+
+            return newArray;
+        }
+
+        /// <summary>
         /// Concatentates all arrays into one
         /// </summary>
         /// <param name="args">1 or more byte arrays</param>

@@ -3,6 +3,7 @@
     using System;
     using System.IO.Ports;
     using System.Runtime.InteropServices;
+    using System.Threading;
 
     /// <summary>
     /// Reliance serial port implementation 
@@ -194,7 +195,12 @@
         {
             try
             {
-                _mPort.Write(data, 0, data.Length);
+                // Split into chunks to avoid overrunning target buffer
+                foreach (var s in data.Split(256))
+                {
+                    _mPort.Write(s, 0, s.Length);
+                    Thread.Sleep(5);
+                }
 
                 return data.Length;
             }

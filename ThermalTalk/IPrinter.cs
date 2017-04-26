@@ -1,6 +1,6 @@
 ﻿namespace ThermalTalk
 {
-    interface IPrinter
+    interface IPrinter : System.IDisposable
     {
         /// <summary>
         /// Gets the serial connection to use with this printer

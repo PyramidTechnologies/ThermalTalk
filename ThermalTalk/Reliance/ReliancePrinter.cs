@@ -411,6 +411,16 @@ namespace ThermalTalk
             return rts;
         }
 
+
+
+        public void Dispose()
+        {
+            if (Connection != null)
+            {
+                Connection.Dispose();
+            }
+        }
+
         #region Private
         private void internalSend(byte[] payload)
         {
