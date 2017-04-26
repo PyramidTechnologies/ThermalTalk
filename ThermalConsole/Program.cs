@@ -26,7 +26,9 @@ namespace ThermalConsole
                 using(var image = ThermalTalk.Imaging.Webcam.GrabPicture())
                 {
                     image.Save(imgpath);
-                    Console.WriteLine("Image #{0} taken at {1}", count, DateTime.Now);
+                    var now = DateTime.Now;
+
+                    Console.WriteLine("Image #{0} taken at {1}", count, now);
 
                     using(var logo = new BasePrintLogo(imgpath, 640, 480))
                     {
@@ -37,7 +39,7 @@ namespace ThermalConsole
 
                         var raw = File.ReadAllBytes(imgescbin);
 
-                        printer.PrintASCIIString(string.Format("Capture #{0}", count++));
+                        printer.PrintASCIIString(string.Format("Capture #{0} at {1}", count++, now));
                         printer.PrintNewline();
 
                         Thread.Sleep(5);
