@@ -86,5 +86,19 @@ namespace ThermalTalk.Phoenix
 
             Reinitialize();
         }
+
+        override protected Dictionary<FontEffects, byte[]> EnableCommands { get; set; }
+
+        override protected Dictionary<FontEffects, byte[]> DisableCommands { get; set; }
+
+        override protected Dictionary<FontJustification, byte[]> JustificationCommands { get; set; }
+
+        override protected byte[] SetScalarCommand { get; set; }
+
+        override protected byte[] InitPrinterCommand { get; set; }
+
+        override protected byte[] FormFeedCommand { get; set; }
+
+        override protected byte[] NewLineCommand { get; set; }
     }
 }

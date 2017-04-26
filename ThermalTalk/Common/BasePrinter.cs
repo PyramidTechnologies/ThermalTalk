@@ -28,13 +28,14 @@ namespace ThermalTalk
 
     public abstract class BasePrinter : IPrinter
     {
-        protected Dictionary<FontEffects, byte[]> EnableCommands = new Dictionary<FontEffects, byte[]>();
-        protected Dictionary<FontEffects, byte[]> DisableCommands = new Dictionary<FontEffects, byte[]>();
-        protected Dictionary<FontJustification, byte[]> JustificationCommands = new Dictionary<FontJustification, byte[]>();
-        protected byte[] SetScalarCommand = new byte[0];
-        protected byte[] InitPrinterCommand = new byte[0];
-        protected byte[] FormFeedCommand = new byte[0];
-        protected byte[] NewLineCommand = new byte[0];
+
+        protected BasePrinter()
+        {
+            SetScalarCommand = new byte[0];
+            InitPrinterCommand = new byte[0];
+            FormFeedCommand = new byte[0];
+            NewLineCommand = new byte[0];
+        }
 
         /// <summary>
         /// Destructor - Close and dispose serial port if needed
@@ -50,7 +51,47 @@ namespace ThermalTalk
         /// <summary>
         /// Gets the serial connection for this device
         /// </summary>
-        protected ISerialConnection Connection { get; set; }
+        protected virtual ISerialConnection Connection { get; set; }
+
+        /// <summary>
+        /// Command to apply scalar. Add extra 0 byte to hold the configuration value
+        /// Leave empty if not supported.       
+        /// </summary>
+        protected virtual byte[] SetScalarCommand { get; set; }
+
+        /// <summary>
+        /// Command sent to initialize printer. 
+        /// Leave empty if not supported.
+        /// </summary>
+        protected virtual byte[] InitPrinterCommand { get; set; }
+
+        /// <summary>
+        /// Command sent to execute a newline and print job
+        /// Leave empty if not supported.
+        /// </summary>
+        protected virtual byte[] FormFeedCommand { get; set; }
+
+        /// <summary>
+        /// Command sent to execute a newline
+        /// Leave empty if not supported.
+        /// </summary>
+        protected virtual byte[] NewLineCommand { get; set; }
+
+
+        /// <summary>
+        /// Map of font effects and the specific byte command to apply them
+        /// </summary>
+        protected abstract Dictionary<FontEffects, byte[]> EnableCommands { get; set; }
+
+        /// <summary>
+        /// Map of font effects and the specific byte command to de-apply them
+        /// </summary>
+        protected abstract Dictionary<FontEffects, byte[]> DisableCommands { get; set; }
+
+        /// <summary>
+        /// Map justifcation commands and the specific byte command to apply them
+        /// </summary>
+        protected abstract Dictionary<FontJustification, byte[]> JustificationCommands { get; set; }
 
         /// <summary>
         /// Gets or sets the read timeout in milliseconds
@@ -82,6 +123,10 @@ namespace ThermalTalk
         /// </summary>
         public FontJustification Justification { get; private set; }
 
+        /// <summary>
+        /// Send the ESC/POS reinitialize command which restores all 
+        /// default options, configurable, etc.
+        /// </summary>
         public void Reinitialize()
         {
             Justification = FontJustification.JustifyLeft;
@@ -91,7 +136,6 @@ namespace ThermalTalk
 
             internalSend(InitPrinterCommand);
         }
-
 
         /// <summary>
         /// Applies the specified scalars
