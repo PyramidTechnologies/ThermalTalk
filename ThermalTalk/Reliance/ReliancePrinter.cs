@@ -30,7 +30,7 @@ namespace ThermalTalk
     /// <summary>
     /// Reliance Printer is the primary handle for accessing the printer API
     /// </summary>
-    public class RelianceSerialPrinter : IPrinter
+    public class ReliancePrinter : IPrinter
     {
 
         const int DefaultReadTimeout = 1000; /// ms
@@ -41,7 +41,7 @@ namespace ThermalTalk
         private readonly static Dictionary<FontEffects, byte[]> EnableCommands;
         private readonly static Dictionary<FontEffects, byte[]> DisableCommands;
 
-        static RelianceSerialPrinter()
+        static ReliancePrinter()
         {
             EnableCommands = new Dictionary<FontEffects, byte[]>()
             {
@@ -74,7 +74,7 @@ namespace ThermalTalk
         /// is provided, the serial connection will be opened immediately.
         /// </summary>
         /// <param name="serialPortName">OS name of serial port</param>        
-        public RelianceSerialPrinter(string serialPortName)
+        public ReliancePrinter(string serialPortName)
         {
             // User wants a serial port
             if (!string.IsNullOrEmpty(serialPortName))
@@ -82,7 +82,7 @@ namespace ThermalTalk
                 PrintSerialReadTimeout = DefaultReadTimeout;
                 PrintSerialBaudRate = DefaultBaudRate;
 
-                Connection = new RelianceSerialConnection(serialPortName, PrintSerialBaudRate);
+                Connection = new RelianceSerialPort(serialPortName, PrintSerialBaudRate);
                 Connection.ReadTimeoutMS = DefaultReadTimeout;              
             }
 
@@ -92,7 +92,7 @@ namespace ThermalTalk
         /// <summary>
         /// Destructor - Close and dispose serial port if needed
         /// </summary>
-        ~RelianceSerialPrinter()
+        ~ReliancePrinter()
         {
             if (Connection != null)
             {

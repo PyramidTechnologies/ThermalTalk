@@ -41,7 +41,7 @@ namespace ThermalConsole
             int count = 1;
             while (true)
             {
-                using (var printer = new RelianceSerialPrinter(commport))
+                using (var printer = new ReliancePrinter(commport))
                 using(var image = ThermalTalk.Imaging.Webcam.GrabPicture())
                 {
              
