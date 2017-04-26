@@ -55,6 +55,8 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\BasePrinter.cs" />
+    <Compile Include="Common\BaseSerialPort.cs" />
     <Compile Include="Common\FontEffects.cs" />
     <Compile Include="Common\FontJustification.cs" />
     <Compile Include="Common\FontScalar.cs" />
@@ -63,6 +65,8 @@
     <Compile Include="IPrinter.cs" />
     <Compile Include="ISerialConnection.cs" />
     <Compile Include="Helpers\RawPrintHelper.cs" />
+    <Compile Include="Phoenix\PhoenixPrinter.cs" />
+    <Compile Include="Phoenix\PhoenixSerialPort.cs" />
     <Compile Include="Reliance\RealTimeStatus.cs" />
     <Compile Include="Reliance\RelianceSerialPort.cs" />
     <Compile Include="Reliance\ReliancePrinter.cs" />

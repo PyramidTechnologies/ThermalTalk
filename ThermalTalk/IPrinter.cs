@@ -26,11 +26,6 @@ namespace ThermalTalk
     interface IPrinter : System.IDisposable
     {
         /// <summary>
-        /// Gets the serial connection to use with this printer
-        /// </summary>
-        ISerialConnection Connection { get; }
-
-        /// <summary>
         /// Gets the active font effects      
         /// </summary>
         FontEffects Effects { get; }

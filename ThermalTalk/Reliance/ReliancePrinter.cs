@@ -21,7 +21,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-
 namespace ThermalTalk
 {
     using System.Collections.Generic;
@@ -30,19 +29,20 @@ namespace ThermalTalk
     /// <summary>
     /// Reliance Printer is the primary handle for accessing the printer API
     /// </summary>
-    public class ReliancePrinter : IPrinter
+    public class ReliancePrinter : BasePrinter
     {
-
         const int DefaultReadTimeout = 1000; /// ms
         const int DefaultBaudRate = 19200;
 
-
-        #region Static
-        private readonly static Dictionary<FontEffects, byte[]> EnableCommands;
-        private readonly static Dictionary<FontEffects, byte[]> DisableCommands;
-
-        static ReliancePrinter()
+        /// <summary>
+        /// Constructs a new instance of ReliancePrinter. This printer
+        /// acts as a handle to all features and functions. If the serial port parameter
+        /// is provided, the serial connection will be opened immediately.
+        /// </summary>
+        /// <param name="serialPortName">OS name of serial port</param>        
+        public ReliancePrinter(string serialPortName)
         {
+
             EnableCommands = new Dictionary<FontEffects, byte[]>()
             {
                 { FontEffects.None, new byte[0]},
@@ -64,18 +64,19 @@ namespace ThermalTalk
                 { FontEffects.Reversed, new byte[] { 0x1B, 0x42, 0x0 }},
                 { FontEffects.UpsideDown, new byte[] { 0x1B, 0x7B, 0x0 }},
             };
-        }
-        #endregion
 
+            JustificationCommands = new Dictionary<FontJustification, byte[]>()
+            {
+                { FontJustification.JustifyLeft, new byte[] { 0x1B, 0x61, 0x00 }},
+                { FontJustification.JustifyCenter, new byte[] { 0x1B, 0x61, 0x01 }},
+                { FontJustification.JustifyRight, new byte[] { 0x1B, 0x61, 0x02 }},
+            };
 
-        /// <summary>
-        /// Constructs a new instance of ReliancePrinter. This printer
-        /// acts as a handle to all features and functions. If the serial port parameter
-        /// is provided, the serial connection will be opened immediately.
-        /// </summary>
-        /// <param name="serialPortName">OS name of serial port</param>        
-        public ReliancePrinter(string serialPortName)
-        {
+            SetScalarCommand = new byte[] { 0x1D, 0x21, 0x00};  // last byte set by tx func
+            FormFeedCommand = new byte[] { 0x0C };
+            NewLineCommand = new byte[] { 0x0A };
+            InitPrinterCommand = new byte[] { 0x1B, 0x40 };
+
             // User wants a serial port
             if (!string.IsNullOrEmpty(serialPortName))
             {            
@@ -87,183 +88,6 @@ namespace ThermalTalk
             }
 
             Reinitialize();
-        }
-
-        /// <summary>
-        /// Destructor - Close and dispose serial port if needed
-        /// </summary>
-        ~ReliancePrinter()
-        {
-            if (Connection != null)
-            {
-                Connection.Dispose();
-            }
-        }
-
-        public ISerialConnection Connection { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the read timeout in milliseconds
-        /// </summary>
-        public int PrintSerialReadTimeout { get; set; }
-
-        /// <summary>
-        /// Gets or sets the serial port baud rate
-        /// </summary>
-        public int PrintSerialBaudRate { get; set; }
-
-        /// <summary>
-        /// Gets or Sets the font's height scalar        
-        /// </summary>
-        public FontHeighScalar Height { get; private set; }
-
-        /// <summary>
-        /// Gets or Sets the font's width scalar
-        /// </summary>
-        public FontWidthScalar Width { get; private set; }
-
-        /// <summary>
-        /// Gets the active font effects      
-        /// </summary>
-        public FontEffects Effects { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the active justification
-        /// </summary>
-        public FontJustification Justification { get; private set; }
-
-        public void Reinitialize()
-        {
-            Justification = FontJustification.JustifyLeft;
-            Width = FontWidthScalar.w1;
-            Height = FontHeighScalar.h1;
-            Effects = FontEffects.None;
-
-            internalSend(new byte[] { 0x1B, 0x40 });
-        }
-
-
-        /// <summary>
-        /// Applies the specified scalars
-        /// </summary>
-        /// <param name="w">Width scalar</param>
-        /// <param name="h">Height scalar</param>
-        public void SetScalars(FontWidthScalar w, FontHeighScalar h)
-        {
-            Width = w;
-            Height = h;
-
-            byte wb = (byte)w;
-            byte hb = (byte)h;
-
-            byte[] cmd = new byte[] { 0x1D, 0x21, 0x00 };
-
-            cmd[2] = (byte)(wb | hb);
-            internalSend(cmd);
-        }
-
-        /// <summary>
-        /// Applies the specified justification
-        /// </summary>
-        /// <param name="justification">Justification to use</param>
-        public void SetJustification(FontJustification justification)
-        {
-            Justification = justification;
-
-            byte[] cmd = null;
-            switch(justification)
-            {
-                case FontJustification.JustifyLeft:
-                    cmd = new byte[] { 0x1B, 0x61, 0x0 };
-                    break;
-                case FontJustification.JustifyCenter:
-                    cmd = new byte[] { 0x1B, 0x61, 0x1 };
-                    break;
-                case FontJustification.JustifyRight:
-                    cmd = new byte[] { 0x1B, 0x61, 0x2 };
-                    break;
-            }
-
-            if(cmd != null)
-            {
-                internalSend(cmd);
-            }
-        }
-
-        public void AddEffect(FontEffects effect)
-        {
-            foreach (var flag in effect.GetFlags())
-            {
-                // Lookup enable command and send if non-empty
-                var cmd = EnableCommands[flag];
-                if(cmd.Length > 0)
-                {
-                    internalSend(cmd);
-                }
-            }
-
-            Effects |= effect;
-        }
-
-        public void RemoveEffect(FontEffects effect)
-        {
-            foreach (var flag in effect.GetFlags())
-            {
-                // Lookup enable command and send if non-empty
-                var cmd = DisableCommands[flag];
-                if (cmd.Length > 0)
-                {
-                    internalSend(cmd);
-                }
-            }
-            Effects &= ~effect;
-        }
-
-
-
-        public void ClearAllEffects()
-        {
-            foreach (var cmd in DisableCommands.Values)
-            {
-                if (cmd.Length > 0)
-                {
-                    internalSend(cmd);
-                }
-            }
-            Effects = FontEffects.None;
-        }
-
-        public void PrintASCIIString(string str)
-        {
-            internalSend(ASCIIEncoding.ASCII.GetBytes(str));
-        }
-
-        public void PrintDocument(IDocument doc)
-        {
-            // Keep track of current settings so we can restore
-            var oldJustification = Justification;
-            var oldWidth = Width;
-            var oldHeight = Height;
-
-            // First apply all effects. The firwmare decides if any there
-            // are any conflicts and there is nothing we can do about that.
-            // Apply the rest of the settings before we send string
-            AddEffect(doc.Effects);
-            SetJustification(doc.Justification);
-            SetScalars(doc.WidthScalar, doc.HeightScalar);
-
-            // Send the actual content
-            internalSend(ASCIIEncoding.ASCII.GetBytes(doc.Content));
-
-            if(doc.AutoNewline)
-            {
-                PrintNewline();
-            }
-
-            // Undo all the settings we just set
-            RemoveEffect(doc.Effects);
-            SetJustification(oldJustification);
-            SetScalars(oldWidth, oldHeight);
         }
 
         /// <summary>
@@ -281,21 +105,6 @@ namespace ThermalTalk
 
             var fullCmd = Extensions.Concat(setup, ASCIIEncoding.ASCII.GetBytes(encodeThis), new byte[] { 0x0A });
 
-        }
-
-        public void PrintNewline()
-        {
-            internalSend(new byte[] { 0x0A });
-        }
-
-        public void FormFeed()
-        {
-            internalSend(new byte[] { 0x0C });
-        }
-
-        public void SendRaw(byte[] raw)
-        {
-            internalSend(raw);
         }
 
         /// <summary>
@@ -420,32 +229,5 @@ namespace ThermalTalk
 
             return rts;
         }
-
-
-
-        public void Dispose()
-        {
-            if (Connection != null)
-            {
-                Connection.Dispose();
-            }
-        }
-
-        #region Private
-        private void internalSend(byte[] payload)
-        {
-            try
-            {
-                Connection.Open();
-
-                Connection.Write(payload);
-            }
-            catch { }
-            finally
-            {
-                Connection.Close();
-            }
-        }
-        #endregion
     }
 }
