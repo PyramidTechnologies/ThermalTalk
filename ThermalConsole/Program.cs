@@ -34,7 +34,9 @@ namespace ThermalConsole
     {
         static void Main(string[] args)
         {
-            const string commport = "COM4";            
+            const string phoenixPort = "COM1";
+            const string reliancePort = "COM4";            
+
             const int captureRate = 10; // number of seconds between capture
             
             Console.WriteLine("Starting Security Camera Sample");
@@ -75,7 +77,10 @@ namespace ThermalConsole
             int count = 1;
             while (true)
             {
-                using (var printer = new ReliancePrinter(commport))
+
+                // Select one printer or the other. You can even use both, just rename them :)
+                using (var printer = new PhoenixPrinter(phoenixPort))
+                //using (var printer = new ReliancePrinter(reliancePort))
                 using(var image = Webcam.GrabPicture())
                 {
              
@@ -93,18 +98,19 @@ namespace ThermalConsole
                     // Printer the timestamp document
                     timestamp.Content = string.Format("{1}", count++, now);
 
-                    document.Sections[1] = new ImageSection()
-                        {
-                            Image = image,
-                        };
+                    //// Re-assign this image to the middle part of the document
+                    //document.Sections[1] = new ImageSection()
+                    //{
+                    //    Image = image,
+                    //};
 
                     // Send the whole document + image
-                    printer.PrintDocument(document);                        
+                    printer.PrintDocument(document);
                     printer.FormFeed();
 
                     // Wait for next capture period
                     Thread.Sleep(captureRate * 1000);
-                }                      
+                }
             }
         }
     }
