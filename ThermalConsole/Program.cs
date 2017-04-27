@@ -17,7 +17,7 @@ namespace ThermalConsole
 
 
             // Setup the header with double width, double height, center justified
-            var header = new StandardDocument()
+            var header = new StandardSection()
             {
                 Justification = FontJustification.JustifyCenter,
                 HeightScalar = FontHeighScalar.h2,
@@ -28,7 +28,7 @@ namespace ThermalConsole
 
 
             // Setup timestamp at normal scalar with bold, underline, and centered
-            var timestamp = new StandardDocument()
+            var timestamp = new StandardSection()
             {
                 Justification = FontJustification.JustifyCenter,
                 HeightScalar = FontHeighScalar.h1,
@@ -37,12 +37,16 @@ namespace ThermalConsole
                 AutoNewline = true,
             };
 
+            var document = new StandardDocument();
+            document.Sections.Add(header);
+            document.Sections.Add(new ImageSection());  // Placehold since we know we'll want an image here
+            document.Sections.Add(timestamp);
 
             int count = 1;
             while (true)
             {
                 using (var printer = new ReliancePrinter(commport))
-                using(var image = ThermalTalk.Imaging.Webcam.GrabPicture())
+                using(var image = Webcam.GrabPicture())
                 {
              
                     var now = DateTime.Now;
@@ -55,14 +59,17 @@ namespace ThermalConsole
 
                     // Print the header document, update with new capture number
                     header.Content = string.Format("Capture #{0}", count);
-                    printer.PrintDocument(header);
 
                     // Printer the timestamp document
                     timestamp.Content = string.Format("{1}", count++, now);
-                    printer.PrintDocument(timestamp);
 
-                    // Send the whole image. This will take sometime    
-                    printer.SendRaw(image.GetAsEscBuffer());                        
+                    document.Sections[1] = new ImageSection()
+                        {
+                            Image = image,
+                        };
+
+                    // Send the whole document + image
+                    printer.PrintDocument(document);                        
                     printer.FormFeed();
 
                     // Wait for next capture period
