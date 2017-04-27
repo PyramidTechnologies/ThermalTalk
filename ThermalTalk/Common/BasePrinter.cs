@@ -34,6 +34,7 @@ namespace ThermalTalk
 
         protected BasePrinter()
         {
+            Justification = FontJustification.JustifyLeft;
             SetScalarCommand = new byte[0];
             InitPrinterCommand = new byte[0];
             FormFeedCommand = new byte[0];
