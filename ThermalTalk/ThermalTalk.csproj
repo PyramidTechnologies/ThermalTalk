@@ -22,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -62,6 +63,9 @@
     <Compile Include="Common\FontScalar.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="IDocument.cs" />
+    <Compile Include="Templates\StandardDocument.cs" />
+    <Compile Include="Templates\ImageSection.cs" />
+    <Compile Include="ISection.cs" />
     <Compile Include="IPrinter.cs" />
     <Compile Include="ISerialConnection.cs" />
     <Compile Include="Helpers\RawPrintHelper.cs" />
@@ -72,9 +76,14 @@
     <Compile Include="Reliance\ReliancePrinter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Common\ReturnCode.cs" />
-    <Compile Include="StandardDocument.cs" />
+    <Compile Include="Templates\StandardSection.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\ThermalTalk.Imaging\ThermalTalk.Imaging.csproj">
+      <Project>{5440263f-5089-4050-9689-b2060192707e}</Project>
+      <Name>ThermalTalk.Imaging</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

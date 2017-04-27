@@ -164,10 +164,13 @@ namespace ThermalTalk
         {
             Justification = justification;
 
-            byte[] cmd = JustificationCommands[justification];
-            if(cmd != null)
+            if (JustificationCommands.ContainsKey(justification))
             {
-                internalSend(cmd);
+                byte[] cmd = JustificationCommands[justification];
+                if (cmd != null)
+                {
+                    internalSend(cmd);
+                }
             }
         }
 
@@ -176,10 +179,13 @@ namespace ThermalTalk
             foreach (var flag in effect.GetFlags())
             {
                 // Lookup enable command and send if non-empty
-                var cmd = EnableCommands[flag];
-                if(cmd.Length > 0)
+                if (EnableCommands.ContainsKey(flag))
                 {
-                    internalSend(cmd);
+                    var cmd = EnableCommands[flag];
+                    if (cmd.Length > 0)
+                    {
+                        internalSend(cmd);
+                    }
                 }
             }
 
@@ -191,10 +197,13 @@ namespace ThermalTalk
             foreach (var flag in effect.GetFlags())
             {
                 // Lookup enable command and send if non-empty
-                var cmd = DisableCommands[flag];
-                if (cmd.Length > 0)
+                if (DisableCommands.ContainsKey(flag))
                 {
-                    internalSend(cmd);
+                    var cmd = DisableCommands[flag];
+                    if (cmd.Length > 0)
+                    {
+                        internalSend(cmd);
+                    }
                 }
             }
             Effects &= ~effect;
@@ -226,23 +235,28 @@ namespace ThermalTalk
             var oldWidth = Width;
             var oldHeight = Height;
 
-            // First apply all effects. The firwmare decides if any there
-            // are any conflicts and there is nothing we can do about that.
-            // Apply the rest of the settings before we send string
-            AddEffect(doc.Effects);
-            SetJustification(doc.Justification);
-            SetScalars(doc.WidthScalar, doc.HeightScalar);
-
-            // Send the actual content
-            internalSend(ASCIIEncoding.ASCII.GetBytes(doc.Content));
-
-            if(doc.AutoNewline)
+            foreach (var sec in doc.Sections)
             {
-                PrintNewline();
+
+                // First apply all effects. The firwmare decides if any there
+                // are any conflicts and there is nothing we can do about that.
+                // Apply the rest of the settings before we send string
+                AddEffect(sec.Effects);
+                SetJustification(sec.Justification);
+                SetScalars(sec.WidthScalar, sec.HeightScalar);
+
+                // Send the actual content
+                internalSend(sec.GetContentBuffer());
+
+                if (sec.AutoNewline)
+                {
+                    PrintNewline();
+                }
+
+                // Undo all the settings we just set
+                RemoveEffect(sec.Effects);
             }
 
-            // Undo all the settings we just set
-            RemoveEffect(doc.Effects);
             SetJustification(oldJustification);
             SetScalars(oldWidth, oldHeight);
         }
@@ -274,6 +288,12 @@ namespace ThermalTalk
         #region Private
         protected void internalSend(byte[] payload)
         {
+            // Do not send empty packets
+            if(payload.Length == 0)
+            {
+                return;
+            }
+
             try
             {
                 Connection.Open();

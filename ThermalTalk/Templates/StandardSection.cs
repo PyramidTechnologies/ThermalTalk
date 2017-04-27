@@ -26,18 +26,23 @@ namespace ThermalTalk
     /// <summary>
     /// Standard document implementation
     /// </summary>
-    public class StandardDocument : IDocument
+    public class StandardSection : ISection
     {
-        public string Content { get; set; }
+        public virtual string Content { get; set; }
 
-        public FontEffects Effects { get; set; }
+        public virtual FontEffects Effects { get; set; }
 
-        public FontJustification Justification { get; set; }
+        public virtual FontJustification Justification { get; set; }
 
-        public FontWidthScalar WidthScalar { get; set; }
+        public virtual FontWidthScalar WidthScalar { get; set; }
 
-        public FontHeighScalar HeightScalar { get; set; }
+        public virtual FontHeighScalar HeightScalar { get; set; }
 
-        public bool AutoNewline { get; set; }
+        public virtual bool AutoNewline { get; set; }
+
+        public virtual byte[] GetContentBuffer()
+        {
+            return System.Text.ASCIIEncoding.ASCII.GetBytes(Content);
+        }
     }
 }
