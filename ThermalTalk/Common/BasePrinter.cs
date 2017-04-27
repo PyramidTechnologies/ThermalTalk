@@ -145,8 +145,16 @@ namespace ThermalTalk
         /// <param name="h">Height scalar</param>
         public virtual void SetScalars(FontWidthScalar w, FontHeighScalar h)
         {
-            Width = w;
-            Height = h;
+            // If both scalars are set to "keep current" then do nothing
+            if(w == FontWidthScalar.w0 && h == FontHeighScalar.h0)
+            {
+                return;
+            }
+
+            // Do not alter the scalars if param is set to x0 which means
+            // "keep the current scalar"
+            Width = w == FontWidthScalar.w0 ? Width : w;
+            Height = h == FontHeighScalar.h0 ? Height : h;
 
             byte wb = (byte)w;
             byte hb = (byte)h;
@@ -163,6 +171,12 @@ namespace ThermalTalk
         /// <param name="justification">Justification to use</param>
         public virtual void SetJustification(FontJustification justification)
         {
+            // If "keep current" justification is set, do nothing
+            if(justification == FontJustification.JustifyNone)
+            {
+                return;
+            }
+
             Justification = justification;
 
             if (JustificationCommands.ContainsKey(justification))
@@ -252,10 +266,11 @@ namespace ThermalTalk
                     PrintNewline();
                 }
 
-                // Undo all the settings we just set
+                // Remove effects for this section
                 RemoveEffect(sec.Effects);
             }
 
+            // Undo all the settings we just set
             SetJustification(oldJustification);
             SetScalars(oldWidth, oldHeight);
         }

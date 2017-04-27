@@ -27,6 +27,9 @@ namespace ThermalTalk
 {
     public enum FontWidthScalar
     {
+        /// <summary>
+        /// Keeps current width scalar
+        /// </summary>
         w0 = 0xFF,
         w1 = 0,
         w2 = 16,
@@ -39,7 +42,10 @@ namespace ThermalTalk
     }
 
     public enum FontHeighScalar
-    {
+    {        
+        /// <summary>
+        /// Keeps current height scalar
+        /// </summary>
         h0 = 0xFF,
         h1 = 0,
         h2 = 1,

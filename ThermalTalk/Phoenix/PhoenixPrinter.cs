@@ -66,6 +66,7 @@ namespace ThermalTalk.Phoenix
 
             JustificationCommands = new Dictionary<FontJustification, byte[]>()
             {
+                { FontJustification.JustifyLeft, new byte[0]},
                 { FontJustification.JustifyLeft, new byte[] { 0x1B, 0x61, 0x00 }},
                 { FontJustification.JustifyCenter, new byte[] { 0x1B, 0x61, 0x01 }},
                 { FontJustification.JustifyRight, new byte[] { 0x1B, 0x61, 0x02 }},
