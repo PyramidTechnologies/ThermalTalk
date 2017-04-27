@@ -253,7 +253,7 @@ namespace ThermalTalk.Imaging
         /// </summary>
         /// <param name="bitmapImage">Bitmap</param>
         /// <returns>MSB ordered, bit-reversed Buffer</returns>
-        public static byte[] ToLogoBuffer(this Bitmap bitmapImage)
+        public static byte[] Rasterize(this Bitmap bitmapImage)
         {
             // Define an area in which the bitmap bits will be locked in managed memory
             var rect = new Rectangle(0, 0, bitmapImage.Width, bitmapImage.Height);
@@ -316,5 +316,76 @@ namespace ThermalTalk.Imaging
 
             return outBuffer;
         }    
+
+
+                
+        /// <summary>
+        /// Return this bitmap in columar form
+        /// </summary>
+        /// <param name="bitmapImage">Bitmap</param>
+        /// <returns>MSB ordered, bit-reversed Buffer</returns>
+        public static byte[] Columnize(this Bitmap bitmapImage)
+        {
+            // Define an area in which the bitmap bits will be locked in managed memory
+            var rect = new Rectangle(0, 0, bitmapImage.Width, bitmapImage.Height);
+            var bmpReadOnly = bitmapImage.LockBits(
+                rect,
+                ImageLockMode.ReadOnly,
+                PixelFormat.Format32bppPArgb);
+
+
+            var bmpLen = bmpReadOnly.Stride * bmpReadOnly.Height;
+            var bmpChannels = new byte[bmpLen];
+            Marshal.Copy(bmpReadOnly.Scan0, bmpChannels, 0, bmpLen);
+            bitmapImage.UnlockBits(bmpReadOnly);
+
+
+            // Split into bitmap into N number of rows where each row is
+            // as wide as the input bitmap's pixel count.
+            var rowWidth = bmpReadOnly.Width;
+            var pixels = bmpChannels.Split(bmpReadOnly.Stride);
+            var byteWidth = (int)Math.Ceiling((double)rowWidth / 8);
+            var tmpBuff = new List<Pixel>();
+
+            // Result buffer - Use array because we use | operator in byte reversal
+            var outBuffer = new byte[byteWidth * bmpReadOnly.Height];
+            var outIndex = 0;
+
+            // Read 1 row (aka stride) or 4-byte pixels at a time
+            foreach (var row in pixels)
+            {
+                // Read 1st of every 4 bytes from source[colorIndex] in order into temp buffer
+                foreach (var pix in row.Split(4))
+                {
+                    tmpBuff.Add(new Pixel(pix));
+                }
+
+                // Reverse the pixel byte, 0b10000010 -> 0x01000001
+                for (var set = 0; set < byteWidth; set++)
+                {
+                    // Max bit tells us what bit to start shifting from
+                    var maxBit = Math.Min(7, rowWidth - (set * 8) - 1);
+
+                    // Read up to 8 bytes at a time in LSB->MSB so they are transmitted MSB->LSB to printer
+                    // set offset groups into bytes
+                    for (int b = maxBit, bb = 0; b >= 0; b--, bb++)
+                    {
+                        // Read rows right to left
+                        var px = tmpBuff[b + (set * 8)];
+
+                        // Firmware black == 1, White == 0
+                        outBuffer[outIndex] |= (byte)((px.IsNotWhite() ? 1 : 0) << bb);
+                    }
+
+                    // Increments after every byte
+                    outIndex++;
+                }
+
+                tmpBuff.Clear();
+            }
+
+
+            return outBuffer;
+        }        
     }
 }

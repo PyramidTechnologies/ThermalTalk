@@ -83,6 +83,8 @@ namespace ThermalConsole
                 //using (var printer = new ReliancePrinter(reliancePort))
                 using(var image = Webcam.GrabPicture())
                 {
+
+                    image.Resize(20, 0, true);
              
                     var now = DateTime.Now;
                     Console.WriteLine("Image #{0} taken at {1}", count, now);
@@ -98,11 +100,11 @@ namespace ThermalConsole
                     // Printer the timestamp document
                     timestamp.Content = string.Format("{1}", count++, now);
 
-                    //// Re-assign this image to the middle part of the document
-                    //document.Sections[1] = new ImageSection()
-                    //{
-                    //    Image = image,
-                    //};
+                    // Re-assign this image to the middle part of the document
+                    document.Sections[1] = new ImageSection()
+                    {
+                        Image = image,
+                    };
 
                     // Send the whole document + image
                     printer.PrintDocument(document);

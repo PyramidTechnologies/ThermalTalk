@@ -135,32 +135,32 @@ namespace ThermalTalk.Imaging.Test
         {
             var inbmp = Properties.Resources.gray_bitmap;
             var expectedBuff = Extensions.Repeated<byte>(255, (inbmp.Height * inbmp.Width) >> 3).ToArray();
-            var actualBuff = inbmp.ToLogoBuffer();
+            var actualBuff = inbmp.Rasterize();
             Assert.AreEqual(expectedBuff, actualBuff);
 
             inbmp = Properties.Resources.white_bitmap;
             expectedBuff = Extensions.Repeated<byte>(0, (inbmp.Height * inbmp.Width) >> 3).ToArray();
-            actualBuff = inbmp.ToLogoBuffer();
+            actualBuff = inbmp.Rasterize();
             Assert.AreEqual(expectedBuff, actualBuff);
 
             inbmp = Properties.Resources.black_bitmap;
             expectedBuff = Extensions.Repeated<byte>(255, (inbmp.Height * inbmp.Width) >> 3).ToArray();
-            actualBuff = inbmp.ToLogoBuffer();
+            actualBuff = inbmp.Rasterize();
             Assert.AreEqual(expectedBuff, actualBuff);
 
             inbmp = Properties.Resources.red_bitmap;
             expectedBuff = Extensions.Repeated<byte>(255, (inbmp.Height * inbmp.Width) >> 3).ToArray();
-            actualBuff = inbmp.ToLogoBuffer();
+            actualBuff = inbmp.Rasterize();
             Assert.AreEqual(expectedBuff, actualBuff);
 
             inbmp = Properties.Resources.green_bitmap;
             expectedBuff = Extensions.Repeated<byte>(255, (inbmp.Height * inbmp.Width) >> 3).ToArray();
-            actualBuff = inbmp.ToLogoBuffer();
+            actualBuff = inbmp.Rasterize();
             Assert.AreEqual(expectedBuff, actualBuff);
 
             inbmp = Properties.Resources.blue_bitmap;
             expectedBuff = Extensions.Repeated<byte>(255, (inbmp.Height * inbmp.Width) >> 3).ToArray();
-            actualBuff = inbmp.ToLogoBuffer();
+            actualBuff = inbmp.Rasterize();
             Assert.AreEqual(expectedBuff, actualBuff);
         }
 

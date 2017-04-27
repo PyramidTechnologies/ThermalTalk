@@ -57,7 +57,7 @@ namespace ThermalTalk
 
         public override byte[] GetContentBuffer()
         {
-            return Image.GetAsEscBuffer();
+            return Image.GetAsRaster();
         }
     }
 }

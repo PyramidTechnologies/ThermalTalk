@@ -107,7 +107,7 @@ namespace ThermalTalk.Imaging
             SetImageData(dithered);
     
             // For Phoenix we don't care about size of logo in flash. Everything is static.
-            Size = dithered.ToLogoBuffer().Length;
+            Size = dithered.Rasterize().Length;
         }
 
         /// <summary>
@@ -140,10 +140,34 @@ namespace ThermalTalk.Imaging
         public void ExportLogoBin(string outpath)
         {
             // Append the bitmap data as a packed dot logo
-            var bmpData = ImageData.ToBitmap().ToLogoBuffer();
+            var bmpData = ImageData.ToBitmap().Rasterize();
 
             // Write to file
             File.WriteAllBytes(outpath, bmpData);
+        }
+
+        /// <summary>
+        /// Package this bitmap as an ESC/POS column image which is the 
+        /// 1D 2A command
+        /// </summary>
+        /// <returns>Byte buffer</returns>
+        public byte[] GetAsColumnar()
+        {
+            // Build up the ESC/POS 1D 76 30 command
+            var buffer = new List<byte>();
+            buffer.Add(0x1D);
+            buffer.Add(0x2A);
+
+            // Pack up these dimensions
+            // Normal width and height for now
+            buffer.Add((byte)(Width/8));
+            buffer.Add((byte)(Height/8));
+
+            // Append the bitmap data as a packed dot logo
+            var bmpData = ImageData.ToBitmap().Columnize();
+            buffer.AddRange(bmpData);
+
+            return buffer.ToArray();
         }
 
 
@@ -152,7 +176,7 @@ namespace ThermalTalk.Imaging
         /// 1D 76 command.
         /// </summary>
         /// <returns>Byte buffer</returns>
-        public byte[] GetAsEscBuffer()
+        public byte[] GetAsRaster()
         {
             // Build up the ESC/POS 1D 76 30 command
             var buffer = new List<byte>();
@@ -183,7 +207,7 @@ namespace ThermalTalk.Imaging
             buffer.Add(yH);
 
             // Append the bitmap data as a packed dot logo
-            var bmpData = ImageData.ToBitmap().ToLogoBuffer();
+            var bmpData = ImageData.ToBitmap().Rasterize();
             buffer.AddRange(bmpData);
 
             return buffer.ToArray();
@@ -196,7 +220,7 @@ namespace ThermalTalk.Imaging
         /// <param name="outpath"></param>
         public void ExportLogoEscPos(string outpath)
         {
-            var buffer = GetAsEscBuffer();
+            var buffer = GetAsRaster();
 
             File.WriteAllBytes(outpath, buffer);
         }
