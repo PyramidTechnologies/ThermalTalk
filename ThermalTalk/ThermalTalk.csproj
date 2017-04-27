@@ -63,6 +63,7 @@
     <Compile Include="Common\FontScalar.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="IDocument.cs" />
+    <Compile Include="Templates\Placeholder.cs" />
     <Compile Include="Templates\StandardDocument.cs" />
     <Compile Include="Templates\ImageSection.cs" />
     <Compile Include="ISection.cs" />

@@ -37,9 +37,15 @@ namespace ThermalConsole
                 AutoNewline = true,
             };
 
+            // Document template
+            // Capture #{}
+            // Image....
+            // Image....
+            // Image...
+            // Timestamp
             var document = new StandardDocument();
             document.Sections.Add(header);
-            document.Sections.Add(new ImageSection());  // Placehold since we know we'll want an image here
+            document.Sections.Add(new Placeholder());  // Placeholder since we know we'll want an image here
             document.Sections.Add(timestamp);
 
             int count = 1;
