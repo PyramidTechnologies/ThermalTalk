@@ -26,7 +26,7 @@ using NUnit.Framework;
 namespace ThermalTalk.Test
 {
     [TestFixture()]
-    public class ReliancePrinterTests
+    public class FontEffectsTests
     {
         private const string TEST_PORT = "COM1";
 
