@@ -26,6 +26,8 @@ SOFTWARE.
 namespace ThermalTalk.Imaging
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     static class Extensions
     {
@@ -87,7 +89,19 @@ namespace ThermalTalk.Imaging
             return (uint)RoundUp(i, (uint)N);
         }
 
-
+        /// <summary>
+        /// Returns a list of type T with value repeat count times
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        internal static List<T> Repeated<T>(T value, int count)
+        {
+            List<T> ret = new List<T>(count);
+            ret.AddRange(Enumerable.Repeat(value, count));
+            return ret;
+        }
 
         /// <summary>
         /// Rounds this integer to the nearest positive multiple of N
