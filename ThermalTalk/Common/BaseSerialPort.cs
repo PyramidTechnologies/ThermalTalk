@@ -1,4 +1,5 @@
-﻿/*
+﻿#region Copyright & License
+/*
 MIT License
 
 Copyright (c) 2017 Pyramid Technologies
@@ -21,6 +22,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+#endregion
 namespace ThermalTalk
 {
     using System;
@@ -36,11 +38,11 @@ namespace ThermalTalk
         #endregion
 
         #region Constructor
-        protected BaseSerialPort(string portName, 
-            int baud, 
-            int databits, 
-            Parity parity, 
-            StopBits stopbits, 
+        protected BaseSerialPort(string portName,
+            int baud,
+            int databits,
+            Parity parity,
+            StopBits stopbits,
             Handshake handshake)
         {
             Name = portName;
@@ -101,12 +103,12 @@ namespace ThermalTalk
             {
                 _mPort.Open();
                 return ReturnCode.Success;
-            } 
-            catch(System.IO.IOException)
+            }
+            catch (System.IO.IOException)
             {
                 return ReturnCode.ConnectionNotFound;
             }
-            catch(System.AccessViolationException)
+            catch (System.AccessViolationException)
             {
                 return ReturnCode.ConnectionAlreadyOpen;
             }
@@ -142,7 +144,7 @@ namespace ThermalTalk
         {
             Dispose(true);
             GC.SuppressFinalize(this);
-        }    
+        }
 
         protected virtual void Dispose(bool disposing)
         {
@@ -176,8 +178,8 @@ namespace ThermalTalk
                 return data.Length;
             }
             catch
-            { 
-                return 0; 
+            {
+                return 0;
             }
         }
 
