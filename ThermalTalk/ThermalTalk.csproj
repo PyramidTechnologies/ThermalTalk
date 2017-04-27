@@ -62,6 +62,7 @@
     <Compile Include="Common\FontJustification.cs" />
     <Compile Include="Common\FontScalar.cs" />
     <Compile Include="Helpers\Extensions.cs" />
+    <Compile Include="Helpers\NativeMethods.cs" />
     <Compile Include="IDocument.cs" />
     <Compile Include="Templates\Placeholder.cs" />
     <Compile Include="Templates\StandardDocument.cs" />

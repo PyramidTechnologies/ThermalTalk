@@ -86,25 +86,7 @@ namespace ThermalTalk
                 Connection = new RelianceSerialPort(serialPortName, PrintSerialBaudRate);
                 Connection.ReadTimeoutMS = DefaultReadTimeout;              
             }
-
-            Reinitialize();
         }
-
-        override protected ISerialConnection Connection { get; set; }
-
-        override protected Dictionary<FontEffects, byte[]> EnableCommands { get; set; }
-
-        override protected Dictionary<FontEffects, byte[]> DisableCommands { get; set; }
-
-        override protected Dictionary<FontJustification, byte[]> JustificationCommands { get; set; }
-
-        override protected byte[] SetScalarCommand { get; set; }
-
-        override protected byte[] InitPrinterCommand { get; set; }
-
-        override protected byte[] FormFeedCommand { get; set; }
-
-        override protected byte[] NewLineCommand { get; set; }
 
         /// <summary>
         /// Encodes the specified string as a center justified 2D barcode. 

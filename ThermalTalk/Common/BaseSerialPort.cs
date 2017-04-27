@@ -23,6 +23,7 @@ SOFTWARE.
  */
 namespace ThermalTalk
 {
+    using System;
     using System.IO.Ports;
     using System.Threading;
 
@@ -50,6 +51,12 @@ namespace ThermalTalk
             _mPort.WriteTimeout = _mWriteTimeout = 500;
             _mPort.ReadTimeout = _mReadTimeout = 500;
         }
+
+        ~BaseSerialPort()
+        {
+            Dispose(false);
+        }
+
         #endregion
 
         #region Properties
@@ -133,12 +140,21 @@ namespace ThermalTalk
 
         public void Dispose()
         {
-            if(_mPort != null)
-            {
-                Close();
-                _mPort.Dispose();
-            }
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }    
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_mPort != null)
+                {
+                    Close();
+                    _mPort.Dispose();
+                }
+            }
+        }
 
         #region Protected
         /// <summary>

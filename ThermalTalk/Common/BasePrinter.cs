@@ -23,6 +23,7 @@ SOFTWARE.
  */
 namespace ThermalTalk
 {
+    using System;
     using System.Collections.Generic;
     using System.Text;
 
@@ -42,56 +43,53 @@ namespace ThermalTalk
         /// </summary>
         ~BasePrinter()
         {
-            if (Connection != null)
-            {
-                Connection.Dispose();
-            }
+            Dispose(false);
         }
 
         /// <summary>
         /// Gets the serial connection for this device
         /// </summary>
-        protected virtual ISerialConnection Connection { get; set; }
+        protected ISerialConnection Connection { get; set; }
 
         /// <summary>
         /// Command to apply scalar. Add extra 0 byte to hold the configuration value
         /// Leave empty if not supported.       
         /// </summary>
-        protected virtual byte[] SetScalarCommand { get; set; }
+        protected byte[] SetScalarCommand { get; set; }
 
         /// <summary>
         /// Command sent to initialize printer. 
         /// Leave empty if not supported.
         /// </summary>
-        protected virtual byte[] InitPrinterCommand { get; set; }
+        protected byte[] InitPrinterCommand { get; set; }
 
         /// <summary>
         /// Command sent to execute a newline and print job
         /// Leave empty if not supported.
         /// </summary>
-        protected virtual byte[] FormFeedCommand { get; set; }
+        protected byte[] FormFeedCommand { get; set; }
 
         /// <summary>
         /// Command sent to execute a newline
         /// Leave empty if not supported.
         /// </summary>
-        protected virtual byte[] NewLineCommand { get; set; }
+        protected byte[] NewLineCommand { get; set; }
 
 
         /// <summary>
         /// Map of font effects and the specific byte command to apply them
         /// </summary>
-        protected abstract Dictionary<FontEffects, byte[]> EnableCommands { get; set; }
+        protected Dictionary<FontEffects, byte[]> EnableCommands { get; set; }
 
         /// <summary>
         /// Map of font effects and the specific byte command to de-apply them
         /// </summary>
-        protected abstract Dictionary<FontEffects, byte[]> DisableCommands { get; set; }
+        protected Dictionary<FontEffects, byte[]> DisableCommands { get; set; }
 
         /// <summary>
         /// Map justifcation commands and the specific byte command to apply them
         /// </summary>
-        protected abstract Dictionary<FontJustification, byte[]> JustificationCommands { get; set; }
+        protected Dictionary<FontJustification, byte[]> JustificationCommands { get; set; }
 
         /// <summary>
         /// Gets or sets the read timeout in milliseconds
@@ -127,7 +125,7 @@ namespace ThermalTalk
         /// Send the ESC/POS reinitialize command which restores all 
         /// default options, configurable, etc.
         /// </summary>
-        public void Reinitialize()
+        public virtual void Reinitialize()
         {
             Justification = FontJustification.JustifyLeft;
             Width = FontWidthScalar.w1;
@@ -142,7 +140,7 @@ namespace ThermalTalk
         /// </summary>
         /// <param name="w">Width scalar</param>
         /// <param name="h">Height scalar</param>
-        public void SetScalars(FontWidthScalar w, FontHeighScalar h)
+        public virtual void SetScalars(FontWidthScalar w, FontHeighScalar h)
         {
             Width = w;
             Height = h;
@@ -160,7 +158,7 @@ namespace ThermalTalk
         /// Applies the specified justification
         /// </summary>
         /// <param name="justification">Justification to use</param>
-        public void SetJustification(FontJustification justification)
+        public virtual void SetJustification(FontJustification justification)
         {
             Justification = justification;
 
@@ -174,7 +172,7 @@ namespace ThermalTalk
             }
         }
 
-        public void AddEffect(FontEffects effect)
+        public virtual void AddEffect(FontEffects effect)
         {
             foreach (var flag in effect.GetFlags())
             {
@@ -192,7 +190,7 @@ namespace ThermalTalk
             Effects |= effect;
         }
 
-        public void RemoveEffect(FontEffects effect)
+        public virtual void RemoveEffect(FontEffects effect)
         {
             foreach (var flag in effect.GetFlags())
             {
@@ -209,9 +207,7 @@ namespace ThermalTalk
             Effects &= ~effect;
         }
 
-
-
-        public void ClearAllEffects()
+        public virtual void ClearAllEffects()
         {
             foreach (var cmd in DisableCommands.Values)
             {
@@ -223,12 +219,12 @@ namespace ThermalTalk
             Effects = FontEffects.None;
         }
 
-        public void PrintASCIIString(string str)
+        public virtual void PrintASCIIString(string str)
         {
             internalSend(ASCIIEncoding.ASCII.GetBytes(str));
         }
 
-        public void PrintDocument(IDocument doc)
+        public virtual void PrintDocument(IDocument doc)
         {
             // Keep track of current settings so we can restore
             var oldJustification = Justification;
@@ -261,23 +257,29 @@ namespace ThermalTalk
             SetScalars(oldWidth, oldHeight);
         }
 
-        public void PrintNewline()
+        public virtual void PrintNewline()
         {
             internalSend(NewLineCommand);
         }
 
-        public void FormFeed()
+        public virtual void FormFeed()
         {
             internalSend(FormFeedCommand);
         }
 
-        public void SendRaw(byte[] raw)
+        public virtual void SendRaw(byte[] raw)
         {
             internalSend(raw);
         }
 
 
         public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool diposing)
         {
             if (Connection != null)
             {
