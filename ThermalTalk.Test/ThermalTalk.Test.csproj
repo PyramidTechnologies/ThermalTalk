@@ -57,6 +57,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HW_PhoenixPrintTest.cs" />
     <Compile Include="HW_ReliancePrintTest.cs" />
     <Compile Include="PhoenixPrinterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

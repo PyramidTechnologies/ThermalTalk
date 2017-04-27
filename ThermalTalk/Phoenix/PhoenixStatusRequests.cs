@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #endregion
-namespace ThermalTalk.Phoenix
+namespace ThermalTalk
 {
     /// <summary>
     /// All available types of status requests. There is a lot of overlap and redundancy but this

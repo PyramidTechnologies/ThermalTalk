@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #endregion
-namespace ThermalTalk.Phoenix
+namespace ThermalTalk
 {
     using System.Collections.Generic;
 
@@ -66,7 +66,7 @@ namespace ThermalTalk.Phoenix
 
             JustificationCommands = new Dictionary<FontJustification, byte[]>()
             {
-                { FontJustification.JustifyLeft, new byte[0]},
+                { FontJustification.JustifyNone, new byte[0]},
                 { FontJustification.JustifyLeft, new byte[] { 0x1B, 0x61, 0x00 }},
                 { FontJustification.JustifyCenter, new byte[] { 0x1B, 0x61, 0x01 }},
                 { FontJustification.JustifyRight, new byte[] { 0x1B, 0x61, 0x02 }},

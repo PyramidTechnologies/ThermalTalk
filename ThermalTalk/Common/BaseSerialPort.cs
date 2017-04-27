@@ -35,6 +35,12 @@ namespace ThermalTalk
         protected readonly SerialPort _mPort;
         protected int _mReadTimeout;
         protected int _mWriteTimeout;
+        /// <summary>
+        /// Set to size that works for your printer implementation.
+        /// This is to prevent sending too much data at once and
+        /// overruning the target buffer.
+        /// </summary>
+        protected int _mChunkSize;
         #endregion
 
         #region Constructor
@@ -52,6 +58,8 @@ namespace ThermalTalk
             _mPort.Handshake = handshake;
             _mPort.WriteTimeout = _mWriteTimeout = 500;
             _mPort.ReadTimeout = _mReadTimeout = 500;
+
+            _mChunkSize = 512;
         }
 
         ~BaseSerialPort()
@@ -169,7 +177,7 @@ namespace ThermalTalk
             try
             {
                 // Split into chunks to avoid overrunning target buffer
-                foreach (var s in data.Split(256))
+                foreach (var s in data.Split(_mChunkSize))
                 {
                     _mPort.Write(s, 0, s.Length);
                     Thread.Sleep(10);

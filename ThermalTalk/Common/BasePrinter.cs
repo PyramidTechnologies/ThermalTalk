@@ -29,9 +29,9 @@ namespace ThermalTalk
     using System.Collections.Generic;
     using System.Text;
 
+    [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public abstract class BasePrinter : IPrinter
     {
-
         protected BasePrinter()
         {
             Justification = FontJustification.JustifyLeft;
