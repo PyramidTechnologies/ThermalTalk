@@ -66,14 +66,14 @@ namespace ThermalTalk
 
             JustificationCommands = new Dictionary<FontJustification, byte[]>()
             {
-                { FontJustification.JustifyNone, new byte[0]},
+                { FontJustification.NOP, new byte[0]},
                 { FontJustification.JustifyLeft, new byte[] { 0x1B, 0x61, 0x00 }},
                 { FontJustification.JustifyCenter, new byte[] { 0x1B, 0x61, 0x01 }},
                 { FontJustification.JustifyRight, new byte[] { 0x1B, 0x61, 0x02 }},
             };
 
             SetScalarCommand = new byte[] { 0x1D, 0x21, 0x00};  // last byte set by tx func
-            FormFeedCommand = new byte[] { 0x0C };
+            FormFeedCommand = new byte[] { 0x0D, 0x0A };
             NewLineCommand = new byte[] { 0x0A };
             InitPrinterCommand = new byte[] { 0x1B, 0x40 };
 
@@ -85,6 +85,33 @@ namespace ThermalTalk
 
                 Connection = new RelianceSerialPort(serialPortName, PrintSerialBaudRate);
                 Connection.ReadTimeoutMS = DefaultReadTimeout;              
+            }
+        }
+
+        /// <summary>
+        /// Phoenix support normal and double scalars. All other scalar values will
+        /// be ignored.
+        /// </summary>
+        /// <param name="w">New scalar (1x, 2x, nop)</param>
+        /// <param name="h">New scalar (1x, 2x, nop)</param>
+        public override void SetScalars(FontWidthScalar w, FontHeighScalar h)
+        {           
+            var newWidth = Width;
+            if(w == FontWidthScalar.NOP || w == FontWidthScalar.w1 || w == FontWidthScalar.w2)
+            {
+                newWidth = w;
+            }
+
+            var newHeight = Height;
+            if (h == FontHeighScalar.NOP || h == FontHeighScalar.h1 || h == FontHeighScalar.h2)
+            {
+                newHeight = h;
+            }
+
+            // Only apply update if either property has changed
+            if (newWidth != Width || newHeight != Height)
+            {
+                base.SetScalars(newWidth, newHeight);
             }
         }
 
