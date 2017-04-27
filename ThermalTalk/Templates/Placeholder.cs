@@ -34,11 +34,11 @@ namespace ThermalTalk
 
         public FontEffects Effects { get { return FontEffects.None; } set { } }
    
-        public FontJustification Justification { get { return FontJustification.JustifyNone; } set { } }
+        public FontJustification Justification { get { return FontJustification.NOP; } set { } }
    
-        public FontWidthScalar WidthScalar { get { return FontWidthScalar.w0; } set { } }
+        public FontWidthScalar WidthScalar { get { return FontWidthScalar.NOP; } set { } }
 
-        public FontHeighScalar HeightScalar { get { return FontHeighScalar.h0; } set { } }
+        public FontHeighScalar HeightScalar { get { return FontHeighScalar.NOP; } set { } }
 
         public bool AutoNewline { get { return false; } set { } }
 

@@ -30,7 +30,7 @@ namespace ThermalTalk
         /// <summary>
         /// Keeps current width scalar
         /// </summary>
-        w0 = 0xFF,
+        NOP = 0xFF,
         w1 = 0,
         w2 = 16,
         w3 = 32,
@@ -46,7 +46,7 @@ namespace ThermalTalk
         /// <summary>
         /// Keeps current height scalar
         /// </summary>
-        h0 = 0xFF,
+        NOP = 0xFF,
         h1 = 0,
         h2 = 1,
         h3 = 2,

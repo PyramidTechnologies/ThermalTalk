@@ -34,7 +34,7 @@ namespace ThermalTalk
         /// <summary>
         /// Keeps current justification
         /// </summary>
-        JustifyNone = 0,    
+        NOP = 0,    
         JustifyCenter,
         JustifyLeft,
         JustifyRight,

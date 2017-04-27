@@ -146,15 +146,15 @@ namespace ThermalTalk
         public virtual void SetScalars(FontWidthScalar w, FontHeighScalar h)
         {
             // If both scalars are set to "keep current" then do nothing
-            if(w == FontWidthScalar.w0 && h == FontHeighScalar.h0)
+            if(w == FontWidthScalar.NOP && h == FontHeighScalar.NOP)
             {
                 return;
             }
 
             // Do not alter the scalars if param is set to x0 which means
             // "keep the current scalar"
-            Width = w == FontWidthScalar.w0 ? Width : w;
-            Height = h == FontHeighScalar.h0 ? Height : h;
+            Width = w == FontWidthScalar.NOP ? Width : w;
+            Height = h == FontHeighScalar.NOP ? Height : h;
 
             byte wb = (byte)w;
             byte hb = (byte)h;
@@ -172,7 +172,7 @@ namespace ThermalTalk
         public virtual void SetJustification(FontJustification justification)
         {
             // If "keep current" justification is set, do nothing
-            if(justification == FontJustification.JustifyNone)
+            if(justification == FontJustification.NOP)
             {
                 return;
             }
