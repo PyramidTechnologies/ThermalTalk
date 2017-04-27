@@ -58,6 +58,11 @@ namespace ThermalTalk.Imaging
             SetImageData(source);
         }
 
+
+        ~PrinterImage()
+        {
+            Dispose(false);
+        }
         #region Properties
         /// <summary>
         /// Gets the raw image data
@@ -320,7 +325,13 @@ namespace ThermalTalk.Imaging
 
         public void Dispose()
         {
-            if(ImageData != null)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (ImageData != null)
             {
                 ImageData.StreamSource.Close();
             }
