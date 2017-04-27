@@ -29,7 +29,8 @@ namespace ThermalTalk
     /// </summary>
     public enum FontJustification
     {
-        JustifyCenter = 0,
+        JustifyNone = 0,
+        JustifyCenter,
         JustifyLeft,
         JustifyRight,
     }

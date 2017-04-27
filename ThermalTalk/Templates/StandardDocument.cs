@@ -9,6 +9,6 @@
             Sections = new List<ISection>();
         }
 
-        public virtual IList<ISection> Sections { get; set; }
+        public IList<ISection> Sections { get; set; }
     }
 }

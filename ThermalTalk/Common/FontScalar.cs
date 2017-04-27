@@ -25,6 +25,7 @@ namespace ThermalTalk
 {
     public enum FontWidthScalar
     {
+        w0 = 0xFF,
         w1 = 0,
         w2 = 16,
         w3 = 32,
@@ -37,6 +38,7 @@ namespace ThermalTalk
 
     public enum FontHeighScalar
     {
+        h0 = 0xFF,
         h1 = 0,
         h2 = 1,
         h3 = 2,
