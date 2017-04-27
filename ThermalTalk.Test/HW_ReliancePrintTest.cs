@@ -28,7 +28,7 @@ namespace ThermalTalk.Test
     [TestFixture()]
     public class HW_ReliancePrintTest
     {
-        private const string TEST_PORT = "COM1";
+        private const string TEST_PORT = "COM4";
 
         [Test()]
         public void REL_RealHardwareTests()

@@ -64,6 +64,7 @@
     <Compile Include="Common\RealTimeStatus.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\NativeMethods.cs" />
+    <Compile Include="Helpers\SerialPortUtils.cs" />
     <Compile Include="IDocument.cs" />
     <Compile Include="Phoenix\PhoenixStatus.cs" />
     <Compile Include="Phoenix\PhoenixStatusRequests.cs" />

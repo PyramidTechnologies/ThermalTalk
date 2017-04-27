@@ -34,7 +34,7 @@ namespace ThermalConsole
     {
         static void Main(string[] args)
         {
-            const string commport = "COM1";            
+            const string commport = "COM4";            
             const int captureRate = 10; // number of seconds between capture
             
             Console.WriteLine("Starting Security Camera Sample");
