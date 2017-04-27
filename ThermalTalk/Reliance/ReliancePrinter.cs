@@ -52,7 +52,7 @@ namespace ThermalTalk
                 { FontEffects.Italic, new byte[] { 0x1B, 0x34, 0x1 }},
                 { FontEffects.Underline, new byte[] { 0x1B, 0x2D, 0x1 }},
                 { FontEffects.Rotated, new byte[] { 0x1B, 0x56, 0x1 }},
-                { FontEffects.Reversed, new byte[] { 0x1B, 0x42, 0x1 }},
+                { FontEffects.Reversed, new byte[] { 0x1D, 0x42, 0x1 }},
                 { FontEffects.UpsideDown, new byte[] { 0x1B, 0x7B, 0x1 }},
             };
 
@@ -63,7 +63,7 @@ namespace ThermalTalk
                 { FontEffects.Italic, new byte[] { 0x1B, 0x34, 0x0 }},
                 { FontEffects.Underline, new byte[] { 0x1B, 0x2D, 0x0 }},
                 { FontEffects.Rotated, new byte[] { 0x1B, 0x56, 0x0 }},
-                { FontEffects.Reversed, new byte[] { 0x1B, 0x42, 0x0 }},
+                { FontEffects.Reversed, new byte[] { 0x1D, 0x42, 0x0 }},
                 { FontEffects.UpsideDown, new byte[] { 0x1B, 0x7B, 0x0 }},
             };
 
@@ -113,15 +113,15 @@ namespace ThermalTalk
         /// If there is no response or an invalid response, all fields of RealTimeStatus will be null.
         /// </summary>
         /// <param name="r">StatusRequest type</param>
-        /// <returns>Instance of RealTimeStatus,m null on failure, Unset fields will be null</returns>
-        public RealTimeStatus GetStatus(StatusRequests r)
+        /// <returns>Instance of RelianceStatus,m null on failure, Unset fields will be null</returns>
+        public RelianceStatus GetStatus(RelianceStatusRequests r)
         {
             // Result stored here
-            RealTimeStatus rts = null;
+            RelianceStatus rts = null;
 
             // Send the real time status command, r is the argument
             var command = new byte[] { 0x10, 0x04, (byte)r };
-            int respLen = (r == StatusRequests.FullStatus) ? 6 : 1;
+            int respLen = (r == RelianceStatusRequests.FullStatus) ? 6 : 1;
 
             var data = new byte[0];
 
@@ -150,16 +150,16 @@ namespace ThermalTalk
                 return rts;
             }
 
-            rts = new RealTimeStatus();
+            rts = new RelianceStatus();
 
             switch(r)
             {
-                case StatusRequests.Status:
+                case RelianceStatusRequests.Status:
                     // bit 3: 0- online, 1- offline        
                     rts.IsOnline = (data[0] & 0x08) == 0;
                     break;
 
-                case StatusRequests.OffLineStatus:
+                case RelianceStatusRequests.OffLineStatus:
                     // bit 2: 0- no error, 1- error        
                     rts.IsCoverClosed = (data[0] & 0x04) == 0;
 
@@ -174,7 +174,7 @@ namespace ThermalTalk
                  
                     break;
 
-                case StatusRequests.ErrorStatus:
+                case RelianceStatusRequests.ErrorStatus:
                     // bit 3: 0- okay, 1- Not okay    
                     rts.IsCutterOkay = (data[0] & 8) == 0;    
 
@@ -185,7 +185,7 @@ namespace ThermalTalk
                     rts.HasRecoverableError = (data[0] & 0x40) == 1; 
                     break;
 
-                case StatusRequests.PaperRollStatus:
+                case RelianceStatusRequests.PaperRollStatus:
                     /// bit 2,3: 0- okay, 12- Not okay        
                     rts.IsPaperLevelOkay = (data[0] & 0x0C) == 0;
 
@@ -193,7 +193,7 @@ namespace ThermalTalk
                     rts.IsPaperPresent = (data[0] & 0x60) == 0;                    
                     break;
 
-                case StatusRequests.PrintStatus:
+                case RelianceStatusRequests.PrintStatus:
                     /// bit 2: 0- motor off, 1: motor on        
                     rts.IsPaperMotorOff = (data[0] & 4) == 0;
                     // bit 5: 0- paper present, 1: motor stopped because out of paper
@@ -201,7 +201,7 @@ namespace ThermalTalk
                     rts.IsPaperPresent = (data[0] & 4) == 0;
                     break;
 
-                case StatusRequests.FullStatus:
+                case RelianceStatusRequests.FullStatus:
 
                     rts.IsPaperPresent = (data[2] & 0x01) == 0;
                     rts.IsPaperLevelOkay = (data[2] & 0x04) == 0;

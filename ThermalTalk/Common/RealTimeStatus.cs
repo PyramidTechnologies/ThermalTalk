@@ -25,48 +25,10 @@ SOFTWARE.
 #endregion
 namespace ThermalTalk
 {
-
-    /// <summary>
-    /// All available types of status requests. There is a lot of overlap and redundancy but this
-    /// is how things are done in ESC/POS
-    /// </summary>
-    public enum StatusRequests
-    {
-        /// <summary>
-        /// Transmit the printer status
-        /// </summary>
-        Status = 1,
-
-        /// <summary>
-        /// Transmit the off-line printer status
-        /// </summary>
-        OffLineStatus = 2,
-
-        /// <summary>
-        /// Transmit error status
-        /// </summary>
-        ErrorStatus = 3,
-
-        /// <summary>
-        /// Transmit paper roll sensor status
-        /// </summary>
-        PaperRollStatus = 4,
-
-        /// <summary>
-        /// Transmit the print status
-        /// </summary>
-        PrintStatus = 17,
-
-        /// <summary>
-        /// Verbose, full status
-        /// </summary>
-        FullStatus = 20,
-    }
-
     /// Please note, these ugly class implicits are used in place of typdefs
     /// Usage:
     /// <example>if(IsOnlineVal) { ... }</example>
-    
+
     /// <summary>
     /// Printer is reporting online if value is true
     /// </summary>
@@ -340,94 +302,4 @@ namespace ThermalTalk
         }
     }
 
-
-    /// <summary>
-    /// Collection of all possible printer statuses. 
-    /// </summary>
-    public sealed class RealTimeStatus
-    {
-        public RealTimeStatus() { }
-
-        /// <summary>
-        /// Printer is reporting online if value is true
-        /// </summary>
-        public IsOnlineVal IsOnline { get; set; }
-
-        /// <summary>
-        /// There is some paper present if this value is true. Note, the paper level 
-        /// may be low but is still conidered present.
-        /// </summary>
-        public IsPaperPresentVal IsPaperPresent { get; set; }
-
-        /// <summary>
-        /// Paper level is at or above the low paper threshold if value is true
-        /// </summary>
-        public IsPaperLevelOkayVal IsPaperLevelOkay { get; set; }
-
-        /// <summary>
-        /// Paper is in the present position if this value is true
-        /// </summary>
-        public IsTicketPresentAtOutputVal IsTicketPresentAtOutput { get; set; }
-
-        /// <summary>
-        /// Printer head (cover) is closed if value is true
-        /// </summary>
-        public IsCoverClosedVal IsCoverClosed { get; set; }
-
-        /// <summary>
-        /// The paper motor is currently off if this value is true
-        /// </summary>
-        public IsPaperMotorOffVal IsPaperMotorOff { get; set; }
-
-        /// <summary>
-        /// The diagnostic button is NOT being pushed if this value is true
-        /// </summary>
-        public IsDiagButtonReleasedVal IsDiagButtonReleased { get; set; }
-
-        /// <summary>
-        /// The head temperature is okay if this value is true
-        /// </summary>
-        public IsHeadTemperatureOkayVal IsHeadTemperatureOkay { get; set; }
-
-        /// <summary>
-        /// Comms are okay, no errors, if this value is true
-        /// </summary>
-        public IsCommsOkayVal IsCommsOkay { get; set; }
-
-        /// <summary>
-        /// Power supply voltage is within tolerance if this value is true
-        /// </summary>
-        public IsPowerSupplyVoltageOkayVal IsPowerSupplyVoltageOkay { get; set; }
-
-        /// <summary>
-        /// Power supply voltage is within tolerance if this value is true
-        /// </summary>
-        public IsPaperPathClearVal IsPaperPathClear { get; set; }
-
-        /// <summary>
-        /// The cutter is okay if this value is true
-        /// </summary>
-        public IsCutterOkayVal IsCutterOkay { get; set; }
-
-        /// <summary>
-        /// Last paper feed was NOT due to diag push button if value is true
-        /// </summary>
-        public IsNormalFeedVal IsNormalFeed { get; set; }
-
-        /// <summary>
-        /// If the printer is reporting any error type, this value is true
-        /// </summary>
-        public HasErrorVal HasError { get; set; }
-
-        /// <summary>
-        /// There is a non-recoverable error state if this value is true
-        /// </summary>
-        public HasFatalErrorVal HasFatalError { get; set; }
-
-        /// <summary>
-        /// There is a recoverable error state if this value is true
-        /// </summary>
-        public HasRecoverableErrorVal HasRecoverableError { get; set; }
-
-    }
 }

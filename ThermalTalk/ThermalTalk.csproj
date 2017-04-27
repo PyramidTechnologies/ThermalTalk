@@ -61,9 +61,13 @@
     <Compile Include="Common\FontEffects.cs" />
     <Compile Include="Common\FontJustification.cs" />
     <Compile Include="Common\FontScalar.cs" />
+    <Compile Include="Common\RealTimeStatus.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\NativeMethods.cs" />
     <Compile Include="IDocument.cs" />
+    <Compile Include="Phoenix\PhoenixStatus.cs" />
+    <Compile Include="Phoenix\PhoenixStatusRequests.cs" />
+    <Compile Include="Reliance\RelianceStatusRequests.cs" />
     <Compile Include="Templates\Placeholder.cs" />
     <Compile Include="Templates\StandardDocument.cs" />
     <Compile Include="Templates\ImageSection.cs" />
@@ -73,7 +77,7 @@
     <Compile Include="Helpers\RawPrintHelper.cs" />
     <Compile Include="Phoenix\PhoenixPrinter.cs" />
     <Compile Include="Phoenix\PhoenixSerialPort.cs" />
-    <Compile Include="Reliance\RealTimeStatus.cs" />
+    <Compile Include="Reliance\RelianceStatus.cs" />
     <Compile Include="Reliance\RelianceSerialPort.cs" />
     <Compile Include="Reliance\ReliancePrinter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
