@@ -34,102 +34,7 @@ namespace ThermalTalk
     {
         // no ctor
         private RawPrinterHelper() { }
-
-        // Structure and API declarions:
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-        public class DOCINFOA
-        {
-            [MarshalAs(UnmanagedType.LPStr)]
-            public string pDocName;
-            [MarshalAs(UnmanagedType.LPStr)]
-            public string pOutputFile;
-            [MarshalAs(UnmanagedType.LPStr)]
-            public string pDataType;
-        }
-
-        /// <summary>
-        /// Allow all fields to be zero if opening printer in read-only mode.
-        /// </summary>
-        [StructLayout(LayoutKind.Sequential)]
-        public class PRINTER_DEFAULTS
-        {
-            public IntPtr pDatatype;
-            public IntPtr pDevMode;
-            public int DesiredAccess;
-        }
-
-        /// <summary>
-        /// http://www.pinvoke.net/default.aspx/winspool.OpenPrinter
-        /// </summary>
-        /// <param name="szPrinter"></param>
-        /// <param name="hPrinter"></param>
-        /// <param name="pd"></param>
-        /// <returns></returns>
-        [DllImport("winspool.Drv", EntryPoint = "OpenPrinterA", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool OpenPrinter([MarshalAs(UnmanagedType.LPStr)] string szPrinter, out IntPtr hPrinter, IntPtr pd);
-
-        /// <summary>
-        /// http://www.pinvoke.net/default.aspx/winspool.OpenPrinter
-        /// </summary>
-        /// <param name="szPrinter"></param>
-        /// <param name="hPrinter"></param>
-        /// <param name="pd"></param>
-        /// <returns></returns>
-        [DllImport("winspool.Drv", EntryPoint = "OpenPrinterA", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool OpenPrinter2([MarshalAs(UnmanagedType.LPStr)] string szPrinter, out IntPtr hPrinter, PRINTER_DEFAULTS pd);
-
-        /// <summary>
-        /// http://www.pinvoke.net/default.aspx/winspool.ClosePrinter
-        /// </summary>
-        /// <param name="hPrinter"></param>
-        /// <returns></returns>
-        [DllImport("winspool.Drv", EntryPoint = "ClosePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool ClosePrinter(IntPtr hPrinter);
-
-        [DllImport("winspool.Drv", EntryPoint = "StartDocPrinterA", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool StartDocPrinter(IntPtr hPrinter, Int32 level, [In, MarshalAs(UnmanagedType.LPStruct)] DOCINFOA di);
-
-        /// <summary>
-        /// http://www.pinvoke.net/default.aspx/winspool.EndDocPrinter
-        /// </summary>
-        /// <param name="hPrinter"></param>
-        /// <returns></returns>
-        [DllImport("winspool.Drv", EntryPoint = "EndDocPrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool EndDocPrinter(IntPtr hPrinter);
-
-        [DllImport("winspool.Drv", EntryPoint = "StartPagePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool StartPagePrinter(IntPtr hPrinter);
-
-        /// <summary>
-        /// http://www.pinvoke.net/default.aspx/winspool.EndPagePrinter
-        /// </summary>
-        /// <param name="hPrinter"></param>
-        /// <returns></returns>
-        [DllImport("winspool.Drv", EntryPoint = "EndPagePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool EndPagePrinter(IntPtr hPrinter);
-
-        /// <summary>
-        /// http://www.pinvoke.net/default.aspx/winspool.WritePrinter
-        /// </summary>
-        /// <param name="hPrinter"></param>
-        /// <param name="pBytes"></param>
-        /// <param name="dwCount"></param>
-        /// <param name="dwWritten"></param>
-        /// <returns></returns>
-        [DllImport("winspool.Drv", EntryPoint = "WritePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool WritePrinter(IntPtr hPrinter, IntPtr pBytes, Int32 dwCount, out Int32 dwWritten);
-
-        /// <summary>
-        /// http://www.pinvoke.net/default.aspx/winspool.ReadPrinter
-        /// </summary>
-        /// <param name="hPrinter"></param>
-        /// <param name="pBytes"></param>
-        /// <param name="dwCount"></param>
-        /// <param name="dwNoBytesRead"></param>
-        /// <returns></returns>
-        [DllImport("winspool.drv", EntryPoint = "ReadPrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool ReadPrinter(IntPtr hPrinter, out IntPtr pBytes, Int32 dwCount, out Int32 dwNoBytesRead);
-
+     
         /// <summary>
         /// Send unmanaged data to the target printer.
         /// When the function is given a printer name and an unmanaged array
@@ -144,7 +49,7 @@ namespace ThermalTalk
         {
             Int32 dwError = 0, dwWritten = 0;
             IntPtr hPrinter = new IntPtr(0);
-            DOCINFOA di = new DOCINFOA();
+            NativeMethods.DOCINFOA di = new NativeMethods.DOCINFOA();
 
             bool bSuccess = false; // Assume failure unless you specifically succeed.
 
@@ -152,20 +57,20 @@ namespace ThermalTalk
             di.pDataType = "RAW";
 
             // Open the printer.
-            if (OpenPrinter(szPrinterName.Normalize(), out hPrinter, IntPtr.Zero))
+            if (NativeMethods.OpenPrinter(szPrinterName.Normalize(), out hPrinter, IntPtr.Zero))
             {
                 // Start a document.
-                if (StartDocPrinter(hPrinter, 1, di))
+                if (NativeMethods.StartDocPrinter(hPrinter, 1, di))
                 {
                     // Start a page.
-                    if (StartPagePrinter(hPrinter))
+                    if (NativeMethods.StartPagePrinter(hPrinter))
                     {
-                        bSuccess = WritePrinter(hPrinter, pBytes, dwCount, out dwWritten);
-                        EndPagePrinter(hPrinter);
+                        bSuccess = NativeMethods.WritePrinter(hPrinter, pBytes, dwCount, out dwWritten);
+                        NativeMethods.EndPagePrinter(hPrinter);
                     }
-                    EndDocPrinter(hPrinter);
+                    NativeMethods.EndDocPrinter(hPrinter);
                 }
-                ClosePrinter(hPrinter);
+                NativeMethods.ClosePrinter(hPrinter);
             }
 
             // If you did not succeed, GetLastError may give more information
@@ -187,7 +92,10 @@ namespace ThermalTalk
         public static bool SendFileToPrinter(string szPrinterName, string szFileName)
         {
             // Open the file
-            using (FileStream fs = new FileStream(szFileName, FileMode.Open))
+            // MS for whatever reason, make the reader take ownership of this stream
+            // so DO NOT use the using pattern here. This could lead to an ObjectDisposed
+            // exception. Let the BinaryReader (br) clean up fs for us.
+            FileStream fs = new FileStream(szFileName, FileMode.Open);
             using (BinaryReader br = new BinaryReader(fs))
             {
                 // Dim an array of bytes big enough to hold the file's contents.
@@ -213,6 +121,7 @@ namespace ThermalTalk
 
                 // Free the unmanaged memory that you allocated earlier.
                 Marshal.FreeCoTaskMem(pUnmanagedBytes);
+
                 return bSuccess;
             }
         }
@@ -243,23 +152,23 @@ namespace ThermalTalk
             // Read the data from the printer.
             Int32 dwError = 0, dwBytesRead = 0;
             IntPtr hPrinter = new IntPtr(0);
-            DOCINFOA di = new DOCINFOA();
-            PRINTER_DEFAULTS pd = new PRINTER_DEFAULTS();
+            NativeMethods.DOCINFOA di = new NativeMethods.DOCINFOA();
+            NativeMethods.PRINTER_DEFAULTS pd = new NativeMethods.PRINTER_DEFAULTS();
             pd.DesiredAccess = 0x00000020;
          
             bool bSuccess = false;
 
             // Open the printer.
-            if (OpenPrinter2(szPrinterName.Normalize(), out hPrinter, pd))
+            if (NativeMethods.OpenPrinter2(szPrinterName.Normalize(), out hPrinter, pd))
             {
                 // Start a document.
-                if (StartDocPrinter(hPrinter, 1, di))
+                if (NativeMethods.StartDocPrinter(hPrinter, 1, di))
                 {
                     // Start a page.
-                    if (StartPagePrinter(hPrinter))
+                    if (NativeMethods.StartPagePrinter(hPrinter))
                     {
                         // read your bytes.
-                        bSuccess = ReadPrinter(hPrinter, out pBytes, dwCount, out dwBytesRead);
+                        bSuccess = NativeMethods.ReadPrinter(hPrinter, out pBytes, dwCount, out dwBytesRead);
                         
                         // If you did not succeed, GetLastError may give more information
                         // about why not.
@@ -268,11 +177,11 @@ namespace ThermalTalk
                             dwError = Marshal.GetLastWin32Error();
                         }
 
-                        EndPagePrinter(hPrinter);
+                        NativeMethods.EndPagePrinter(hPrinter);
                     }
-                    EndDocPrinter(hPrinter);
+                    NativeMethods.EndDocPrinter(hPrinter);
                 }
-                ClosePrinter(hPrinter);
+                NativeMethods.ClosePrinter(hPrinter);
             }
 
             return bSuccess;
