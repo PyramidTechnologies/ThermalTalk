@@ -39,6 +39,7 @@ namespace ThermalTalk
         /// Set to size that works for your printer implementation.
         /// This is to prevent sending too much data at once and
         /// overruning the target buffer.
+        /// TODO expose this as a configurable on the concrete implementation
         /// </summary>
         protected int _mChunkSize;
         #endregion
@@ -53,13 +54,32 @@ namespace ThermalTalk
         {
             Name = portName;
 
-            _mPort = new SerialPort(portName, baud, parity, databits, stopbits);
-            _mPort.Encoding = System.Text.Encoding.GetEncoding("Windows-1252");
+            _mPort = new SerialPort(portName, baud, parity, databits, stopbits);            
             _mPort.Handshake = handshake;
             _mPort.WriteTimeout = _mWriteTimeout = 500;
             _mPort.ReadTimeout = _mReadTimeout = 500;
+            _mPort.Handshake = Handshake.None;
+            _mPort.WriteBufferSize = 4 * 1024;
+            _mPort.ReadBufferSize = 4 * 1024;
+            _mPort.Encoding = System.Text.Encoding.GetEncoding("Windows-1252");
+            _mPort.DtrEnable = true;
+            _mPort.RtsEnable = true;
+            _mPort.DiscardNull = false;
 
-            _mChunkSize = 512;
+
+            // Virtual comm ports use a bulk transfer endpoint which is
+            // typically 64 bytes in size. High speed can use 512 bytes but
+            // I've never found a VCOM that implements this.
+            if (SerialPortUtils.IsVirtualComPort(portName))
+            {
+                _mChunkSize = 64;
+            }
+            else
+            {
+                // Good 'ol hardware RS-232 can handle a bit more but still be careful
+                // the target device might have a tiny circular buffer so keep this modest.
+                _mChunkSize = 256;
+            }
         }
 
         ~BaseSerialPort()
