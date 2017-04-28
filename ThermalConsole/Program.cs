@@ -60,7 +60,17 @@ namespace ThermalConsole
                 Justification = FontJustification.JustifyCenter,
                 HeightScalar = FontHeighScalar.h1,
                 WidthScalar = FontWidthScalar.w1,
-                Effects = FontEffects.Bold | FontEffects.Underline,
+                Effects = FontEffects.Italic | FontEffects.Underline,
+                Font = Fonts.B,
+                AutoNewline = true,
+            };
+
+            // Print Status is shown as a JSON object
+            var printStatus = new StandardSection()
+            {
+                Justification = FontJustification.JustifyLeft,
+                HeightScalar = FontHeighScalar.h1,
+                WidthScalar = FontWidthScalar.w1,
                 Font = Fonts.C,
                 AutoNewline = true,
             };
@@ -75,6 +85,7 @@ namespace ThermalConsole
             document.Sections.Add(header);
             document.Sections.Add(new Placeholder());  // Placeholder since we know we'll want an image here
             document.Sections.Add(timestamp);
+            document.Sections.Add(printStatus);
 
             int count = 1;
             while (true)
@@ -84,12 +95,10 @@ namespace ThermalConsole
                 // support dynamic images over ESC/POS. Images will only 
                 // be transmitted through the print queue but no examples have
                 // been prepared for this.
-                using (var printer = new PhoenixPrinter(phoenixPort))
-                //using (var printer = new ReliancePrinter(reliancePort))
+                //using (var printer = new PhoenixPrinter(phoenixPort))
+                using (var printer = new ReliancePrinter(reliancePort))
                 using(var image = Webcam.GrabPicture())
                 {
-
-                    image.Resize(20, 0, true);
              
                     var now = DateTime.Now;
                     Console.WriteLine("Image #{0} taken at {1}", count, now);
@@ -104,6 +113,10 @@ namespace ThermalConsole
 
                     // Printer the timestamp document
                     timestamp.Content = string.Format("{1}", count++, now);
+
+                    // Get the latest printer status. Note that reliance and phoenix have
+                    // slightly different args to this get status command
+                    printStatus.Content = printer.GetStatus(StatusTypes.FullStatus).ToJSON(true);
 
                     // Re-assign this image to the middle part of the document
                     printer.SetImage(image, document, 1);
