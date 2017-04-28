@@ -78,7 +78,7 @@ namespace ThermalTalk
             };
 
             SetScalarCommand = new byte[] { 0x1D, 0x21, 0x00};  // last byte set by tx func
-            FormFeedCommand = new byte[] { 0x0D, 0x0A };
+            FormFeedCommand = new byte[] { 0x1B, 0x64, 0x14, 0x1B, 0x6D };
             NewLineCommand = new byte[] { 0x0A };
             InitPrinterCommand = new byte[] { 0x1B, 0x40 };
 
@@ -91,6 +91,18 @@ namespace ThermalTalk
                 Connection = new RelianceSerialPort(serialPortName, PrintSerialBaudRate);
                 Connection.ReadTimeoutMS = DefaultReadTimeout;              
             }
+        }
+
+        /// <summary>
+        /// Updates the formfeed line count to n.
+        /// where 0 < n < 200
+        /// Units are in lines relative to current font size. The default
+        /// value is 20.
+        /// </summary>
+        /// <param name="n">Count of lines to print before cut</param>
+        public void SetFormFeedLineCount(byte n)
+        {
+            FormFeedCommand[2] = n;
         }
 
         /// <summary>
@@ -133,7 +145,12 @@ namespace ThermalTalk
 
             doc.Sections[index] = new StandardSection()
             {
-                Content = "Image section is not supported on Phoenix"                
+                Content = "\nImage section is not supported on Phoenix\n",    
+                Effects = FontEffects.Bold,
+                HeightScalar = FontHeighScalar.h2,
+                WidthScalar = FontWidthScalar.w2,
+                Justification = FontJustification.JustifyCenter,
+                AutoNewline = true,
             };
         }
 
