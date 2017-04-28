@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <projectUrl>https://github.com/PyramidTechnologies/ThermalTalk</projectUrl>
+    <iconUrl>https://pyramidacceptors.com/favicon.ico</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Initial Release</releaseNotes>
+    <copyright>Copyright Pyramid Technologies Inc 2017</copyright>
+    <tags>Serial USB RS-232 Thermal Printer</tags>
+    <dependencies>
+          <dependency id="Newtonsoft.Json" version="10.0.2" />
+      <dependency id="ThermalTalk.Imaging" version="1.0.0"/>
+    </dependencies>
+  </metadata>
+</package>
