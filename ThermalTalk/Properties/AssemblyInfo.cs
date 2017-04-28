@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("ThermalTalk")]
 [assembly: AssemblyDescription("PTI Thermal Printer API")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Pyramid Technologies Inc.")]
+[assembly: AssemblyCompany("Pyramid Technologies Inc")]
 [assembly: AssemblyProduct("ThermalTalk")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCopyright("Copyright Pyramid Technologies Inc 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

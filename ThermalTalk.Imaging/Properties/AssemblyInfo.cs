@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ThermalTalk.Imaging")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Imaging module for ThermalTalk SDK")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Pyramid Technologies Inc")]
 [assembly: AssemblyProduct("ThermalTalk.Imaging")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCopyright("Copyright Pyramid Technologies Inc 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

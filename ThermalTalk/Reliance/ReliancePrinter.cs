@@ -163,10 +163,10 @@ namespace ThermalTalk
         /// </summary>
         /// <param name="r">StatusRequest type</param>
         /// <returns>Instance of RelianceStatus,m null on failure, Unset fields will be null</returns>
-        public override IStatus GetStatus(StatusTypes type)
+        public override StatusReport GetStatus(StatusTypes type)
         {
             // Result stored here
-            RelianceStatus rts = null;
+            StatusReport rts = null;
 
             // Translate generic status to phoenix status
             RelianceStatusRequests r;
@@ -188,7 +188,7 @@ namespace ThermalTalk
                     r = RelianceStatusRequests.PaperRollStatus;
                     break;
 
-                case StatusTypes.PrintingStatus:
+                case StatusTypes.MovementStatus:
                     r = RelianceStatusRequests.PrintStatus;
                     break;
 
@@ -232,7 +232,7 @@ namespace ThermalTalk
                 return rts;
             }
 
-            rts = new RelianceStatus();
+            rts = new StatusReport();
 
             switch(r)
             {

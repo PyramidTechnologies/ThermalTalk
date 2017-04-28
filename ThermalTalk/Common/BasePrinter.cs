@@ -141,7 +141,7 @@ namespace ThermalTalk
         /// </summary>
         /// <param name="type">Status query type</param>
         /// <returns>Status report</returns>
-        public abstract IStatus GetStatus(StatusTypes type);
+        public abstract StatusReport GetStatus(StatusTypes type);
 
         /// <summary>
         /// Send the ESC/POS reinitialize command which restores all 
