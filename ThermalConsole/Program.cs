@@ -78,7 +78,10 @@ namespace ThermalConsole
             while (true)
             {
 
-                // Select one printer or the other. You can even use both, just rename them :)
+                // Select one printer or the other. Phoenix does not currently 
+                // support dynamic images over ESC/POS. Images will only 
+                // be transmitted through the print queue but no examples have
+                // been prepared for this.
                 using (var printer = new PhoenixPrinter(phoenixPort))
                 //using (var printer = new ReliancePrinter(reliancePort))
                 using(var image = Webcam.GrabPicture())
@@ -101,10 +104,7 @@ namespace ThermalConsole
                     timestamp.Content = string.Format("{1}", count++, now);
 
                     // Re-assign this image to the middle part of the document
-                    document.Sections[1] = new ImageSection()
-                    {
-                        Image = image,
-                    };
+                    printer.SetImage(image, document, 1);
 
                     // Send the whole document + image
                     printer.PrintDocument(document);

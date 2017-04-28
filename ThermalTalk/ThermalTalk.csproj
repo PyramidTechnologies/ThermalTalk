@@ -68,6 +68,7 @@
     <Compile Include="IDocument.cs" />
     <Compile Include="Phoenix\PhoenixStatus.cs" />
     <Compile Include="Phoenix\PhoenixStatusRequests.cs" />
+    <Compile Include="Reliance\RelianceImageSection.cs" />
     <Compile Include="Reliance\RelianceStatusRequests.cs" />
     <Compile Include="Templates\Placeholder.cs" />
     <Compile Include="Templates\StandardDocument.cs" />

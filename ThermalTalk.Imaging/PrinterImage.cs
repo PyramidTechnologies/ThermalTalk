@@ -147,31 +147,6 @@ namespace ThermalTalk.Imaging
         }
 
         /// <summary>
-        /// Package this bitmap as an ESC/POS column image which is the 
-        /// 1D 2A command
-        /// </summary>
-        /// <returns>Byte buffer</returns>
-        public byte[] GetAsColumnar()
-        {
-            // Build up the ESC/POS 1D 76 30 command
-            var buffer = new List<byte>();
-            buffer.Add(0x1D);
-            buffer.Add(0x2A);
-
-            // Pack up these dimensions
-            // Normal width and height for now
-            buffer.Add((byte)(Width/8));
-            buffer.Add((byte)(Height/8));
-
-            // Append the bitmap data as a packed dot logo
-            var bmpData = ImageData.ToBitmap().Columnize();
-            buffer.AddRange(bmpData);
-
-            return buffer.ToArray();
-        }
-
-
-        /// <summary>
         /// Package this bitmap as an ESC/POS raster image which is the 
         /// 1D 76 command.
         /// </summary>

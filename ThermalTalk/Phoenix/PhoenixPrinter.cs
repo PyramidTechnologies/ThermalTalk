@@ -26,6 +26,7 @@ SOFTWARE.
 namespace ThermalTalk
 {
     using System.Collections.Generic;
+    using ThermalTalk.Imaging;
 
     public class PhoenixPrinter : BasePrinter
     {
@@ -86,6 +87,25 @@ namespace ThermalTalk
                 Connection = new RelianceSerialPort(serialPortName, PrintSerialBaudRate);
                 Connection.ReadTimeoutMS = DefaultReadTimeout;              
             }
+        }
+
+        /// <summary>
+        /// Phoenix does not currently supports ESC/POS images at this time.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="doc"></param>
+        /// <param name="index"></param>
+        public override void SetImage(PrinterImage image, IDocument doc, int index)
+        {
+            while (index > doc.Sections.Count)
+            {
+                doc.Sections.Add(new Placeholder());
+            }
+
+            doc.Sections[index] = new StandardSection()
+            {
+                Content = "Image section is not supported on Phoenix"                
+            };
         }
 
         /// <summary>

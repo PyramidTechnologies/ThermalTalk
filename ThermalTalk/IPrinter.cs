@@ -23,6 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #endregion
+using ThermalTalk.Imaging;
 namespace ThermalTalk
 {
     interface IPrinter : System.IDisposable
@@ -100,6 +101,33 @@ namespace ThermalTalk
         /// </summary>
         /// <param name="doc">Document to print</param>
         void PrintDocument(IDocument doc);
+
+        /// <summary>
+        /// Sets this logo to a position inside doc specified by index.        
+        /// </summary>
+        /// <example>
+        /// 
+        /// var header = new StandardSection()
+        /// {
+        ///     Justification = FontJustification.JustifyCenter,
+        ///     HeightScalar = FontHeighScalar.h2,
+        ///     WidthScalar = FontWidthScalar.w2,
+        ///     AutoNewline = true,
+        /// };
+        /// 
+        /// 
+        /// var document = new StandardDocument();
+        /// document.Sections.Add(header);
+        /// 
+        /// // Adds this image to after the header
+        /// var someImage = Webcam.GrabPicture()
+        /// myPrinter.SetImage(someImage, document, 1); 
+        /// </example>
+        /// <param name="image">Image to add</param>
+        /// <param name="doc">Document to add</param>
+        /// <param name="index">Index to insert. If this index exceeds the current length
+        /// placeholders will be inserted until index is reached.</param>
+        void SetImage(PrinterImage image, IDocument doc, int index);
 
         /// <summary>
         /// Emit one newline character and return print

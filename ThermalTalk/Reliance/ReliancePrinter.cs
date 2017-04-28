@@ -27,6 +27,7 @@ namespace ThermalTalk
 {
     using System.Collections.Generic;
     using System.Text;
+    using ThermalTalk.Imaging;
 
     /// <summary>
     /// Reliance Printer is the primary handle for accessing the printer API
@@ -106,6 +107,18 @@ namespace ThermalTalk
 
             var fullCmd = Extensions.Concat(setup, ASCIIEncoding.ASCII.GetBytes(encodeThis), new byte[] { 0x0A });
 
+        }
+
+        public override void SetImage(PrinterImage image, IDocument doc, int index)
+        {
+            while(index > doc.Sections.Count)
+            {
+                doc.Sections.Add(new Placeholder());
+            }
+
+            doc.Sections[index] = new RelianceImageSection() {
+                Image = image,
+            };
         }
 
         /// <summary>

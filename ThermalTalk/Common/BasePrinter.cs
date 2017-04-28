@@ -28,6 +28,7 @@ namespace ThermalTalk
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using ThermalTalk.Imaging;
 
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public abstract class BasePrinter : IPrinter
@@ -274,6 +275,8 @@ namespace ThermalTalk
             SetJustification(oldJustification);
             SetScalars(oldWidth, oldHeight);
         }
+
+        public abstract void SetImage(PrinterImage image, IDocument doc, int index);
 
         public virtual void PrintNewline()
         {

@@ -25,35 +25,15 @@ SOFTWARE.
 #endregion
 namespace ThermalTalk
 {
-    using ThermalTalk.Imaging;
-
-    internal abstract class ImageSection : StandardSection
+    internal sealed class RelianceImageSection : ImageSection
     {
         /// <summary>
-        /// An image has no text content
+        /// Fetch this image in a format that Reliance understands
         /// </summary>
-        public override string Content { get { return string.Empty; } set { } }
-
-        /// <summary>
-        /// Images do not support font effects
-        /// </summary>
-        public override FontEffects Effects { get { return FontEffects.None; } set { } }
-
-        /// <summary>
-        /// Images do not support width scalar
-        /// </summary>
-        public override FontWidthScalar WidthScalar { get { return FontWidthScalar.w1; } set { } }
-
-        /// <summary>
-        /// Images do no support height scalar
-        /// </summary>
-        public override FontHeighScalar HeightScalar { get { return FontHeighScalar.h1; } set { } }
-
-        /// <summary>
-        /// Image to place inside document
-        /// </summary>
-        public PrinterImage Image { get; set; }
-
-        public abstract override byte[] GetContentBuffer();
+        /// <returns></returns>
+        public override byte[] GetContentBuffer()
+        {
+            return base.Image.GetAsRaster();
+        }
     }
 }
