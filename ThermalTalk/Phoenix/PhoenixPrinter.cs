@@ -171,10 +171,63 @@ namespace ThermalTalk
         /// </summary>
         /// <param name="r">StatusRequest type</param>
         /// <returns>Instance of PhoenixStatus,m null on failure, Unset fields will be null</returns>
-        public PhoenixStatus GetStatus(PhoenixStatusRequests r)
+        public override IStatus GetStatus(StatusTypes type)
         {
             // Result stored here
-            PhoenixStatus rts = null;
+            PhoenixStatus rts = new PhoenixStatus(); ;
+            ReturnCode ret = ReturnCode.ExecutionFailure;
+
+            // Translate generic status to phoenix status
+            PhoenixStatusRequests r;
+            switch(type)
+            {
+                case StatusTypes.PrinterStatus:
+                    r = PhoenixStatusRequests.Status;
+                    break;
+
+                case StatusTypes.OfflineStatus:
+                    r = PhoenixStatusRequests.OffLineStatus;
+                    break;
+
+                case StatusTypes.ErrorStatus:
+                    r = PhoenixStatusRequests.ErrorStatus;
+                    break;
+
+                case StatusTypes.PaperStatus:
+                    r = PhoenixStatusRequests.PaperRollStatus;
+                    break;
+
+                case StatusTypes.PrintingStatus:
+                    // Not supported on Phoenix
+                    return null;
+
+                case StatusTypes.FullStatus:
+                    r = PhoenixStatusRequests.FullStatus;
+                    break;
+
+                default:
+                    // Unknown status type
+                    return null;
+            }
+
+            if (r == PhoenixStatusRequests.FullStatus)
+            {
+                internalGetStatus(PhoenixStatusRequests.Status, rts);
+                internalGetStatus(PhoenixStatusRequests.PaperRollStatus, rts);
+                internalGetStatus(PhoenixStatusRequests.OffLineStatus, rts);
+                internalGetStatus(PhoenixStatusRequests.ErrorStatus, rts);
+            }
+            else
+            {
+                ret = internalGetStatus(r, rts);
+            }
+
+            // Return null status object on error
+            return ret == ReturnCode.Success ? rts : null;
+        }
+
+        private ReturnCode internalGetStatus(PhoenixStatusRequests r, PhoenixStatus rts)
+        {
 
             // Send the real time status command, r is the argument
             var command = new byte[] { 0x10, 0x04, (byte)r };
@@ -204,10 +257,8 @@ namespace ThermalTalk
             // Invalid response
             if (data.Length != respLen)
             {
-                return rts;
+                return ReturnCode.ExecutionFailure;
             }
-
-            rts = new PhoenixStatus();
 
             switch (r)
             {
@@ -217,14 +268,6 @@ namespace ThermalTalk
                     break;
 
                 case PhoenixStatusRequests.OffLineStatus:
-                    // bit 2: 0- no error, 1- error        
-                    rts.IsCoverClosed = (data[0] & 0x04) == 0;
-
-                    // bit 3: 0- no error, 1- error        
-                    rts.IsNormalFeed = (data[0] & 0x08) == 0;
-
-                    // bit 5: 0- no error, 1- error        
-                    rts.IsPaperPresent = (data[0] & 0x20) == 0;
 
                     // bit 6: 0- no error, 1- error        
                     rts.HasError = (data[0] & 0x40) == 0;
@@ -242,17 +285,13 @@ namespace ThermalTalk
                     rts.HasRecoverableError = (data[0] & 0x40) == 1;
                     break;
 
-                case PhoenixStatusRequests.PaperRollStatus:
-                    /// bit 2,3: 0- okay, 12- Not okay        
-                    rts.IsPaperLevelOkay = (data[0] & 0x0C) == 0;
-
+                case PhoenixStatusRequests.PaperRollStatus:   
                     /// bit 5,6: 0- okay, 96- Not okay
                     rts.IsPaperPresent = (data[0] & 0x60) == 0;
-                    break;               
+                    break;
             }
 
-            return rts;
-        }
-  
+            return ReturnCode.Success;
+        }  
     }
 }

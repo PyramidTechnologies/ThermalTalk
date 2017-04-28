@@ -23,18 +23,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #endregion
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 namespace ThermalTalk
 {
-    /// Please note, these ugly class implicits are used in place of typdefs
-    /// Usage:
-    /// <example>if(IsOnlineVal) { ... }</example>
+    #region BaseStatus for JSONify
+    [JsonConverter(typeof(ToStringJsonConverter))]  
+    public class BaseVal
+    {
+        protected bool m_value;
+        
+        public override string ToString()
+        {
+            return m_value.ToString();
+        }
+    }
+    #endregion
 
     /// <summary>
     /// Printer is reporting online if value is true
     /// </summary>
-    public class IsOnlineVal
+    public class IsOnlineVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(IsOnlineVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -48,10 +58,9 @@ namespace ThermalTalk
 
     /// <summary>
     /// Printer head (cover) is closed if value is true
-    /// </summary>
-    public class IsCoverClosedVal
+    /// </summary>  
+    public class IsCoverClosedVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(IsCoverClosedVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -65,10 +74,9 @@ namespace ThermalTalk
 
     /// <summary>
     /// Last paper feed was NOT due to diag push button if value is true
-    /// </summary>
-    public class IsNormalFeedVal
+    /// </summary>    
+    public class IsNormalFeedVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(IsNormalFeedVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -83,9 +91,8 @@ namespace ThermalTalk
     /// <summary>
     /// Paper level is at or above the low paper threshold if value is true
     /// </summary>
-    public class IsPaperLevelOkayVal
+    public class IsPaperLevelOkayVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(IsPaperLevelOkayVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -101,9 +108,8 @@ namespace ThermalTalk
     /// There is some paper present if this value is true. Note, the paper level 
     /// may be low but is still conidered present.
     /// </summary>
-    public class IsPaperPresentVal
+    public class IsPaperPresentVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(IsPaperPresentVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -117,10 +123,9 @@ namespace ThermalTalk
 
     /// <summary>
     /// If the printer is reporting any error type, this value is true
-    /// </summary>
-    public class HasErrorVal
+    /// </summary>     
+    public class HasErrorVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(HasErrorVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -135,9 +140,8 @@ namespace ThermalTalk
     /// <summary>
     /// The cutter is okay if this value is true
     /// </summary>
-    public class IsCutterOkayVal
+    public class IsCutterOkayVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(IsCutterOkayVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -152,9 +156,8 @@ namespace ThermalTalk
     /// <summary>
     /// There is a non-recoverable error state if this value is true
     /// </summary>
-    public class HasFatalErrorVal
+    public class HasFatalErrorVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(HasFatalErrorVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -169,9 +172,8 @@ namespace ThermalTalk
     /// <summary>
     /// There is a recoverable error state if this value is true
     /// </summary>
-    public class HasRecoverableErrorVal
+    public class HasRecoverableErrorVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(HasRecoverableErrorVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -186,9 +188,8 @@ namespace ThermalTalk
     /// <summary>
     /// The paper motor is currently off if this value is true
     /// </summary>
-    public class IsPaperMotorOffVal
+    public class IsPaperMotorOffVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(IsPaperMotorOffVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -203,9 +204,8 @@ namespace ThermalTalk
     /// <summary>
     /// Paper is in the present position if this value is true
     /// </summary>
-    public class IsTicketPresentAtOutputVal
+    public class IsTicketPresentAtOutputVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(IsTicketPresentAtOutputVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -220,9 +220,8 @@ namespace ThermalTalk
     /// <summary>
     /// The diagnostic button is NOT being pushed if this value is true
     /// </summary>
-    public class IsDiagButtonReleasedVal
+    public class IsDiagButtonReleasedVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(IsDiagButtonReleasedVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -237,9 +236,8 @@ namespace ThermalTalk
     /// <summary>
     /// The head temperature is okay if this value is true
     /// </summary>
-    public class IsHeadTemperatureOkayVal
+    public class IsHeadTemperatureOkayVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(IsHeadTemperatureOkayVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -254,9 +252,8 @@ namespace ThermalTalk
     /// <summary>
     /// Comms are okay, no errors, if this value is true
     /// </summary>
-    public class IsCommsOkayVal
+    public class IsCommsOkayVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(IsCommsOkayVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -271,9 +268,8 @@ namespace ThermalTalk
     /// <summary>
     /// Power supply voltage is within tolerance if this value is true
     /// </summary>
-    public class IsPowerSupplyVoltageOkayVal
+    public class IsPowerSupplyVoltageOkayVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(IsPowerSupplyVoltageOkayVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -288,9 +284,8 @@ namespace ThermalTalk
     /// <summary>
     /// Power supply voltage is within tolerance if this value is true
     /// </summary>
-    public class IsPaperPathClearVal
+    public class IsPaperPathClearVal : BaseVal
     {
-        private bool m_value = false;
         public static implicit operator bool(IsPaperPathClearVal o)
         {
             return ((o == null) ? false : o.m_value);
@@ -301,5 +296,4 @@ namespace ThermalTalk
             return new IsPaperPathClearVal { m_value = val };
         }
     }
-
 }

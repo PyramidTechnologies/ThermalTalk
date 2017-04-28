@@ -135,6 +135,15 @@ namespace ThermalTalk
         /// </summary>
         /// <param name="font">Font to use</param>
         public abstract void SetFont(Fonts font);
+
+        /// <summary>
+        /// Returns the sepcified status report for this printer
+        /// </summary>
+        /// <param name="type">Status query type</param>
+        /// <returns>Status report</returns>
+        public abstract IStatus GetStatus(StatusTypes type);
+
+        /// <summary>
         /// Send the ESC/POS reinitialize command which restores all 
         /// default options, configurable, etc.
         /// </summary>

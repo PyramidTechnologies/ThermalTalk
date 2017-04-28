@@ -28,7 +28,7 @@ namespace ThermalTalk
     /// <summary>
     /// Collection of all possible printer statuses. 
     /// </summary>
-    public sealed class PhoenixStatus
+    public sealed class PhoenixStatus : IStatus
     {
         public PhoenixStatus() { }
 
@@ -113,5 +113,15 @@ namespace ThermalTalk
         /// </summary>
         public HasRecoverableErrorVal HasRecoverableError { get; set; }
 
+        /// <summary>
+        /// Returns this object as a JSON string and optionally
+        /// tab-format so it looks pretty.
+        /// </summary>
+        /// <param name="prettyPrint">True to pretty print, default false</param>
+        /// <returns>JSON string</returns>
+        public string ToJSON(bool prettyPrint = false)
+        {
+            return Json.Serialize(this, prettyPrint);
+        }
     }
 }

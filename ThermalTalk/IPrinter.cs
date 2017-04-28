@@ -53,6 +53,14 @@ namespace ThermalTalk
         /// Gets the active font
         /// </summary>
         Fonts Font { get; }
+
+        /// <summary>
+        /// Returns the sepcified status report for this printer
+        /// </summary>
+        /// <param name="type">Status query type</param>
+        /// <returns>Status report</returns>
+        IStatus GetStatus(StatusTypes type);
+
         /// <summary>
         /// Sets the active font to this
         /// </summary>

@@ -25,40 +25,8 @@ SOFTWARE.
 #endregion
 namespace ThermalTalk
 {
-    /// <summary>
-    /// All available types of status requests. There is a lot of overlap and redundancy but this
-    /// is how things are done in ESC/POS
-    /// </summary>
-    enum RelianceStatusRequests
+    public interface IStatus
     {
-        /// <summary>
-        /// Transmit the printer status
-        /// </summary>
-        Status = 1,
-
-        /// <summary>
-        /// Transmit the off-line printer status
-        /// </summary>
-        OffLineStatus = 2,
-
-        /// <summary>
-        /// Transmit error status
-        /// </summary>
-        ErrorStatus = 3,
-
-        /// <summary>
-        /// Transmit paper roll sensor status
-        /// </summary>
-        PaperRollStatus = 4,
-
-        /// <summary>
-        /// Transmit the print status
-        /// </summary>
-        PrintStatus = 17,
-
-        /// <summary>
-        /// Verbose, full status
-        /// </summary>
-        FullStatus = 20,
+        string ToJSON(bool prettyPrint);
     }
 }

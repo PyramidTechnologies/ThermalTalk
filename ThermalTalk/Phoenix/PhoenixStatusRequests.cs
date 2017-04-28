@@ -29,7 +29,7 @@ namespace ThermalTalk
     /// All available types of status requests. There is a lot of overlap and redundancy but this
     /// is how things are done in ESC/POS
     /// </summary>
-    public enum PhoenixStatusRequests
+    enum PhoenixStatusRequests
     {
         /// <summary>
         /// Transmit the printer status
@@ -50,5 +50,10 @@ namespace ThermalTalk
         /// Transmit paper roll sensor status
         /// </summary>
         PaperRollStatus = 4,
+
+        /// <summary>
+        /// Request all statuses
+        /// </summary>
+        FullStatus = 20,
     }
 }

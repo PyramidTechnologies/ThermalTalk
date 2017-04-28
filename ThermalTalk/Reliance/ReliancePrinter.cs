@@ -163,10 +163,43 @@ namespace ThermalTalk
         /// </summary>
         /// <param name="r">StatusRequest type</param>
         /// <returns>Instance of RelianceStatus,m null on failure, Unset fields will be null</returns>
-        public RelianceStatus GetStatus(RelianceStatusRequests r)
+        public override IStatus GetStatus(StatusTypes type)
         {
             // Result stored here
             RelianceStatus rts = null;
+
+            // Translate generic status to phoenix status
+            RelianceStatusRequests r;
+            switch (type)
+            {
+                case StatusTypes.PrinterStatus:
+                    r = RelianceStatusRequests.Status;
+                    break;
+
+                case StatusTypes.OfflineStatus:
+                    r = RelianceStatusRequests.OffLineStatus;
+                    break;
+
+                case StatusTypes.ErrorStatus:
+                    r = RelianceStatusRequests.ErrorStatus;
+                    break;
+
+                case StatusTypes.PaperStatus:
+                    r = RelianceStatusRequests.PaperRollStatus;
+                    break;
+
+                case StatusTypes.PrintingStatus:
+                    r = RelianceStatusRequests.PrintStatus;
+                    break;
+
+                case StatusTypes.FullStatus:
+                    r = RelianceStatusRequests.FullStatus;
+                    break;
+
+                default:
+                    // Unknown status type
+                    return null;
+            }
 
             // Send the real time status command, r is the argument
             var command = new byte[] { 0x10, 0x04, (byte)r };

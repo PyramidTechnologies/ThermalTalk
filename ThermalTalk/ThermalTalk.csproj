@@ -51,6 +51,10 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
@@ -63,10 +67,13 @@
     <Compile Include="Common\Fonts.cs" />
     <Compile Include="Common\FontScalar.cs" />
     <Compile Include="Common\RealTimeStatus.cs" />
+    <Compile Include="Common\StatusTypes.cs" />
     <Compile Include="Helpers\Extensions.cs" />
+    <Compile Include="Helpers\Json.cs" />
     <Compile Include="Helpers\NativeMethods.cs" />
     <Compile Include="Helpers\SerialPortUtils.cs" />
     <Compile Include="IDocument.cs" />
+    <Compile Include="IStatus.cs" />
     <Compile Include="Phoenix\PhoenixStatus.cs" />
     <Compile Include="Phoenix\PhoenixStatusRequests.cs" />
     <Compile Include="Reliance\RelianceImageSection.cs" />
@@ -92,6 +99,9 @@
       <Project>{5440263f-5089-4050-9689-b2060192707e}</Project>
       <Name>ThermalTalk.Imaging</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
