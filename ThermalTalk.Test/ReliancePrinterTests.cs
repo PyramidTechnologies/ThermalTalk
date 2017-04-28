@@ -5,7 +5,7 @@ namespace ThermalTalk.Test
     [TestFixture]
     public class ReliancePrinterTests
     {
-        private const string TEST_PORT = "COM1";
+        private const string TEST_PORT = "COM4";
 
         [Test]
         public void RelianceCtorTest()
@@ -21,7 +21,7 @@ namespace ThermalTalk.Test
             // we should just run all queries in one test to avoid access issues.
             var printer = new ReliancePrinter(TEST_PORT);
 
-            var status = printer.GetStatus(RelianceStatusRequests.Status);
+            var status = printer.GetStatus(StatusTypes.PrinterStatus);
 
             Assert.IsNotNull(status);
 
@@ -54,7 +54,7 @@ namespace ThermalTalk.Test
             // we should just run all queries in one test to avoid access issues.
             var printer = new ReliancePrinter(TEST_PORT);
 
-            var status = printer.GetStatus(RelianceStatusRequests.OffLineStatus);
+            var status = printer.GetStatus(StatusTypes.OfflineStatus);
 
             Assert.IsNotNull(status);
 
@@ -88,7 +88,7 @@ namespace ThermalTalk.Test
             // we should just run all queries in one test to avoid access issues.
             var printer = new ReliancePrinter(TEST_PORT);
 
-            var status = printer.GetStatus(RelianceStatusRequests.ErrorStatus);
+            var status = printer.GetStatus(StatusTypes.ErrorStatus);
 
             Assert.IsNotNull(status);
 
@@ -122,7 +122,7 @@ namespace ThermalTalk.Test
             // we should just run all queries in one test to avoid access issues.
             var printer = new ReliancePrinter(TEST_PORT);
 
-            var status = printer.GetStatus(RelianceStatusRequests.PaperRollStatus);
+            var status = printer.GetStatus(StatusTypes.PaperStatus);
 
             Assert.IsNotNull(status);
 
@@ -155,7 +155,7 @@ namespace ThermalTalk.Test
             // we should just run all queries in one test to avoid access issues.
             var printer = new ReliancePrinter(TEST_PORT);
 
-            var status = printer.GetStatus(RelianceStatusRequests.PrintStatus);
+            var status = printer.GetStatus(StatusTypes.MovementStatus);
 
             Assert.IsNotNull(status);
 
@@ -188,7 +188,7 @@ namespace ThermalTalk.Test
             // we should just run all queries in one test to avoid access issues.
             var printer = new ReliancePrinter(TEST_PORT);
 
-            var status = printer.GetStatus(RelianceStatusRequests.FullStatus);
+            var status = printer.GetStatus(StatusTypes.FullStatus);
 
             Assert.IsNotNull(status);
 

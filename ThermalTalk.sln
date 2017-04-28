@@ -13,6 +13,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThermalTalk.Imaging.Test", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThermalConsole", "ThermalConsole\ThermalConsole.csproj", "{CCB36955-595F-4003-81CB-D7A3121B67D9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{1634B50E-C67D-4491-97BA-E0A14451DFC1}"
+	ProjectSection(SolutionItems) = preProject
+		CONTRIBUTING.md = CONTRIBUTING.md
+		nuget\deploy.ps1 = nuget\deploy.ps1
+		README.md = README.md
+		ThermalTalk.Imaging\ThermalTalk.Imaging.nuspec = ThermalTalk.Imaging\ThermalTalk.Imaging.nuspec
+		ThermalTalk\ThermalTalk.nuspec = ThermalTalk\ThermalTalk.nuspec
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

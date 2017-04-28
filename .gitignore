@@ -13,3 +13,4 @@ ThermalTalk.Test/bin/
 ThermalTalk/bin/
 ThermalTalk.Imaging.Test/bin/
 packages/
+*.nupkg

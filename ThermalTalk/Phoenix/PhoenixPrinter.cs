@@ -188,11 +188,11 @@ namespace ThermalTalk
         /// </summary>
         /// <param name="r">StatusRequest type</param>
         /// <returns>Instance of PhoenixStatus,m null on failure, Unset fields will be null</returns>
-        public override IStatus GetStatus(StatusTypes type)
+        public override StatusReport GetStatus(StatusTypes type)
         {
             // Result stored here
-            PhoenixStatus rts = new PhoenixStatus(); ;
-            ReturnCode ret = ReturnCode.ExecutionFailure;
+            var rts = new StatusReport(); ;
+            var ret = ReturnCode.ExecutionFailure;
 
             // Translate generic status to phoenix status
             PhoenixStatusRequests r;
@@ -214,7 +214,7 @@ namespace ThermalTalk
                     r = PhoenixStatusRequests.PaperRollStatus;
                     break;
 
-                case StatusTypes.PrintingStatus:
+                case StatusTypes.MovementStatus:
                     // Not supported on Phoenix
                     return null;
 
@@ -243,7 +243,7 @@ namespace ThermalTalk
             return ret == ReturnCode.Success ? rts : null;
         }
 
-        private ReturnCode internalGetStatus(PhoenixStatusRequests r, PhoenixStatus rts)
+        private ReturnCode internalGetStatus(PhoenixStatusRequests r, StatusReport rts)
         {
 
             // Send the real time status command, r is the argument

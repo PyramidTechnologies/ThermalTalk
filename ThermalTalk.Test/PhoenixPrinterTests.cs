@@ -21,7 +21,7 @@ namespace ThermalTalk.Test
             // we should just run all queries in one test to avoid access issues.
             var printer = new PhoenixPrinter(TEST_PORT);
 
-            var status = printer.GetStatus(PhoenixStatusRequests.Status);
+            var status = printer.GetStatus(StatusTypes.PrinterStatus);
 
             Assert.IsNotNull(status);
 
@@ -54,7 +54,7 @@ namespace ThermalTalk.Test
             // we should just run all queries in one test to avoid access issues.
             var printer = new PhoenixPrinter(TEST_PORT);
 
-            var status = printer.GetStatus(PhoenixStatusRequests.OffLineStatus);
+            var status = printer.GetStatus(StatusTypes.OfflineStatus);
 
             Assert.IsNotNull(status);
 
@@ -88,7 +88,7 @@ namespace ThermalTalk.Test
             // we should just run all queries in one test to avoid access issues.
             var printer = new PhoenixPrinter(TEST_PORT);
 
-            var status = printer.GetStatus(PhoenixStatusRequests.ErrorStatus);
+            var status = printer.GetStatus(StatusTypes.ErrorStatus);
 
             Assert.IsNotNull(status);
 
@@ -122,7 +122,7 @@ namespace ThermalTalk.Test
             // we should just run all queries in one test to avoid access issues.
             var printer = new PhoenixPrinter(TEST_PORT);
 
-            var status = printer.GetStatus(PhoenixStatusRequests.PaperRollStatus);
+            var status = printer.GetStatus(StatusTypes.PaperStatus);
 
             Assert.IsNotNull(status);
 
