@@ -11,8 +11,14 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>Initial Release</releaseNotes>
+    <language>en-US</language>
+    <licenseUrl>https://pti.mit-license.org/</licenseUrl>
     <copyright>Copyright Pyramid Technologies Inc 2017</copyright>
     <tags>Serial USB RS-232 Thermal Printer</tags>
+    <summary>
+      An SDK for developing thermal printer application based on Reliance and Phoenix printers.
+      This supports realtime status reports, font effects, and imaging.
+    </summary>
     <dependencies>
       <dependency id="Newtonsoft.Json" version="10.0.2" />
       <dependency id="ThermalTalk.Imaging" version="1.0.0"/>
