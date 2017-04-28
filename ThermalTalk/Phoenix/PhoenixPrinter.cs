@@ -34,6 +34,10 @@ namespace ThermalTalk
         const int DefaultReadTimeout = 1500; /// ms
         const int DefaultBaudRate = 9600;
 
+        private readonly byte[] FontACmd = new byte[] { 0x1B, 0x50 };
+        private readonly byte[] FontBCmd = new byte[] { 0x1B, 0x54 };
+        private readonly byte[] FontCCmd = new byte[] { 0x1B, 0x55 };
+
         /// <summary>
         /// Constructs a new instance of ReliancePrinter. This printer
         /// acts as a handle to all features and functions. If the serial port parameter
@@ -86,6 +90,31 @@ namespace ThermalTalk
 
                 Connection = new RelianceSerialPort(serialPortName, PrintSerialBaudRate);
                 Connection.ReadTimeoutMS = DefaultReadTimeout;              
+            }
+        }
+
+        /// <summary>
+        /// Sets the active font to this
+        /// </summary>
+        /// <param name="font">Font to use</param>
+        public override void SetFont(Fonts font)
+        {
+            if (font == Fonts.NOP)
+            {
+                return;
+            }
+
+            switch (font)
+            {
+                case Fonts.A:
+                    internalSend(FontACmd);
+                    break;
+                case Fonts.B:
+                    internalSend(FontBCmd);
+                    break;
+                case Fonts.C:
+                    internalSend(FontCCmd);
+                    break;
             }
         }
 

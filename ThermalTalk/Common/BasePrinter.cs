@@ -126,6 +126,15 @@ namespace ThermalTalk
         public FontJustification Justification { get; private set; }
 
         /// <summary>
+        /// Gets the active font
+        /// </summary>
+        public Fonts Font { get; private set; }
+
+        /// <summary>
+        /// Sets the active font to this
+        /// </summary>
+        /// <param name="font">Font to use</param>
+        public abstract void SetFont(Fonts font);
         /// Send the ESC/POS reinitialize command which restores all 
         /// default options, configurable, etc.
         /// </summary>
@@ -248,6 +257,7 @@ namespace ThermalTalk
             var oldJustification = Justification;
             var oldWidth = Width;
             var oldHeight = Height;
+            var oldFont = Font;
 
             foreach (var sec in doc.Sections)
             {
@@ -258,6 +268,7 @@ namespace ThermalTalk
                 AddEffect(sec.Effects);
                 SetJustification(sec.Justification);
                 SetScalars(sec.WidthScalar, sec.HeightScalar);
+                SetFont(sec.Font);
 
                 // Send the actual content
                 internalSend(sec.GetContentBuffer());
@@ -274,6 +285,7 @@ namespace ThermalTalk
             // Undo all the settings we just set
             SetJustification(oldJustification);
             SetScalars(oldWidth, oldHeight);
+            SetFont(oldFont);
         }
 
         public abstract void SetImage(PrinterImage image, IDocument doc, int index);
@@ -308,7 +320,7 @@ namespace ThermalTalk
             }
         }
 
-        #region Private
+        #region Protected
         protected void internalSend(byte[] payload)
         {
             // Do not send empty packets

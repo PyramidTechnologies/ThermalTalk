@@ -60,6 +60,7 @@
     <Compile Include="Common\BaseSerialPort.cs" />
     <Compile Include="Common\FontEffects.cs" />
     <Compile Include="Common\FontJustification.cs" />
+    <Compile Include="Common\Fonts.cs" />
     <Compile Include="Common\FontScalar.cs" />
     <Compile Include="Common\RealTimeStatus.cs" />
     <Compile Include="Helpers\Extensions.cs" />

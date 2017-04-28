@@ -23,9 +23,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #endregion
-using ThermalTalk.Imaging;
 namespace ThermalTalk
 {
+    using ThermalTalk.Imaging;
+
     interface IPrinter : System.IDisposable
     {
         /// <summary>
@@ -47,6 +48,16 @@ namespace ThermalTalk
         /// Gets or Sets the font's width scalar
         /// </summary>
         FontWidthScalar Width { get; }
+
+        /// <summary>
+        /// Gets the active font
+        /// </summary>
+        Fonts Font { get; }
+        /// <summary>
+        /// Sets the active font to this
+        /// </summary>
+        /// <param name="font">Font to use</param>
+        void SetFont(Fonts font);
 
         /// <summary>
         /// Applies the specified scalars

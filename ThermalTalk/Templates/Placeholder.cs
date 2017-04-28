@@ -40,6 +40,8 @@ namespace ThermalTalk
 
         public FontHeighScalar HeightScalar { get { return FontHeighScalar.NOP; } set { } }
 
+        public Fonts Font { get { return Fonts.NOP; } set { } }
+
         public bool AutoNewline { get { return false; } set { } }
 
         public byte[] GetContentBuffer()

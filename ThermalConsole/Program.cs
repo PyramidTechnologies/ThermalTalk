@@ -48,6 +48,7 @@ namespace ThermalConsole
                 Justification = FontJustification.JustifyCenter,
                 HeightScalar = FontHeighScalar.h2,
                 WidthScalar = FontWidthScalar.w2,
+                Font = Fonts.A,
                 AutoNewline = true,
             };
 
@@ -60,6 +61,7 @@ namespace ThermalConsole
                 HeightScalar = FontHeighScalar.h1,
                 WidthScalar = FontWidthScalar.w1,
                 Effects = FontEffects.Bold | FontEffects.Underline,
+                Font = Fonts.C,
                 AutoNewline = true,
             };
 

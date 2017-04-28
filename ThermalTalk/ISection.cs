@@ -56,6 +56,11 @@ namespace ThermalTalk
         FontHeighScalar HeightScalar { get; set; }
 
         /// <summary>
+        /// Gets or Sets the font to use for this section
+        /// </summary>
+        Fonts Font { get; set; }
+
+        /// <summary>
         /// Auto-apply a newline after this document
         /// </summary>
         bool AutoNewline { get; set; }

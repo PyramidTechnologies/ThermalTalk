@@ -26,27 +26,10 @@ SOFTWARE.
 namespace ThermalTalk
 {
     /// <summary>
-    /// Standard document implementation
+    /// Available fonts
     /// </summary>
-    public class StandardSection : ISection
+    public enum Fonts
     {
-        public virtual string Content { get; set; }
-
-        public virtual FontEffects Effects { get; set; }
-
-        public virtual FontJustification Justification { get; set; }
-
-        public virtual FontWidthScalar WidthScalar { get; set; }
-
-        public virtual FontHeighScalar HeightScalar { get; set; }
-
-        public virtual Fonts Font { get; set; }
-
-        public virtual bool AutoNewline { get; set; }
-
-        public virtual byte[] GetContentBuffer()
-        {
-            return System.Text.ASCIIEncoding.ASCII.GetBytes(Content);
-        }
+        NOP, A, B, C
     }
 }
