@@ -12,7 +12,7 @@ Pyramid Technologis Thermal Printer API is available on NuGet
 
 ## Contributing
 
-Please read [CONTRIBUTING.md]()
+Please read [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
