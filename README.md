@@ -1,9 +1,7 @@
 [![NuGet](https://img.shields.io/nuget/v/ThermalTalk.svg)](https://www.nuget.org/packages/ThermalTalk/)
 
 # ThermalTalk
-Pyramid Technologis Thermal Printer API
-
-PyramidNETRS232 is available on NuGet
+Pyramid Technologis Thermal Printer API is available on NuGet
 
     Install-Package ThermalTalk
 
@@ -14,8 +12,8 @@ PyramidNETRS232 is available on NuGet
 
 ## Contributing
 
-Please read [CONTRIBUTING.md]()
+Please read [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
