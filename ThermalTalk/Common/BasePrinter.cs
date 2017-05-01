@@ -128,20 +128,20 @@ namespace ThermalTalk
         /// <summary>
         /// Gets the active font
         /// </summary>
-        public Fonts Font { get; private set; }
+        public ThermalFonts Font { get; private set; }
 
         /// <summary>
         /// Sets the active font to this
         /// </summary>
         /// <param name="font">Font to use</param>
-        public abstract void SetFont(Fonts font);
+        public abstract void SetFont(ThermalFonts font);
 
         /// <summary>
         /// Returns the sepcified status report for this printer
         /// </summary>
         /// <param name="type">Status query type</param>
         /// <returns>Status report</returns>
-        public abstract IStatus GetStatus(StatusTypes type);
+        public abstract StatusReport GetStatus(StatusTypes type);
 
         /// <summary>
         /// Send the ESC/POS reinitialize command which restores all 

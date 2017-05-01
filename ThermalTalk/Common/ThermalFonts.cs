@@ -25,8 +25,11 @@ SOFTWARE.
 #endregion
 namespace ThermalTalk
 {
-    public interface IStatus
+    /// <summary>
+    /// Available fonts
+    /// </summary>
+    public enum ThermalFonts
     {
-        string ToJSON(bool prettyPrint);
+        NOP, A, B, C
     }
 }

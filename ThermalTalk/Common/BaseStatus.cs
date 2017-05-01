@@ -25,13 +25,8 @@ SOFTWARE.
 #endregion
 namespace ThermalTalk
 {
-    /// <summary>
-    /// Collection of all possible printer statuses. 
-    /// </summary>
-    public sealed class RelianceStatus : IStatus
+    public class StatusReport
     {
-        public RelianceStatus() { }
-
         /// <summary>
         /// Printer is reporting online if value is true
         /// </summary>
@@ -123,6 +118,5 @@ namespace ThermalTalk
         {
             return Json.Serialize(this, prettyPrint);
         }
-
     }
 }

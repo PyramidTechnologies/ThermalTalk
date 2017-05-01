@@ -52,20 +52,20 @@ namespace ThermalTalk
         /// <summary>
         /// Gets the active font
         /// </summary>
-        Fonts Font { get; }
+        ThermalFonts Font { get; }
 
         /// <summary>
         /// Returns the sepcified status report for this printer
         /// </summary>
         /// <param name="type">Status query type</param>
         /// <returns>Status report</returns>
-        IStatus GetStatus(StatusTypes type);
+        StatusReport GetStatus(StatusTypes type);
 
         /// <summary>
         /// Sets the active font to this
         /// </summary>
         /// <param name="font">Font to use</param>
-        void SetFont(Fonts font);
+        void SetFont(ThermalFonts font);
 
         /// <summary>
         /// Applies the specified scalars

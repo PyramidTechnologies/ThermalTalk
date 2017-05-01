@@ -65,7 +65,7 @@ namespace ThermalTalk.Imaging
         }
         #region Properties
         /// <summary>
-        /// Gets the raw image data
+        /// Returns a read-only version of the backing image data
         /// </summary>
         /// <remarks>Private access, use SetImageData</remarks>
         public BitmapImage ImageData { get; private set; }
@@ -318,7 +318,12 @@ namespace ThermalTalk.Imaging
                 ImageData.BeginInit();
                 ImageData.StreamSource = memory;
                 ImageData.CacheOption = BitmapCacheOption.OnLoad;
-                ImageData.EndInit();
+                ImageData.EndInit();           
+     
+                if(ImageData.CanFreeze)
+                {
+                    ImageData.Freeze();
+                }
             }
         }
 

@@ -50,7 +50,7 @@ namespace ThermalTalk
         /// <summary>
         /// Printing now or motor moving
         /// </summary>
-        PrintingStatus,
+        MovementStatus,
 
         /// <summary>
         /// All parameters

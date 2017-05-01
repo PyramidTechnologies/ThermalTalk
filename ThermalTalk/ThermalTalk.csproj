@@ -31,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -58,13 +59,15 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\BasePrinter.cs" />
     <Compile Include="Common\BaseSerialPort.cs" />
+    <Compile Include="Common\BaseStatus.cs" />
     <Compile Include="Common\FontEffects.cs" />
     <Compile Include="Common\FontJustification.cs" />
-    <Compile Include="Common\Fonts.cs" />
+    <Compile Include="Common\ThermalFonts.cs" />
     <Compile Include="Common\FontScalar.cs" />
     <Compile Include="Common\RealTimeStatus.cs" />
     <Compile Include="Common\StatusTypes.cs" />
@@ -73,8 +76,6 @@
     <Compile Include="Helpers\NativeMethods.cs" />
     <Compile Include="Helpers\SerialPortUtils.cs" />
     <Compile Include="IDocument.cs" />
-    <Compile Include="IStatus.cs" />
-    <Compile Include="Phoenix\PhoenixStatus.cs" />
     <Compile Include="Phoenix\PhoenixStatusRequests.cs" />
     <Compile Include="Reliance\RelianceImageSection.cs" />
     <Compile Include="Reliance\RelianceStatusRequests.cs" />
@@ -87,7 +88,6 @@
     <Compile Include="Helpers\RawPrintHelper.cs" />
     <Compile Include="Phoenix\PhoenixPrinter.cs" />
     <Compile Include="Phoenix\PhoenixSerialPort.cs" />
-    <Compile Include="Reliance\RelianceStatus.cs" />
     <Compile Include="Reliance\RelianceSerialPort.cs" />
     <Compile Include="Reliance\ReliancePrinter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

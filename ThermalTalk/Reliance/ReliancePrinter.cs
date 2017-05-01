@@ -100,9 +100,9 @@ namespace ThermalTalk
         /// Sets the active font to this
         /// </summary>
         /// <param name="font">Font to use</param>
-        public override void SetFont(Fonts font)
+        public override void SetFont(ThermalFonts font)
         {
-            if (font == Fonts.NOP)
+            if (font == ThermalFonts.NOP)
             {
                 return;
             }
@@ -115,13 +115,13 @@ namespace ThermalTalk
 
             switch (font)
             {
-                case Fonts.A:
+                case ThermalFonts.A:
                     internalSend(CPI11);
                     break;
-                case Fonts.B:
+                case ThermalFonts.B:
                     internalSend(CPI15);
                     break;
-                case Fonts.C:
+                case ThermalFonts.C:
                     internalSend(CPI20);
                     break;
             }
@@ -163,10 +163,10 @@ namespace ThermalTalk
         /// </summary>
         /// <param name="r">StatusRequest type</param>
         /// <returns>Instance of RelianceStatus,m null on failure, Unset fields will be null</returns>
-        public override IStatus GetStatus(StatusTypes type)
+        public override StatusReport GetStatus(StatusTypes type)
         {
             // Result stored here
-            RelianceStatus rts = null;
+            StatusReport rts = null;
 
             // Translate generic status to phoenix status
             RelianceStatusRequests r;
@@ -188,7 +188,7 @@ namespace ThermalTalk
                     r = RelianceStatusRequests.PaperRollStatus;
                     break;
 
-                case StatusTypes.PrintingStatus:
+                case StatusTypes.MovementStatus:
                     r = RelianceStatusRequests.PrintStatus;
                     break;
 
@@ -232,7 +232,7 @@ namespace ThermalTalk
                 return rts;
             }
 
-            rts = new RelianceStatus();
+            rts = new StatusReport();
 
             switch(r)
             {
