@@ -28,7 +28,7 @@ namespace ThermalTalk
     /// <summary>
     /// Available fonts
     /// </summary>
-    public enum Fonts
+    public enum ThermalFonts
     {
         NOP, A, B, C
     }

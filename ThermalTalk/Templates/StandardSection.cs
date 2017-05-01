@@ -40,7 +40,7 @@ namespace ThermalTalk
 
         public virtual FontHeighScalar HeightScalar { get; set; }
 
-        public virtual Fonts Font { get; set; }
+        public virtual ThermalFonts Font { get; set; }
 
         public virtual bool AutoNewline { get; set; }
 

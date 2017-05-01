@@ -58,7 +58,7 @@ namespace ThermalTalk
         /// <summary>
         /// Gets or Sets the font to use for this section
         /// </summary>
-        Fonts Font { get; set; }
+        ThermalFonts Font { get; set; }
 
         /// <summary>
         /// Auto-apply a newline after this document

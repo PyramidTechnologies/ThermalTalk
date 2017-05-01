@@ -109,22 +109,22 @@ namespace ThermalTalk
         /// Sets the active font to this
         /// </summary>
         /// <param name="font">Font to use</param>
-        public override void SetFont(Fonts font)
+        public override void SetFont(ThermalFonts font)
         {
-            if (font == Fonts.NOP)
+            if (font == ThermalFonts.NOP)
             {
                 return;
             }
 
             switch (font)
             {
-                case Fonts.A:
+                case ThermalFonts.A:
                     internalSend(FontACmd);
                     break;
-                case Fonts.B:
+                case ThermalFonts.B:
                     internalSend(FontBCmd);
                     break;
-                case Fonts.C:
+                case ThermalFonts.C:
                     internalSend(FontCCmd);
                     break;
             }
