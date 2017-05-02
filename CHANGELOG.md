@@ -1,3 +1,13 @@
+# 1.1.1
+** bug fixes **
+
+* PrinterImage.Resize properly maintains aspect ratio
+
+*New*
+
+* ThermalTalk lib will always use the latest ThermalTalk.Imaging
+
+
 # 1.1.0
 ** bug fixes **
 
