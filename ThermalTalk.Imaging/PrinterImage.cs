@@ -226,7 +226,11 @@ namespace ThermalTalk.Imaging
 
         /// <summary>
         /// Resize logo using the specific dimensions. To adjustt a single dimension, set 
-        /// maintainAspectRatio to true and the first non-zero parameter.
+        /// maintainAspectRatio to true and the first non-zero parameter. The final width
+        /// and height, even if you pass in the current width and height as parmaeters
+        /// will always be rounded out to be evenly divisible by 8. For example, if your
+        /// image is 60x60 and you call Resize(60,60), the result will end up as 64x64
+        /// due to rounding.
         /// </summary>
         /// <example>
         /// myLogo.Resize(100, 0, true);  // Scale to 100 pixels wide and maintain ratio
@@ -247,13 +251,21 @@ namespace ThermalTalk.Imaging
                 {
                     // Get required height scalar
                     var scalar = (float)((float)Width / (float)pixelWidth);
-                    Width = pixelWidth;
+
+                    // Use scalar reciprocal
+                    scalar = 1 / scalar;
+                    
+                    Width = pixelWidth;                    
                     Height = (int)(Height * scalar);
                 } 
                 else if (pixelHeight > 0)
                 {
                     // Get required width scalar
                     var scalar = (float)((float)Height / (float)pixelHeight);
+
+                    // Use scalar reciprocal
+                    scalar = 1 / scalar;                
+
                     Height = pixelHeight;
                     Width = (int)(Width * scalar);
                 }
