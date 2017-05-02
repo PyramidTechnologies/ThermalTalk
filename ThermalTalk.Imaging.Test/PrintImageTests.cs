@@ -1,4 +1,6 @@
 ﻿using NUnit.Framework;
+using NUnit.Framework.Constraints;
+using System;
 using System.Drawing;
 using System.IO;
 
@@ -66,7 +68,7 @@ namespace ThermalTalk.Imaging.Test
         }
 
         [Test()]
-        public void ResizeTest()
+        public void ResizeWidthTest()
         {
             // Input are expected are provided as resources, dithered is what
             // we are testing
@@ -92,6 +94,67 @@ namespace ThermalTalk.Imaging.Test
                 Assert.AreEqual(grow, logo.Width);
                 Assert.AreEqual(expectedH, logo.Height);
             };
+        }
+
+        [Test()]
+        public void ResizeHeightTest()
+        {
+            // Input are expected are provided as resources, dithered is what
+            // we are testing
+            Bitmap input = Properties.Resources.white_bitmap;
+            using (var logo = new PrinterImage(input))
+            {
+                // Use the RoundUp method since that is done internally
+                // in PrinterImage. This is to allow for Assert.AreEqual tests
+
+                // First scale down by 50%
+                var shrink = (input.Height / 2).RoundUp(8);
+                var expectedW = (input.Width / 2).RoundUp(8);
+                logo.Resize(0, shrink, true);
+
+                Assert.AreEqual(shrink, logo.Height);
+                Assert.AreEqual(expectedW, logo.Width);
+
+                // Now double in size
+                var grow = (input.Height * 2).RoundUp(8);
+                expectedW = (input.Width * 2).RoundUp(8);
+                logo.Resize(0, grow, true);
+
+                Assert.AreEqual(grow, logo.Height);
+                Assert.AreEqual(expectedW, logo.Width);
+            };
+        }
+
+
+        [Test()]
+        public void ResizeNoneTest()
+        {
+            // Input are expected are provided as resources, dithered is what
+            // we are testing
+            Bitmap input = Properties.Resources.white_bitmap;
+            using (var logo = new PrinterImage(input))
+            {
+                var oldW = logo.Width.RoundUp(8);
+                var oldH = logo.Height.RoundUp(8);
+
+                logo.Resize(logo.Width, logo.Height, false);
+                Assert.AreEqual(oldW, logo.Width);
+                Assert.AreEqual(oldH, logo.Height);
+            }
+        }
+
+        [Test()]
+        public void ResizeZeroExceptionTest()
+        {
+            Bitmap input = Properties.Resources.white_bitmap;
+            using (var logo = new PrinterImage(input))
+            {
+                Assert.Throws<ImagingException>(() => logo.Resize(0, 0, true));           
+            }
+            using (var logo = new PrinterImage(input))
+            {
+                Assert.Throws<ImagingException>(() => logo.Resize(0, 0, false));
+            }
         }
     }
 }
