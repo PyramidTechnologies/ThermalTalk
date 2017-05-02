@@ -21,7 +21,7 @@
     </summary>
     <dependencies>
       <dependency id="Newtonsoft.Json" version="10.0.2" />
-      <dependency id="ThermalTalk.Imaging">
+      <dependency id="ThermalTalk.Imaging" version="1.*"/>
     </dependencies>
   </metadata>
 </package>
