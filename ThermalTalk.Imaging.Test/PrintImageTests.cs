@@ -64,5 +64,34 @@ namespace ThermalTalk.Imaging.Test
                 Assert.IsFalse(logo.IsInverted);
             };
         }
+
+        [Test()]
+        public void ResizeTest()
+        {
+            // Input are expected are provided as resources, dithered is what
+            // we are testing
+            Bitmap input = Properties.Resources.white_bitmap;
+            using (var logo = new PrinterImage(input))
+            {
+                // Use the RoundUp method since that is done internally
+                // in PrinterImage. This is to allow for Assert.AreEqual tests
+
+                // First scale down by 50%
+                var shrink = (input.Width / 2).RoundUp(8);
+                var expectedH = (input.Height / 2).RoundUp(8);
+                logo.Resize(shrink, 0, true);
+
+                Assert.AreEqual(shrink, logo.Width);
+                Assert.AreEqual(expectedH, logo.Height);
+
+                // Now double in size
+                var grow = (input.Width * 2).RoundUp(8);
+                expectedH = (input.Height * 2).RoundUp(8);
+                logo.Resize(grow, 0, true);
+
+                Assert.AreEqual(grow, logo.Width);
+                Assert.AreEqual(expectedH, logo.Height);
+            };
+        }
     }
 }

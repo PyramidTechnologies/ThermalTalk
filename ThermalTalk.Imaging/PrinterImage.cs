@@ -247,13 +247,21 @@ namespace ThermalTalk.Imaging
                 {
                     // Get required height scalar
                     var scalar = (float)((float)Width / (float)pixelWidth);
-                    Width = pixelWidth;
+
+                    // Use scalar reciprocal
+                    scalar = 1 / scalar;
+                    
+                    Width = pixelWidth;                    
                     Height = (int)(Height * scalar);
                 } 
                 else if (pixelHeight > 0)
                 {
                     // Get required width scalar
                     var scalar = (float)((float)Height / (float)pixelHeight);
+
+                    // Use scalar reciprocal
+                    scalar = 1 / scalar; scalar = 1 / scalar;                    
+
                     Height = pixelHeight;
                     Width = (int)(Width * scalar);
                 }
