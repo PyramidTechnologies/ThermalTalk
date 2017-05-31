@@ -1,3 +1,13 @@
+# 1.2
+** bug fixes **
+
+* None
+
+*New*
+
+* Add support for codepage 771 and 437
+
+
 # 1.1.1
 ** bug fixes **
 

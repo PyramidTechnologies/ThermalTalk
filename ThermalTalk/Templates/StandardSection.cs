@@ -23,6 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #endregion
+using System.Text;
 namespace ThermalTalk
 {
     /// <summary>
@@ -44,9 +45,32 @@ namespace ThermalTalk
 
         public virtual bool AutoNewline { get; set; }
 
-        public virtual byte[] GetContentBuffer()
+        public virtual byte[] GetContentBuffer(CodePages codepage)
         {
-            return System.Text.ASCIIEncoding.ASCII.GetBytes(Content);
+            Encoding encoder = null;
+            switch(codepage)
+            {
+                case CodePages.CP771:
+                    // This is the most similar to 771
+                    encoder = System.Text.Encoding.GetEncoding(866);
+                    break;
+
+                case CodePages.CP437:
+                    encoder = System.Text.Encoding.GetEncoding(437);
+                    break;
+
+                case CodePages.ASCII:
+                    Content = System.Text.RegularExpressions.Regex.Replace(Content,
+                        @"[^\u0020-\u007E]", string.Empty);
+                    encoder = System.Text.ASCIIEncoding.ASCII;
+                    break;
+
+                default:
+                    encoder = System.Text.Encoding.GetEncoding(771);
+                    break;
+            }
+
+            return encoder.GetBytes(Content);
         }
     }
 }

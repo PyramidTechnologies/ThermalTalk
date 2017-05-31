@@ -35,7 +35,7 @@ namespace ThermalConsole
         static void Main(string[] args)
         {
             const string phoenixPort = "COM1";
-            const string reliancePort = "COM4";            
+           const string reliancePort = "COM23";            
 
             const int captureRate = 10; // number of seconds between capture
             
@@ -81,7 +81,12 @@ namespace ThermalConsole
             // Image....
             // Image...
             // Timestamp
-            var document = new StandardDocument();
+            var document = new StandardDocument()
+            {
+                // Don't forget to set your codepage!
+                CodePage = CodePages.ASCII,
+            };
+
             document.Sections.Add(header);
             document.Sections.Add(new Placeholder());  // Placeholder since we know we'll want an image here
             document.Sections.Add(timestamp);
@@ -109,7 +114,7 @@ namespace ThermalConsole
                     image.ApplyDithering(Algorithms.JarvisJudiceNinke, 128);
 
                     // Print the header document, update with new capture number
-                    header.Content = string.Format("Capture #{0}", count);
+                    header.Content = string.Format("Capture #{0} (ЫВФАЫВМОЫВАП)", count);
 
                     // Printer the timestamp document
                     timestamp.Content = string.Format("{1}", count++, now);

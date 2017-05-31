@@ -30,8 +30,9 @@ namespace ThermalTalk
         /// <summary>
         /// Fetch this image in a format that Reliance understands
         /// </summary>
-        /// <returns></returns>
-        public override byte[] GetContentBuffer()
+        /// <param name="codepage">Unused</param>
+        /// <returns>byte array</returns>
+        public override byte[] GetContentBuffer(CodePages codepage)
         {
             return base.Image.GetAsRaster();
         }

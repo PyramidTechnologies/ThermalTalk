@@ -65,6 +65,7 @@
     <Compile Include="Common\BasePrinter.cs" />
     <Compile Include="Common\BaseSerialPort.cs" />
     <Compile Include="Common\BaseStatus.cs" />
+    <Compile Include="Common\CodePages.cs" />
     <Compile Include="Common\FontEffects.cs" />
     <Compile Include="Common\FontJustification.cs" />
     <Compile Include="Common\ThermalFonts.cs" />
