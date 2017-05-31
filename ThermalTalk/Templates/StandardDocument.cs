@@ -35,5 +35,7 @@ namespace ThermalTalk
         }
 
         public IList<ISection> Sections { get; set; }
+
+        public virtual CodePages CodePage { get; set; }
     }
 }

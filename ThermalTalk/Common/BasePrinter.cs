@@ -280,7 +280,7 @@ namespace ThermalTalk
                 SetFont(sec.Font);
 
                 // Send the actual content
-                internalSend(sec.GetContentBuffer());
+                internalSend(sec.GetContentBuffer(doc.CodePage));
 
                 if (sec.AutoNewline)
                 {
