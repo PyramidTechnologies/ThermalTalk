@@ -140,7 +140,7 @@ namespace ThermalTalk
             var len = encodeThis.Length > 154 ? 154 : encodeThis.Length;
             var setup = new byte[] { 0x0A, 0x1C, 0x7D, 0x25, (byte)len };
 
-            var fullCmd = Extensions.Concat(setup, ASCIIEncoding.ASCII.GetBytes(encodeThis), new byte[] { 0x0A });
+            var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(encodeThis), new byte[] { 0x0A });
 
         }
 
@@ -156,17 +156,19 @@ namespace ThermalTalk
             };
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// This command is processed in real time. The reply to this command is sent
         /// whenever it is received and does not wait for previous ESC/POS commands to be executed first.
-        /// If there is no response or an invalid response, all fields of RealTimeStatus will be null.
+        /// If there is no response or an invalid response, If there is a read timeout or comm failure, the
+        /// result will have the IsOnline and IsCommsOkay set to false
         /// </summary>
-        /// <param name="r">StatusRequest type</param>
-        /// <returns>Instance of RelianceStatus,m null on failure, Unset fields will be null</returns>
+        /// <param name="type">StatusRequest type</param>
+        /// <returns>Instance of RelianceStatus.</returns>
         public override StatusReport GetStatus(StatusTypes type)
         {
             // Result stored here
-            StatusReport rts = null;
+            var rts = StatusReport.Offline();
 
             // Translate generic status to phoenix status
             RelianceStatusRequests r;
@@ -203,7 +205,7 @@ namespace ThermalTalk
 
             // Send the real time status command, r is the argument
             var command = new byte[] { 0x10, 0x04, (byte)r };
-            int respLen = (r == RelianceStatusRequests.FullStatus) ? 6 : 1;
+            var respLen = (r == RelianceStatusRequests.FullStatus) ? 6 : 1;
 
             var data = new byte[0];
 
@@ -220,7 +222,7 @@ namespace ThermalTalk
 
             }
             catch
-            { }
+            { /* Do nothing */ }
             finally
             {
                 Connection.Close();
@@ -268,15 +270,15 @@ namespace ThermalTalk
                     break;
 
                 case RelianceStatusRequests.PaperRollStatus:
-                    /// bit 2,3: 0- okay, 12- Not okay        
+                    // bit 2,3: 0- okay, 12- Not okay        
                     rts.IsPaperLevelOkay = (data[0] & 0x0C) == 0;
 
-                    /// bit 5,6: 0- okay, 96- Not okay
+                    // bit 5,6: 0- okay, 96- Not okay
                     rts.IsPaperPresent = (data[0] & 0x60) == 0;                    
                     break;
 
                 case RelianceStatusRequests.PrintStatus:
-                    /// bit 2: 0- motor off, 1: motor on        
+                    // bit 2: 0- motor off, 1: motor on        
                     rts.IsPaperMotorOff = (data[0] & 4) == 0;
                     // bit 5: 0- paper present, 1: motor stopped because out of paper
                     
