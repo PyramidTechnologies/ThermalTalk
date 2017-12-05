@@ -4,6 +4,9 @@
 Pyramid Technologis Thermal Printer API is available on NuGet
 
     Install-Package ThermalTalk
+    
+## Samples
+See [ThermalConsole](ThermalConsole)
 
 ## Supports
 * Real Time Status Requests
