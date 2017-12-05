@@ -118,5 +118,14 @@ namespace ThermalTalk
         {
             return Json.Serialize(this, prettyPrint);
         }
+
+        public static StatusReport Offline()
+        {
+            return new StatusReport
+            {
+                IsOnline = false,
+                IsCommsOkay = false
+            };
+        }
     }
 }

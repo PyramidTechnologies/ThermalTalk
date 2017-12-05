@@ -14,3 +14,4 @@ ThermalTalk/bin/
 ThermalTalk.Imaging.Test/bin/
 packages/
 *.nupkg
+/ThermalTalk/build/ThermalTalk.XML

@@ -10,7 +10,7 @@
     <iconUrl>https://pyramidacceptors.com/favicon.ico</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Initial Release</releaseNotes>
+    <releaseNotes>Bug fixes</releaseNotes>
     <language>en-US</language>
     <licenseUrl>https://pti.mit-license.org/</licenseUrl>
     <copyright>Copyright Pyramid Technologies Inc 2017</copyright>
@@ -24,4 +24,8 @@
       <dependency id="ThermalTalk.Imaging" version="1.*"/>
     </dependencies>
   </metadata>
+  <files>
+    <file src="build\ThermalTalk.XML" target="lib" />
+    <file src="build\**" target="build" />
+  </files>
 </package>

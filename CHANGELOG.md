@@ -1,3 +1,12 @@
+# 1.3
+** bug fixes **
+
+* Return valid object, not null on comm error
+
+*New*
+
+* Include docs in nuget
+
 # 1.2
 ** bug fixes **
 
