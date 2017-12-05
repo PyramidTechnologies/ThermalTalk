@@ -229,10 +229,12 @@ namespace ThermalTalk
 
             if (r == PhoenixStatusRequests.FullStatus)
             {
-                internalGetStatus(PhoenixStatusRequests.Status, rts);
-                internalGetStatus(PhoenixStatusRequests.PaperRollStatus, rts);
-                internalGetStatus(PhoenixStatusRequests.OffLineStatus, rts);
-                internalGetStatus(PhoenixStatusRequests.ErrorStatus, rts);
+                ret = internalGetStatus(PhoenixStatusRequests.Status, rts);
+                ret = ret != ReturnCode.Success ? ret : internalGetStatus(PhoenixStatusRequests.PaperRollStatus, rts);
+                ret = ret != ReturnCode.Success ? ret : internalGetStatus(PhoenixStatusRequests.OffLineStatus, rts);
+
+                // Not supported PP-82
+                //ret = ret != ReturnCode.Success ? ret : internalGetStatus(PhoenixStatusRequests.ErrorStatus, rts);
             }
             else
             {
@@ -245,6 +247,9 @@ namespace ThermalTalk
 
         private ReturnCode internalGetStatus(PhoenixStatusRequests r, StatusReport rts)
         {
+
+            // PP-82 : Phoenix does not support the error status command
+            if (r == PhoenixStatusRequests.ErrorStatus) return ReturnCode.UnsupportedCommand;
 
             // Send the real time status command, r is the argument
             var command = new byte[] { 0x10, 0x04, (byte)r };
