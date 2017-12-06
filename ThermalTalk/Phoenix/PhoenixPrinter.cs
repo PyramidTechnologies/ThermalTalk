@@ -28,6 +28,7 @@ namespace ThermalTalk
     using System.Collections.Generic;
     using ThermalTalk.Imaging;
 
+    /// <inheritdoc />
     public class PhoenixPrinter : BasePrinter
     {
                
@@ -38,6 +39,7 @@ namespace ThermalTalk
         private readonly byte[] FontBCmd = new byte[] { 0x1B, 0x54 };
         private readonly byte[] FontCCmd = new byte[] { 0x1B, 0x55 };
 
+        /// <inheritdoc />
         /// <summary>
         /// Constructs a new instance of ReliancePrinter. This printer
         /// acts as a handle to all features and functions. If the serial port parameter
@@ -95,7 +97,7 @@ namespace ThermalTalk
 
         /// <summary>
         /// Updates the formfeed line count to n.
-        /// where 0 < n < 200
+        /// where 0 lt n lt 200
         /// Units are in lines relative to current font size. The default
         /// value is 20.
         /// </summary>
@@ -181,18 +183,18 @@ namespace ThermalTalk
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// This command is processed in real time. The reply to this command is sent
         /// whenever it is received and does not wait for previous ESC/POS commands to be executed first.
-        /// If there is no response or an invalid response, all fields of RealTimeStatus will be null.
+        /// If there is no response or an invalid response, IsValidReport will be set to false
         /// </summary>
-        /// <param name="r">StatusRequest type</param>
-        /// <returns>Instance of PhoenixStatus,m null on failure, Unset fields will be null</returns>
+        /// <remarks>Phoenix does not support Error or Movement status request type</remarks>
+        /// <param name="type">StatusRequest type</param>
+        /// <returns>Instance of PhoenixStatus</returns>
         public override StatusReport GetStatus(StatusTypes type)
-        {
-            // Result stored here
-            var rts = new StatusReport(); ;
-            var ret = ReturnCode.ExecutionFailure;
+        {         
+            ReturnCode ret;
 
             // Translate generic status to phoenix status
             PhoenixStatusRequests r;
@@ -207,7 +209,7 @@ namespace ThermalTalk
                     break;
 
                 case StatusTypes.ErrorStatus:
-                    r = PhoenixStatusRequests.ErrorStatus;
+                    return StatusReport.Invalid();;
                     break;
 
                 case StatusTypes.PaperStatus:
@@ -216,7 +218,7 @@ namespace ThermalTalk
 
                 case StatusTypes.MovementStatus:
                     // Not supported on Phoenix
-                    return null;
+                    return StatusReport.Invalid();;
 
                 case StatusTypes.FullStatus:
                     r = PhoenixStatusRequests.FullStatus;
@@ -224,8 +226,10 @@ namespace ThermalTalk
 
                 default:
                     // Unknown status type
-                    return null;
+                    return StatusReport.Invalid();
             }
+
+            var rts = new StatusReport();
 
             if (r == PhoenixStatusRequests.FullStatus)
             {
@@ -242,14 +246,23 @@ namespace ThermalTalk
             }
 
             // Return null status object on error
-            return ret == ReturnCode.Success ? rts : null;
+            return ret == ReturnCode.Success ? rts : StatusReport.Invalid();
         }
 
+        /// <summary>
+        /// Write specified report type to target and fill rts with parsed response
+        /// </summary>
+        /// <param name="r">Report type</param>
+        /// <param name="rts">Target</param>
+        /// <returns>Return code</returns>
         private ReturnCode internalGetStatus(PhoenixStatusRequests r, StatusReport rts)
         {
 
             // PP-82 : Phoenix does not support the error status command
-            if (r == PhoenixStatusRequests.ErrorStatus) return ReturnCode.UnsupportedCommand;
+            if (r == PhoenixStatusRequests.ErrorStatus)
+            {
+                return ReturnCode.UnsupportedCommand;
+            }
 
             // Send the real time status command, r is the argument
             var command = new byte[] { 0x10, 0x04, (byte)r };
@@ -270,7 +283,7 @@ namespace ThermalTalk
 
             }
             catch
-            { }
+            { /* Do nothing */}
             finally
             {
                 Connection.Close();
@@ -308,8 +321,12 @@ namespace ThermalTalk
                     break;
 
                 case PhoenixStatusRequests.PaperRollStatus:   
-                    /// bit 5,6: 0- okay, 96- Not okay
+                    // bit 5,6: 0- okay, 96- Not okay
                     rts.IsPaperPresent = (data[0] & 0x60) == 0;
+                    break;
+
+                default:
+                    rts.IsInvalidReport = true;
                     break;
             }
 

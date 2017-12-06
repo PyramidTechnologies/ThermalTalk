@@ -25,8 +25,19 @@ SOFTWARE.
 #endregion
 namespace ThermalTalk
 {
+
+    /// <summary>
+    /// Encapsulates all ESC/POS status response fields
+    /// </summary>
     public class StatusReport
     {
+        /// <summary>
+        /// Get or Sets flag indicating that this is an invalid report
+        /// An invalid report is generated if an incomplete, malformed,
+        /// or missing response is processed from a GetStatus command.
+        /// </summary>
+        public bool IsInvalidReport { get; set; }
+
         /// <summary>
         /// Printer is reporting online if value is true
         /// </summary>
@@ -119,12 +130,15 @@ namespace ThermalTalk
             return Json.Serialize(this, prettyPrint);
         }
 
-        public static StatusReport Offline()
+        /// <summary>
+        /// Returns a status report with the IsValidReport flag set to false
+        /// </summary>
+        /// <returns></returns>
+        public static StatusReport Invalid()
         {
             return new StatusReport
             {
-                IsOnline = false,
-                IsCommsOkay = false
+                IsInvalidReport = true,
             };
         }
     }

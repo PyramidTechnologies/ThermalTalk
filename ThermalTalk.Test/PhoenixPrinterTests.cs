@@ -59,12 +59,12 @@ namespace ThermalTalk.Test
             Assert.IsNotNull(status);
 
             // Only these should be set
-            Assert.IsNotNull(status.IsCoverClosed);
-            Assert.IsNotNull(status.IsNormalFeed);
-            Assert.IsNotNull(status.IsPaperPresent);
             Assert.IsNotNull(status.HasError);
 
             // All the rest must be null
+            Assert.IsNull(status.IsCoverClosed);
+            Assert.IsNull(status.IsNormalFeed);
+            Assert.IsNull(status.IsPaperPresent);
             Assert.IsNull(status.IsOnline);
             Assert.IsNull(status.IsPaperLevelOkay);
             Assert.IsNull(status.IsTicketPresentAtOutput);
@@ -88,7 +88,12 @@ namespace ThermalTalk.Test
             // we should just run all queries in one test to avoid access issues.
             var printer = new PhoenixPrinter(TEST_PORT);
 
+            // TODO base ESC/POS firmware does not support this
+            return;
             var status = printer.GetStatus(StatusTypes.ErrorStatus);
+
+            // If this fails, we have a hardware or configuration issue
+            Assert.IsFalse(status.IsInvalidReport);
 
             Assert.IsNotNull(status);
 
@@ -124,13 +129,16 @@ namespace ThermalTalk.Test
 
             var status = printer.GetStatus(StatusTypes.PaperStatus);
 
-            Assert.IsNotNull(status);
+            // If this fails, we have a hardware or configuration issue
+            Assert.IsFalse(status.IsInvalidReport);
 
+            Assert.IsNotNull(status);
+            
             // Only these should be set
-            Assert.IsNotNull(status.IsPaperLevelOkay);
             Assert.IsNotNull(status.IsPaperPresent);
 
             // All the rest must be null
+            Assert.IsNull(status.IsPaperLevelOkay);
             Assert.IsNull(status.IsOnline);
             Assert.IsNull(status.IsTicketPresentAtOutput);
             Assert.IsNull(status.IsCoverClosed);

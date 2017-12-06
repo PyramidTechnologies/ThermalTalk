@@ -23,12 +23,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #endregion
+
+using System;
+
 namespace ThermalTalk
 {
     using System.Collections.Generic;
     using System.Text;
     using ThermalTalk.Imaging;
 
+    /// <inheritdoc />
     /// <summary>
     /// Reliance Printer is the primary handle for accessing the printer API
     /// </summary>
@@ -144,6 +148,7 @@ namespace ThermalTalk
 
         }
 
+        /// <inheritdoc />
         public override void SetImage(PrinterImage image, IDocument doc, int index)
         {
             while(index > doc.Sections.Count)
@@ -161,15 +166,12 @@ namespace ThermalTalk
         /// This command is processed in real time. The reply to this command is sent
         /// whenever it is received and does not wait for previous ESC/POS commands to be executed first.
         /// If there is no response or an invalid response, If there is a read timeout or comm failure, the
-        /// result will have the IsOnline and IsCommsOkay set to false
+        /// result will have the IsValidReport set to false.
         /// </summary>
         /// <param name="type">StatusRequest type</param>
-        /// <returns>Instance of RelianceStatus.</returns>
+        /// <returns>Instance of RelianceStatus</returns>
         public override StatusReport GetStatus(StatusTypes type)
         {
-            // Result stored here
-            var rts = StatusReport.Offline();
-
             // Translate generic status to phoenix status
             RelianceStatusRequests r;
             switch (type)
@@ -200,7 +202,7 @@ namespace ThermalTalk
 
                 default:
                     // Unknown status type
-                    return null;
+                    return StatusReport.Invalid();
             }
 
             // Send the real time status command, r is the argument
@@ -231,10 +233,10 @@ namespace ThermalTalk
             // Invalid response
             if(data.Length != respLen)
             {
-                return rts;
+                return StatusReport.Invalid();
             }
 
-            rts = new StatusReport();
+            var rts = new StatusReport();
 
             switch(r)
             {
@@ -308,7 +310,10 @@ namespace ThermalTalk
 
                     rts.IsCutterOkay = (data[5] & 0x01) == 0; 
                     break;
-                    
+
+                default:
+                    rts.IsInvalidReport = true;
+                    break;
             }
 
             return rts;
