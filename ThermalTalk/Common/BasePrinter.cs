@@ -30,9 +30,11 @@ namespace ThermalTalk
     using System.Text;
     using ThermalTalk.Imaging;
 
+    /// <inheritdoc />
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public abstract class BasePrinter : IPrinter
     {
+        /// <inheritdoc />
         protected BasePrinter()
         {
             Justification = FontJustification.JustifyLeft;
@@ -125,17 +127,20 @@ namespace ThermalTalk
         /// </summary>
         public FontJustification Justification { get; private set; }
 
+        /// <inheritdoc />
         /// <summary>
         /// Gets the active font
         /// </summary>
         public ThermalFonts Font { get; private set; }
 
+        /// <inheritdoc />
         /// <summary>
         /// Sets the active font to this
         /// </summary>
         /// <param name="font">Font to use</param>
         public abstract void SetFont(ThermalFonts font);
 
+        /// <inheritdoc />
         /// <summary>
         /// Returns the sepcified status report for this printer
         /// </summary>
@@ -143,6 +148,7 @@ namespace ThermalTalk
         /// <returns>Status report</returns>
         public abstract StatusReport GetStatus(StatusTypes type);
 
+        /// <inheritdoc />
         /// <summary>
         /// Send the ESC/POS reinitialize command which restores all 
         /// default options, configurable, etc.
@@ -157,6 +163,7 @@ namespace ThermalTalk
             internalSend(InitPrinterCommand);
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Applies the specified scalars
         /// </summary>
@@ -184,6 +191,7 @@ namespace ThermalTalk
             internalSend(cmd);
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Applies the specified justification
         /// </summary>
@@ -208,24 +216,27 @@ namespace ThermalTalk
             }
         }
 
+        /// <inheritdoc />
         public virtual void AddEffect(FontEffects effect)
         {
             foreach (var flag in effect.GetFlags())
             {
                 // Lookup enable command and send if non-empty
-                if (EnableCommands.ContainsKey(flag))
+                if (!EnableCommands.ContainsKey(flag))
                 {
-                    var cmd = EnableCommands[flag];
-                    if (cmd.Length > 0)
-                    {
-                        internalSend(cmd);
-                    }
+                    continue;
+                }
+                var cmd = EnableCommands[flag];
+                if (cmd.Length > 0)
+                {
+                    internalSend(cmd);
                 }
             }
 
             Effects |= effect;
         }
 
+        /// <inheritdoc />
         public virtual void RemoveEffect(FontEffects effect)
         {
             foreach (var flag in effect.GetFlags())
@@ -243,6 +254,7 @@ namespace ThermalTalk
             Effects &= ~effect;
         }
 
+        /// <inheritdoc />
         public virtual void ClearAllEffects()
         {
             foreach (var cmd in DisableCommands.Values)
@@ -255,11 +267,13 @@ namespace ThermalTalk
             Effects = FontEffects.None;
         }
 
+        /// <inheritdoc />
         public virtual void PrintASCIIString(string str)
         {
-            internalSend(ASCIIEncoding.ASCII.GetBytes(str));
+            internalSend(Encoding.ASCII.GetBytes(str));
         }
 
+        /// <inheritdoc />
         public virtual void PrintDocument(IDocument doc)
         {
             // Keep track of current settings so we can restore
@@ -297,30 +311,39 @@ namespace ThermalTalk
             SetFont(oldFont);
         }
 
+        /// <inheritdoc />
         public abstract void SetImage(PrinterImage image, IDocument doc, int index);
 
+        /// <inheritdoc />
         public virtual void PrintNewline()
         {
             internalSend(NewLineCommand);
         }
 
+        /// <inheritdoc />
         public virtual void FormFeed()
         {
             internalSend(FormFeedCommand);
         }
 
+        /// <inheritdoc />
         public virtual void SendRaw(byte[] raw)
         {
             internalSend(raw);
         }
 
 
+        /// <inheritdoc />
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Close serial connection
+        /// </summary>
+        /// <param name="diposing">True to close connection</param>
         protected virtual void Dispose(bool diposing)
         {
             if (Connection != null)
@@ -330,6 +353,12 @@ namespace ThermalTalk
         }
 
         #region Protected
+        /// <summary>
+        /// Send payload over serial port. If port
+        /// is not open, this will open the port before writing.
+        /// The port will be closed when the write completes or fails.
+        /// </summary>
+        /// <param name="payload"></param>
         protected void internalSend(byte[] payload)
         {
             // Do not send empty packets
@@ -344,7 +373,7 @@ namespace ThermalTalk
 
                 Connection.Write(payload);
             }
-            catch { }
+            catch { /* Do nothing */ }
             finally
             {
                 Connection.Close();

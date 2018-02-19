@@ -1,6 +1,15 @@
 # 1.3
 ** bug fixes **
 
+* None
+
+*New*
+
+* Phoenix now behaves like Reliance where possible for status reports
+
+# 1.3
+** bug fixes **
+
 * Return valid object, not null on comm error
 
 *New*
