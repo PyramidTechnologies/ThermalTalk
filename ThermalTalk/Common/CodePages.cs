@@ -25,6 +25,8 @@ SOFTWARE.
 #endregion
 namespace ThermalTalk
 {
+    using System;
+
     /// <summary>
     /// Codepages supported by devices
     /// Note: Reliance Only
@@ -32,18 +34,49 @@ namespace ThermalTalk
     public enum CodePages
     {
         /// <summary>
-        /// Russian Cyrillic
+        /// Prints only ASCII 32-127
         /// </summary>
-        CP771,
+        CPSPACE = 32,
+        /// <summary>
+        /// Kurdish Arabic script
+        /// </summary>
+        CP600 = 600,
+        /// <summary>
+        /// Cyrillic + Euro symbol
+        /// </summary>
+        CP808 = 808,
+        /// <summary>
+        /// DOS Latin 1
+        /// </summary>
+        CP850 = 850,
+        /// <summary>
+        /// Quebec French
+        /// </summary>
+        CP863 = 863,
+        /// <summary>
+        /// ANSI Latin 1
+        /// </summary>
+        CP1252 = 1252,
+        /// <summary>
+        /// Georgian script
+        /// </summary>
+        CP4256 = 4256,
 
         /// <summary>
-        /// Latin and Euro
+        /// Russian Cyrillic
         /// </summary>
-        CP437,
+        [Obsolete("Use 808")]
+        CP771 = 0,
+
+        /// <summary>
+        /// Eurpoean and Greek
+        /// </summary>
+        CP437 = 437,
 
         /// <summary>
         /// Skips any non-ascii chars
         /// </summary>
+        [Obsolete("Use CPSPACE")]
         ASCII
     }
 }

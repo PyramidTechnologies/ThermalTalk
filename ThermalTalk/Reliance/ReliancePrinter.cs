@@ -41,9 +41,9 @@ namespace ThermalTalk
         const int DefaultReadTimeout = 1000; /// ms
         const int DefaultBaudRate = 19200;
 
-        private readonly byte[] CPI11 = new byte[] { 0x1B, 0xC1, 0x00 };
-        private readonly byte[] CPI15 = new byte[] { 0x1B, 0xC1, 0x01 };
-        private readonly byte[] CPI20 = new byte[] { 0x1B, 0xC1, 0x02 };
+        private readonly byte[] CPI11 = { 0x1B, 0xC1, 0x00 };
+        private readonly byte[] CPI15 = { 0x1B, 0xC1, 0x01 };
+        private readonly byte[] CPI20 = { 0x1B, 0xC1, 0x02 };
 
         /// <summary>
         /// Constructs a new instance of ReliancePrinter. This printer
@@ -95,8 +95,11 @@ namespace ThermalTalk
                 PrintSerialReadTimeout = DefaultReadTimeout;
                 PrintSerialBaudRate = DefaultBaudRate;
 
-                Connection = new RelianceSerialPort(serialPortName, PrintSerialBaudRate);
-                Connection.ReadTimeoutMS = DefaultReadTimeout;              
+                Connection = new RelianceSerialPort(serialPortName, PrintSerialBaudRate)
+                {
+                    ReadTimeoutMS = DefaultReadTimeout
+                };
+
             }
         }
 
@@ -131,6 +134,7 @@ namespace ThermalTalk
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Encodes the specified string as a center justified 2D barcode. 
         /// This 2D barcode is compliant with the QR Code® specicification and can be read by all 2D barcode readers.
@@ -139,13 +143,13 @@ namespace ThermalTalk
         /// encoded. The rest of the characters to be encoded will be printed as regular ESC/POS characters on a new line.
         /// </summary>
         /// <param name="encodeThis">String to encode, max length = 154 bytes</param>
-        public void Print2DBarcode(string encodeThis)
+        public override void Print2DBarcode(string encodeThis)
         {
             var len = encodeThis.Length > 154 ? 154 : encodeThis.Length;
             var setup = new byte[] { 0x0A, 0x1C, 0x7D, 0x25, (byte)len };
 
             var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(encodeThis), new byte[] { 0x0A });
-
+            internalSend(fullCmd);
         }
 
         /// <inheritdoc />
