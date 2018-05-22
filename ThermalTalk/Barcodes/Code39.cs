@@ -37,14 +37,15 @@ namespace ThermalTalk
                 payload.Add((byte)EncodeThis.Length);
             }
 
+            var bytes = System.Text.Encoding.ASCII.GetBytes(EncodeThis);
+            payload.AddRange(bytes);
+
+
             // Force null terminated string
             if (!EncodeThis.EndsWith("\0"))
             {
                 payload.Add(0);
             }
-
-            var bytes = System.Text.Encoding.ASCII.GetBytes(EncodeThis);
-            payload.AddRange(bytes);
 
             return payload.ToArray();
         }

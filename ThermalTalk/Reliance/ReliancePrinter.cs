@@ -153,7 +153,9 @@ namespace ThermalTalk
         }
 
         /// <summary>
-        /// Build and send provided barcode
+        /// Build and send provided barcode. If this is too limiting,
+        /// feel free to follow the docs and build your own payload that
+        /// can be sent with the #SendRaw method.
         /// </summary>
         /// <param name="barcode">Barcode object</param>
         public void PrintBarcode(IBarcode barcode)

@@ -43,19 +43,19 @@ namespace ThermalTalk
             payload.AddRange(new byte[] { 0x1D, 0x6B, m });
 
             // mode 2 requires length
-            if (m == 69)
+            if (m == 70)
             {
                 payload.Add((byte)EncodeThis.Length);
             }
+
+            var bytes = System.Text.Encoding.ASCII.GetBytes(EncodeThis);
+            payload.AddRange(bytes);
 
             // Force null terminated string
             if (!EncodeThis.EndsWith("\0"))
             {
                 payload.Add(0);
             }
-
-            var bytes = System.Text.Encoding.ASCII.GetBytes(EncodeThis);
-            payload.AddRange(bytes);
 
             return payload.ToArray();
         }

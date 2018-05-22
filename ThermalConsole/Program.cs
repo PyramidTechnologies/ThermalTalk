@@ -84,7 +84,7 @@ namespace ThermalConsole
             var document = new StandardDocument()
             {
                 // Don't forget to set your codepage!
-                CodePage = CodePages.ASCII,
+                CodePage = CodePages.CPSPACE,
             };
 
             document.Sections.Add(header);
@@ -114,10 +114,10 @@ namespace ThermalConsole
                     image.ApplyDithering(Algorithms.JarvisJudiceNinke, 128);
 
                     // Print the header document, update with new capture number
-                    header.Content = string.Format("Capture #{0} (ЫВФАЫВМОЫВАП)", count);
+                    header.Content = $"Capture #{count} (ЫВФАЫВМОЫВАП)";
 
                     // Printer the timestamp document
-                    timestamp.Content = string.Format("{1}", count++, now);
+                    timestamp.Content = $"{count++}: {now}";
 
                     // Get the latest printer status. Note that reliance and phoenix have
                     // slightly different args to this get status command

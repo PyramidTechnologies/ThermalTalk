@@ -19,7 +19,7 @@ namespace ThermalTalk
         public string EncodeThis { get; set; }
 
         /// <inheritdoc />
-        public byte Form { get; set; }
+        public byte Form { get; set; } = 1;
 
         /// <inheritdoc />
         public byte BarcodeDotHeight { get; set; } = 100;
@@ -28,10 +28,10 @@ namespace ThermalTalk
         public byte BarcodeWidthMultiplier { get; set; } = 2;
 
         /// <inheritdoc />
-        public HRIPositions HriPosition { get; set; }
+        public HRIPositions HriPosition { get; set; } = HRIPositions.NotPrinted;
 
         /// <inheritdoc />
-        public ThermalFonts BarcodeFont { get; set; }
+        public ThermalFonts BarcodeFont { get; set; } = ThermalFonts.A;
 
         /// <inheritdoc />
         public abstract byte[] Build();
@@ -51,7 +51,7 @@ namespace ThermalTalk
 
             if (BarcodeWidthMultiplier >= 1 && BarcodeWidthMultiplier <=6)
             {
-                payload.AddRange(new byte[] { 0x1D, 0x77, BarcodeDotHeight });
+                payload.AddRange(new byte[] { 0x1D, 0x77, BarcodeWidthMultiplier });
             }
 
             payload.AddRange(new byte[] { 0x1D, 0x48, (byte)HriPosition });
