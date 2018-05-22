@@ -23,6 +23,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #endregion
+
+using System;
+using System.Text;
+
 namespace ThermalTalk
 {
     using System.Collections.Generic;
@@ -35,9 +39,9 @@ namespace ThermalTalk
         const int DefaultReadTimeout = 1500; /// ms
         const int DefaultBaudRate = 9600;
 
-        private readonly byte[] FontACmd = new byte[] { 0x1B, 0x50 };
-        private readonly byte[] FontBCmd = new byte[] { 0x1B, 0x54 };
-        private readonly byte[] FontCCmd = new byte[] { 0x1B, 0x55 };
+        private readonly byte[] FontACmd = { 0x1B, 0x50 };
+        private readonly byte[] FontBCmd = { 0x1B, 0x54 };
+        private readonly byte[] FontCCmd = { 0x1B, 0x55 };
 
         /// <inheritdoc />
         /// <summary>
@@ -84,15 +88,19 @@ namespace ThermalTalk
             NewLineCommand = new byte[] { 0x0A };
             InitPrinterCommand = new byte[] { 0x1B, 0x40 };
 
-            // User wants a serial port
-            if (!string.IsNullOrEmpty(serialPortName))
-            {            
-                PrintSerialReadTimeout = DefaultReadTimeout;
-                PrintSerialBaudRate = DefaultBaudRate;
+            PrintSerialReadTimeout = DefaultReadTimeout;
+            PrintSerialBaudRate = DefaultBaudRate;
 
-                Connection = new RelianceSerialPort(serialPortName, PrintSerialBaudRate);
-                Connection.ReadTimeoutMS = DefaultReadTimeout;              
+            // User wants a serial port
+            if (string.IsNullOrEmpty(serialPortName))
+            {
+                return;
             }
+
+            Connection = new PhoenixSerialPort(serialPortName, PrintSerialBaudRate)
+            {
+                ReadTimeoutMS = DefaultReadTimeout
+            };
         }
 
         /// <summary>
@@ -105,6 +113,25 @@ namespace ThermalTalk
         public void SetFormFeedLineCount(byte n)
         {
             FormFeedCommand[2] = n;
+        }
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Encodes the specified string as a center justified 2D barcode. 
+        /// This 2D barcode is compliant with the QR Code® specicification and can be read by all 2D barcode readers.
+        /// Up to 154 8-bit characters are supported.
+        /// f the input string length exceeds the range specified by the k parameter, only the first 154 characters will be 
+        /// encoded. The rest of the characters to be encoded will be printed as regular ESC/POS characters on a new line.
+        /// </summary>
+        /// <param name="encodeThis">String to encode, max length = 154 bytes</param>
+        public override void Print2DBarcode(string encodeThis)
+        {
+            var len = encodeThis.Length > 154 ? 154 : encodeThis.Length;
+            var setup = new byte[] { 0x1D, 0x28, 0x6B, (byte)len, 0x00, 0x31, 0x50 };
+            var printit = new byte[] {0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, 0x31};
+
+            var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(encodeThis), printit);
+            internalSend(fullCmd);
         }
 
         /// <summary>
