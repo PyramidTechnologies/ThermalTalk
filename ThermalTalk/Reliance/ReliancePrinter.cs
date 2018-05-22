@@ -152,6 +152,19 @@ namespace ThermalTalk
             internalSend(fullCmd);
         }
 
+        /// <summary>
+        /// Build and send provided barcode
+        /// </summary>
+        /// <param name="barcode">Barcode object</param>
+        public void PrintBarcode(IBarcode barcode)
+        {
+            var payload = barcode.Build();
+            if (payload.Length > 0)
+            {
+                internalSend(payload);
+            }
+        }
+
         /// <inheritdoc />
         public override void SetImage(PrinterImage image, IDocument doc, int index)
         {
