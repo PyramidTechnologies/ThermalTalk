@@ -197,5 +197,15 @@ namespace ThermalTalk.Test
             printer.PrintNewline();
             printer.FormFeed();
         }
+
+        [Test()]
+        public void REL_RealHardwareTest2DBarcodes()
+        {
+            var printer = new ReliancePrinter(TEST_PORT);
+            Assert.IsNotNull(printer);
+
+            printer.Print2DBarcode("0123456789AMANO");
+            printer.FormFeed();
+        }
     }
 }
