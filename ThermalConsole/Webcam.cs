@@ -37,7 +37,7 @@ namespace ThermalConsole
         /// <returns>PrinterImage</returns>
         public static PrinterImage GrabPicture()
         {
-            Capture capture = new Capture(0);
+            Capture capture = new Capture();
             using (var image = capture.QueryFrame().Bitmap)
             {
                 return new PrinterImage(image);

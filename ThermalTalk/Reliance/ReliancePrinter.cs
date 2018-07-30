@@ -275,7 +275,7 @@ namespace ThermalTalk
                     rts.IsPaperPresent = (data[0] & 0x20) == 0;
 
                     // bit 6: 0- no error, 1- error        
-                    rts.HasError = (data[0] & 0x40) == 0;
+                    rts.HasError = (data[0] & 0x40) == 0x40;
                  
                     break;
 
@@ -284,10 +284,10 @@ namespace ThermalTalk
                     rts.IsCutterOkay = (data[0] & 8) == 0;    
 
                     // bit 5: 0- No fatal (non-recoverable) error, 1- Fatal error        
-                    rts.HasFatalError = (data[0] & 8) == 0;    
+                    rts.HasFatalError = (data[0] & 0x20) == 0x20;    
     
                     // bit 6: 0- No recoverable error, 1- Recoverable error        
-                    rts.HasRecoverableError = (data[0] & 0x40) == 1; 
+                    rts.HasRecoverableError = (data[0] & 0x40) == 0x40; 
                     break;
 
                 case RelianceStatusRequests.PaperRollStatus:
@@ -310,10 +310,10 @@ namespace ThermalTalk
 
                     rts.IsPaperPresent = (data[2] & 0x01) == 0;
                     rts.IsPaperLevelOkay = (data[2] & 0x04) == 0;
-                    rts.IsTicketPresentAtOutput = (data[2] & 0x20) == 0;
+                    rts.IsTicketPresentAtOutput = (data[2] & 0x20) == 0x20;
 
                     // Custom specs duplicates these so if EITHER
-                    // are set to open, report open
+                    // are set to open, report open. 0: closed, 1: open
                     var covera = (data[3] & 0x01) == 0;
                     var coverb = (data[3] & 0x02) == 0;
 
