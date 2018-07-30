@@ -47,7 +47,13 @@ namespace ThermalTalk
 
         public virtual byte[] GetContentBuffer(CodePages codepage)
         {
-            Encoding encoder = null;
+
+            if (string.IsNullOrEmpty(Content))
+            {
+                return new byte[0];
+            }
+
+            Encoding encoder;
             switch(codepage)
             {
                 case CodePages.CP771:
@@ -66,7 +72,7 @@ namespace ThermalTalk
                     break;
 
                 default:
-                    encoder = System.Text.Encoding.GetEncoding(771);
+                    encoder = System.Text.Encoding.GetEncoding(866);
                     break;
             }
 
