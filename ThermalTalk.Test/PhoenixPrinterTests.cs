@@ -154,6 +154,18 @@ namespace ThermalTalk.Test
             Assert.IsNull(status.HasFatalError);
             Assert.IsNull(status.HasRecoverableError);
 
-        }    
+        }
+
+
+        [Test()]
+        public void Print2DBarcodeTest()
+        {
+            var printer = new PhoenixPrinter(TEST_PORT);
+
+            var status = printer.GetStatus(StatusTypes.PaperStatus);
+
+
+            printer.Print2DBarcode("Hello World");
+        }
     }
 }

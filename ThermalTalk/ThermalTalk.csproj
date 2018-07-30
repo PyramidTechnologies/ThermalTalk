@@ -23,7 +23,7 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>build\ThermalTalk.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\ThermalTalk.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -64,6 +64,13 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Barcodes\BarcodeTypes.cs" />
+    <Compile Include="Barcodes\Code128.cs" />
+    <Compile Include="Barcodes\Code39.cs" />
+    <Compile Include="Barcodes\HRIPositions.cs" />
+    <Compile Include="Barcodes\BaseBarcode.cs" />
+    <Compile Include="Barcodes\IBarcode.cs" />
+    <Compile Include="Barcodes\ITF.cs" />
     <Compile Include="Common\BasePrinter.cs" />
     <Compile Include="Common\BaseSerialPort.cs" />
     <Compile Include="Common\BaseStatus.cs" />

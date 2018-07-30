@@ -1,3 +1,13 @@
+# 1.4
+** bug fixes **
+* Fixed IsTicketPresentAtOutput flag parse
+* Fixed HasError flag parse
+* Fixed HasFatalError flag parse
+* Fixed HasRecoverableError flag parse
+
+* New *
+* Does not assume webcam number in CLI example project
+
 # 1.3
 ** bug fixes **
 

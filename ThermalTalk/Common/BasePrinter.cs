@@ -133,6 +133,13 @@ namespace ThermalTalk
         /// </summary>
         public ThermalFonts Font { get; private set; }
 
+        /// <summary>
+        /// Encodes the specified string as a center justified 2D barcode. 
+        /// This 2D barcode is compliant with the QR Code® specicification and can be read by all 2D barcode readers.
+        /// </summary>
+        /// <param name="encodeThis">String to encode</param>
+        public abstract void Print2DBarcode(string encodeThis);    
+
         /// <inheritdoc />
         /// <summary>
         /// Sets the active font to this

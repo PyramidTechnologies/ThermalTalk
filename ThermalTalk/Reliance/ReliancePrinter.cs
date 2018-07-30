@@ -41,9 +41,9 @@ namespace ThermalTalk
         const int DefaultReadTimeout = 1000; /// ms
         const int DefaultBaudRate = 19200;
 
-        private readonly byte[] CPI11 = new byte[] { 0x1B, 0xC1, 0x00 };
-        private readonly byte[] CPI15 = new byte[] { 0x1B, 0xC1, 0x01 };
-        private readonly byte[] CPI20 = new byte[] { 0x1B, 0xC1, 0x02 };
+        private readonly byte[] CPI11 = { 0x1B, 0xC1, 0x00 };
+        private readonly byte[] CPI15 = { 0x1B, 0xC1, 0x01 };
+        private readonly byte[] CPI20 = { 0x1B, 0xC1, 0x02 };
 
         /// <summary>
         /// Constructs a new instance of ReliancePrinter. This printer
@@ -95,8 +95,11 @@ namespace ThermalTalk
                 PrintSerialReadTimeout = DefaultReadTimeout;
                 PrintSerialBaudRate = DefaultBaudRate;
 
-                Connection = new RelianceSerialPort(serialPortName, PrintSerialBaudRate);
-                Connection.ReadTimeoutMS = DefaultReadTimeout;              
+                Connection = new RelianceSerialPort(serialPortName, PrintSerialBaudRate)
+                {
+                    ReadTimeoutMS = DefaultReadTimeout
+                };
+
             }
         }
 
@@ -131,6 +134,7 @@ namespace ThermalTalk
             }
         }
 
+        /// <inheritdoc />
         /// <summary>
         /// Encodes the specified string as a center justified 2D barcode. 
         /// This 2D barcode is compliant with the QR Code® specicification and can be read by all 2D barcode readers.
@@ -139,13 +143,28 @@ namespace ThermalTalk
         /// encoded. The rest of the characters to be encoded will be printed as regular ESC/POS characters on a new line.
         /// </summary>
         /// <param name="encodeThis">String to encode, max length = 154 bytes</param>
-        public void Print2DBarcode(string encodeThis)
+        public override void Print2DBarcode(string encodeThis)
         {
             var len = encodeThis.Length > 154 ? 154 : encodeThis.Length;
             var setup = new byte[] { 0x0A, 0x1C, 0x7D, 0x25, (byte)len };
 
             var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(encodeThis), new byte[] { 0x0A });
+            internalSend(fullCmd);
+        }
 
+        /// <summary>
+        /// Build and send provided barcode. If this is too limiting,
+        /// feel free to follow the docs and build your own payload that
+        /// can be sent with the #SendRaw method.
+        /// </summary>
+        /// <param name="barcode">Barcode object</param>
+        public void PrintBarcode(IBarcode barcode)
+        {
+            var payload = barcode.Build();
+            if (payload.Length > 0)
+            {
+                internalSend(payload);
+            }
         }
 
         /// <inheritdoc />
@@ -256,7 +275,7 @@ namespace ThermalTalk
                     rts.IsPaperPresent = (data[0] & 0x20) == 0;
 
                     // bit 6: 0- no error, 1- error        
-                    rts.HasError = (data[0] & 0x40) == 0;
+                    rts.HasError = (data[0] & 0x40) == 0x40;
                  
                     break;
 
@@ -265,10 +284,10 @@ namespace ThermalTalk
                     rts.IsCutterOkay = (data[0] & 8) == 0;    
 
                     // bit 5: 0- No fatal (non-recoverable) error, 1- Fatal error        
-                    rts.HasFatalError = (data[0] & 8) == 0;    
+                    rts.HasFatalError = (data[0] & 0x20) == 0x20;    
     
                     // bit 6: 0- No recoverable error, 1- Recoverable error        
-                    rts.HasRecoverableError = (data[0] & 0x40) == 1; 
+                    rts.HasRecoverableError = (data[0] & 0x40) == 0x40; 
                     break;
 
                 case RelianceStatusRequests.PaperRollStatus:
@@ -291,10 +310,10 @@ namespace ThermalTalk
 
                     rts.IsPaperPresent = (data[2] & 0x01) == 0;
                     rts.IsPaperLevelOkay = (data[2] & 0x04) == 0;
-                    rts.IsTicketPresentAtOutput = (data[2] & 0x20) == 0;
+                    rts.IsTicketPresentAtOutput = (data[2] & 0x20) == 0x20;
 
                     // Custom specs duplicates these so if EITHER
-                    // are set to open, report open
+                    // are set to open, report open. 0: closed, 1: open
                     var covera = (data[3] & 0x01) == 0;
                     var coverb = (data[3] & 0x02) == 0;
 

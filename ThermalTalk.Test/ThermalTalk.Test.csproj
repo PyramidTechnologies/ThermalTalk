@@ -57,6 +57,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Barcodes\Code128Tests.cs" />
+    <Compile Include="Barcodes\Code39Tests.cs" />
+    <Compile Include="Barcodes\ITFTests.cs" />
     <Compile Include="HW_PhoenixPrintTest.cs" />
     <Compile Include="HW_ReliancePrintTest.cs" />
     <Compile Include="PhoenixPrinterTests.cs" />
