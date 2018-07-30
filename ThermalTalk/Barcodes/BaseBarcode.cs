@@ -15,23 +15,35 @@ namespace ThermalTalk
     /// </summary>
     public abstract class BaseBarcode : IBarcode
     {
+        /// <summary>
+        /// Creates a default barcode
+        /// </summary>
+        protected BaseBarcode()
+        {
+            Form = 1;
+            BarcodeDotHeight = 100;
+            BarcodeWidthMultiplier = 2;
+            HriPosition = HRIPositions.NotPrinted;
+            BarcodeFont = ThermalFonts.A;
+        }
+
         /// <inheritdoc />
         public string EncodeThis { get; set; }
 
         /// <inheritdoc />
-        public byte Form { get; set; } = 1;
+        public byte Form { get; set; }
 
         /// <inheritdoc />
-        public byte BarcodeDotHeight { get; set; } = 100;
+        public byte BarcodeDotHeight { get; set; }
 
         /// <inheritdoc />
-        public byte BarcodeWidthMultiplier { get; set; } = 2;
+        public byte BarcodeWidthMultiplier { get; set; }
 
         /// <inheritdoc />
-        public HRIPositions HriPosition { get; set; } = HRIPositions.NotPrinted;
+        public HRIPositions HriPosition { get; set; }
 
         /// <inheritdoc />
-        public ThermalFonts BarcodeFont { get; set; } = ThermalFonts.A;
+        public ThermalFonts BarcodeFont { get; set; }
 
         /// <inheritdoc />
         public abstract byte[] Build();

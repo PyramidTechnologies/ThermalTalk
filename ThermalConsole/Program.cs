@@ -35,7 +35,7 @@ namespace ThermalConsole
         static void Main(string[] args)
         {
             const string phoenixPort = "COM1";
-           const string reliancePort = "COM23";            
+           const string reliancePort = "COM12";            
 
             const int captureRate = 10; // number of seconds between capture
             
@@ -114,10 +114,10 @@ namespace ThermalConsole
                     image.ApplyDithering(Algorithms.JarvisJudiceNinke, 128);
 
                     // Print the header document, update with new capture number
-                    header.Content = $"Capture #{count} (ЫВФАЫВМОЫВАП)";
+                    header.Content = string.Format("Capture #{0} (ЫВФАЫВМОЫВАП)", count);
 
                     // Printer the timestamp document
-                    timestamp.Content = $"{count++}: {now}";
+                    timestamp.Content = string.Format("{0}: {1}", count++, now);
 
                     // Get the latest printer status. Note that reliance and phoenix have
                     // slightly different args to this get status command
