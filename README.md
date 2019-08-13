@@ -4,7 +4,12 @@
 Pyramid Technologis Thermal Printer API is available on NuGet
 
     Install-Package ThermalTalk
-    
+
+## Supported Firmware
+
+* Reliance - All Firmware
+* Phoenix - S08 Pulse or UNV Firmware in ESC/POS mode
+
 ## Samples
 See [ThermalConsole](ThermalConsole)
 
