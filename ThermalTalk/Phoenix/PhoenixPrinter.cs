@@ -124,38 +124,37 @@ namespace ThermalTalk
         /// encoded. The rest of the characters to be encoded will be printed as regular ESC/POS characters on a new line.
         /// </summary>
         /// <param name="encodeThis">String to encode, max length = 154 bytes</param>
-        public override void Print2DBarcode(string encodeThis)
+        public override ReturnCode Print2DBarcode(string encodeThis)
         {
             var len = encodeThis.Length > 154 ? 154 : encodeThis.Length;
             var setup = new byte[] { 0x1D, 0x28, 0x6B, (byte)len, 0x00, 0x31, 0x50 };
             var printit = new byte[] {0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, 0x31};
 
             var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(encodeThis), printit);
-            internalSend(fullCmd);
+            return internalSend(fullCmd);
         }
 
         /// <summary>
         /// Sets the active font to this
         /// </summary>
         /// <param name="font">Font to use</param>
-        public override void SetFont(ThermalFonts font)
+        public override ReturnCode SetFont(ThermalFonts font)
         {
             if (font == ThermalFonts.NOP)
             {
-                return;
+                return ReturnCode.Success;
             }
 
             switch (font)
             {
                 case ThermalFonts.A:
-                    internalSend(FontACmd);
-                    break;
+                    return internalSend(FontACmd);
                 case ThermalFonts.B:
-                    internalSend(FontBCmd);
-                    break;
+                    return internalSend(FontBCmd);
                 case ThermalFonts.C:
-                    internalSend(FontCCmd);
-                    break;
+                    return internalSend(FontCCmd);
+                default:
+                    return ReturnCode.ExecutionFailure;
             }
         }
 
@@ -165,7 +164,7 @@ namespace ThermalTalk
         /// <param name="image"></param>
         /// <param name="doc"></param>
         /// <param name="index"></param>
-        public override void SetImage(PrinterImage image, IDocument doc, int index)
+        public override ReturnCode SetImage(PrinterImage image, IDocument doc, int index)
         {
             while (index > doc.Sections.Count)
             {
@@ -181,6 +180,8 @@ namespace ThermalTalk
                 Justification = FontJustification.JustifyCenter,
                 AutoNewline = true,
             };
+
+            return ReturnCode.ExecutionFailure;
         }
 
         /// <summary>
@@ -189,7 +190,7 @@ namespace ThermalTalk
         /// </summary>
         /// <param name="w">New scalar (1x, 2x, nop)</param>
         /// <param name="h">New scalar (1x, 2x, nop)</param>
-        public override void SetScalars(FontWidthScalar w, FontHeighScalar h)
+        public override ReturnCode SetScalars(FontWidthScalar w, FontHeighScalar h)
         {           
             var newWidth = Width;
             if(w == FontWidthScalar.NOP || w == FontWidthScalar.w1 || w == FontWidthScalar.w2)
@@ -206,8 +207,10 @@ namespace ThermalTalk
             // Only apply update if either property has changed
             if (newWidth != Width || newHeight != Height)
             {
-                base.SetScalars(newWidth, newHeight);
+                return base.SetScalars(newWidth, newHeight);
             }
+
+            return ReturnCode.Success;
         }
 
         /// <inheritdoc />

@@ -107,11 +107,11 @@ namespace ThermalTalk
         /// Sets the active font to this
         /// </summary>
         /// <param name="font">Font to use</param>
-        public override void SetFont(ThermalFonts font)
+        public override ReturnCode SetFont(ThermalFonts font)
         {
             if (font == ThermalFonts.NOP)
             {
-                return;
+                return ReturnCode.Success;
             }
 
             // A == 11 CPI
@@ -123,14 +123,13 @@ namespace ThermalTalk
             switch (font)
             {
                 case ThermalFonts.A:
-                    internalSend(CPI11);
-                    break;
+                    return internalSend(CPI11);
                 case ThermalFonts.B:
-                    internalSend(CPI15);
-                    break;
+                    return internalSend(CPI15);
                 case ThermalFonts.C:
-                    internalSend(CPI20);
-                    break;
+                    return internalSend(CPI20);
+                default:
+                    return ReturnCode.ExecutionFailure;
             }
         }
 
@@ -143,13 +142,13 @@ namespace ThermalTalk
         /// encoded. The rest of the characters to be encoded will be printed as regular ESC/POS characters on a new line.
         /// </summary>
         /// <param name="encodeThis">String to encode, max length = 154 bytes</param>
-        public override void Print2DBarcode(string encodeThis)
+        public override ReturnCode Print2DBarcode(string encodeThis)
         {
             var len = encodeThis.Length > 154 ? 154 : encodeThis.Length;
             var setup = new byte[] { 0x0A, 0x1C, 0x7D, 0x25, (byte)len };
 
             var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(encodeThis), new byte[] { 0x0A });
-            internalSend(fullCmd);
+            return internalSend(fullCmd);
         }
 
         /// <summary>
@@ -158,17 +157,19 @@ namespace ThermalTalk
         /// can be sent with the #SendRaw method.
         /// </summary>
         /// <param name="barcode">Barcode object</param>
-        public void PrintBarcode(IBarcode barcode)
+        public ReturnCode PrintBarcode(IBarcode barcode)
         {
             var payload = barcode.Build();
             if (payload.Length > 0)
             {
-                internalSend(payload);
+                return internalSend(payload);
             }
+
+            return ReturnCode.InvalidArgument;
         }
 
         /// <inheritdoc />
-        public override void SetImage(PrinterImage image, IDocument doc, int index)
+        public override ReturnCode SetImage(PrinterImage image, IDocument doc, int index)
         {
             while(index > doc.Sections.Count)
             {
@@ -178,6 +179,8 @@ namespace ThermalTalk
             doc.Sections[index] = new RelianceImageSection() {
                 Image = image,
             };
+
+            return ReturnCode.Success;
         }
 
         /// <inheritdoc />
