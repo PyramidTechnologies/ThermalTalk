@@ -24,13 +24,12 @@ SOFTWARE.
  */
 #endregion
 
-using System;
-using System.Text;
-
 namespace ThermalTalk
 {
     using System.Collections.Generic;
     using ThermalTalk.Imaging;
+    using System;
+    using System.Text;
 
     /// <inheritdoc />
     public class PhoenixPrinter : BasePrinter
@@ -45,14 +44,13 @@ namespace ThermalTalk
 
         /// <inheritdoc />
         /// <summary>
-        /// Constructs a new instance of ReliancePrinter. This printer
+        /// Constructs a new instance of PhoenixPrinter. This printer
         /// acts as a handle to all features and functions. If the serial port parameter
         /// is provided, the serial connection will be opened immediately.
         /// </summary>
         /// <param name="serialPortName">OS name of serial port</param>        
         public PhoenixPrinter(string serialPortName)
         {
-
             EnableCommands = new Dictionary<FontEffects, byte[]>()
             {
                 { FontEffects.None, new byte[0]},
@@ -112,6 +110,8 @@ namespace ThermalTalk
         /// <param name="n">Count of lines to print before cut</param>
         public void SetFormFeedLineCount(byte n)
         {
+            Logger?.Trace("Setting form feed line count to: " + n);
+            
             FormFeedCommand[2] = n;
         }
 
@@ -124,48 +124,63 @@ namespace ThermalTalk
         /// encoded. The rest of the characters to be encoded will be printed as regular ESC/POS characters on a new line.
         /// </summary>
         /// <param name="encodeThis">String to encode, max length = 154 bytes</param>
-        public override void Print2DBarcode(string encodeThis)
+        public override ReturnCode Print2DBarcode(string encodeThis)
         {
+            Logger?.Trace("Encoding the following string as a barcode: " + encodeThis);
+            
             var len = encodeThis.Length > 154 ? 154 : encodeThis.Length;
             var setup = new byte[] { 0x1D, 0x28, 0x6B, (byte)len, 0x00, 0x31, 0x50 };
             var printit = new byte[] {0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, 0x31};
 
             var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(encodeThis), printit);
-            internalSend(fullCmd);
+            return internalSend(fullCmd);
         }
 
         /// <summary>
         /// Sets the active font to this
         /// </summary>
         /// <param name="font">Font to use</param>
-        public override void SetFont(ThermalFonts font)
+        /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise.</returns>
+        public override ReturnCode SetFont(ThermalFonts font)
         {
+            Logger?.Trace("Setting thermal fonts . . .");
+            
             if (font == ThermalFonts.NOP)
             {
-                return;
+                Logger?.Trace("No change selected");
+                
+                return ReturnCode.Success;
             }
 
+            var result = ReturnCode.ExecutionFailure;
+            
             switch (font)
             {
                 case ThermalFonts.A:
-                    internalSend(FontACmd);
+                    Logger?.Trace("Attempting to set font to font A.");
+                    result =  internalSend(FontACmd);
                     break;
                 case ThermalFonts.B:
-                    internalSend(FontBCmd);
+                    Logger?.Trace("Attempting to set font to font B.");
+                    result = internalSend(FontBCmd);
                     break;
                 case ThermalFonts.C:
-                    internalSend(FontCCmd);
+                    Logger?.Trace("Attempting to set font to font C.");
+                    result =  internalSend(FontCCmd);
                     break;
             }
+
+            return result;
         }
 
         /// <summary>
-        /// Phoenix does not currently supports ESC/POS images at this time.
+        /// TODO: Phoenix does not currently supports ESC/POS images at this time.
         /// </summary>
         /// <param name="image"></param>
         /// <param name="doc"></param>
         /// <param name="index"></param>
-        public override void SetImage(PrinterImage image, IDocument doc, int index)
+        /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise.</returns>
+        public override ReturnCode SetImage(PrinterImage image, IDocument doc, int index)
         {
             while (index > doc.Sections.Count)
             {
@@ -181,6 +196,8 @@ namespace ThermalTalk
                 Justification = FontJustification.JustifyCenter,
                 AutoNewline = true,
             };
+
+            return ReturnCode.ExecutionFailure;
         }
 
         /// <summary>
@@ -189,7 +206,8 @@ namespace ThermalTalk
         /// </summary>
         /// <param name="w">New scalar (1x, 2x, nop)</param>
         /// <param name="h">New scalar (1x, 2x, nop)</param>
-        public override void SetScalars(FontWidthScalar w, FontHeighScalar h)
+        /// /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise.</returns>
+        public override ReturnCode SetScalars(FontWidthScalar w, FontHeighScalar h)
         {           
             var newWidth = Width;
             if(w == FontWidthScalar.NOP || w == FontWidthScalar.w1 || w == FontWidthScalar.w2)
@@ -206,8 +224,10 @@ namespace ThermalTalk
             // Only apply update if either property has changed
             if (newWidth != Width || newHeight != Height)
             {
-                base.SetScalars(newWidth, newHeight);
+                return base.SetScalars(newWidth, newHeight);
             }
+
+            return ReturnCode.Success;
         }
 
         /// <inheritdoc />
@@ -279,15 +299,20 @@ namespace ThermalTalk
         /// <summary>
         /// Write specified report type to target and fill rts with parsed response
         /// </summary>
-        /// <param name="r">Report type</param>
+        /// <param name="r">Report type, Phoenix does not support the error status command</param>
         /// <param name="rts">Target</param>
-        /// <returns>Return code</returns>
+        /// <returns>ReturnCode.Success if successful, and ReturnCode.ExecutionFailure if there
+        /// is an issue with the response received. Returns ReturnCode.Unsupported command
+        /// if r == PhoenixStatusRequests.ErrorStatus. </returns>
         private ReturnCode internalGetStatus(PhoenixStatusRequests r, StatusReport rts)
         {
+            
+            Logger?.Trace("Attempting to get status of printer . . .");
 
             // PP-82 : Phoenix does not support the error status command
             if (r == PhoenixStatusRequests.ErrorStatus)
             {
+                Logger?.Warn("PhoenixStatusRequests.ErrorStatus is unsupported . . .");
                 return ReturnCode.UnsupportedCommand;
             }
 
@@ -299,26 +324,36 @@ namespace ThermalTalk
 
             try
             {
+                Logger?.Trace("Attempting to open connection . .. ");
                 Connection.Open();
 
                 var written = Connection.Write(command);
 
                 System.Threading.Thread.Sleep(250);
-
+                
                 // Collect the response
                 data = Connection.Read(respLen);
 
             }
-            catch
-            { /* Do nothing */}
+            catch(Exception e)
+            {
+                Logger?.Error("The following exception was thrown while attempting to write the status:");
+                Logger?.Error(e.Message);
+                Logger?.Error(e.StackTrace);
+
+                return ReturnCode.ExecutionFailure;
+
+            }
             finally
             {
+                
                 Connection.Close();
             }
 
             // Invalid response
             if (data.Length != respLen)
             {
+                Logger?.Trace("Data received is the incorrect length, returning execution failure . . . ");
                 return ReturnCode.ExecutionFailure;
             }
 

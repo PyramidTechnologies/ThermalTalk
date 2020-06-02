@@ -1,7 +1,8 @@
-﻿using NUnit.Framework;
-
-namespace ThermalTalk.Test
+﻿namespace ThermalTalk.Test
 {
+    using NUnit.Framework;
+
+    
     [TestFixture]
     public class PhoenixPrinterTests
     {
@@ -166,6 +167,26 @@ namespace ThermalTalk.Test
 
 
             printer.Print2DBarcode("Hello World");
+        }
+
+        [Test]
+        public void LoggerTest()
+        {
+            var printer = new PhoenixPrinter(TEST_PORT)
+            {
+                Logger = new TestLogger()
+            };
+
+            if (printer.Logger is TestLogger tl)
+            {
+                Assert.IsEmpty(tl.TraceOutput);
+
+                printer.PrintNewline();
+                
+                Assert.IsNotEmpty(tl.TraceOutput);
+            }
+            
+            
         }
     }
 }

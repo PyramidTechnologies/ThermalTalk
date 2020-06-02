@@ -213,5 +213,25 @@ namespace ThermalTalk.Test
             Assert.IsNull(status.HasRecoverableError);
 
         }
+        
+        [Test]
+        public void LoggerTest()
+        {
+            var printer = new ReliancePrinter(TEST_PORT)
+            {
+                Logger = new TestLogger()
+            };
+
+            if (printer.Logger is TestLogger tl)
+            {
+                Assert.IsEmpty(tl.TraceOutput);
+
+                printer.PrintNewline();
+                
+                Assert.IsNotEmpty(tl.TraceOutput);
+            }
+            
+            
+        }
     }
 }

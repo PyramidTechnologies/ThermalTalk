@@ -24,8 +24,6 @@ SOFTWARE.
  */
 #endregion
 
-using System;
-
 namespace ThermalTalk
 {
     using System.Collections.Generic;
@@ -53,6 +51,7 @@ namespace ThermalTalk
         /// <param name="serialPortName">OS name of serial port</param>        
         public ReliancePrinter(string serialPortName)
         {
+            Logger?.Trace("Creating new instance of Reliance Printer on port: " + serialPortName);
 
             EnableCommands = new Dictionary<FontEffects, byte[]>()
             {
@@ -107,31 +106,43 @@ namespace ThermalTalk
         /// Sets the active font to this
         /// </summary>
         /// <param name="font">Font to use</param>
-        public override void SetFont(ThermalFonts font)
+        /// /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise.</returns>
+        public override ReturnCode SetFont(ThermalFonts font)
         {
+            Logger?.Trace("Setting thermal fonts . . .");
+            
             if (font == ThermalFonts.NOP)
             {
-                return;
+                Logger?.Trace("No change selected");
+                
+                return ReturnCode.Success;
             }
+
+            var result = ReturnCode.ExecutionFailure;
 
             // A == 11 CPI
             // B == 15 CPI
             // C == 20 CPI
             // Just change the CPI mode and then leave at Font A to avoid 
             // having multiple configurables to set/clear
-
             switch (font)
             {
                 case ThermalFonts.A:
-                    internalSend(CPI11);
+                    Logger?.Trace("Attempting to set font to font CPI11.");
+                    result = internalSend(CPI11);
                     break;
                 case ThermalFonts.B:
-                    internalSend(CPI15);
+                    Logger?.Trace("Attempting to set font to font CPI15.");
+                    result = internalSend(CPI15);
                     break;
                 case ThermalFonts.C:
-                    internalSend(CPI20);
+                    Logger?.Trace("Attempting to set font to font CPI20.");
+                    result = internalSend(CPI20);
                     break;
+
             }
+
+            return result;
         }
 
         /// <inheritdoc />
@@ -143,13 +154,14 @@ namespace ThermalTalk
         /// encoded. The rest of the characters to be encoded will be printed as regular ESC/POS characters on a new line.
         /// </summary>
         /// <param name="encodeThis">String to encode, max length = 154 bytes</param>
-        public override void Print2DBarcode(string encodeThis)
+        /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise.</returns>
+        public override ReturnCode Print2DBarcode(string encodeThis)
         {
             var len = encodeThis.Length > 154 ? 154 : encodeThis.Length;
             var setup = new byte[] { 0x0A, 0x1C, 0x7D, 0x25, (byte)len };
 
             var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(encodeThis), new byte[] { 0x0A });
-            internalSend(fullCmd);
+            return internalSend(fullCmd);
         }
 
         /// <summary>
@@ -158,17 +170,23 @@ namespace ThermalTalk
         /// can be sent with the #SendRaw method.
         /// </summary>
         /// <param name="barcode">Barcode object</param>
-        public void PrintBarcode(IBarcode barcode)
+        /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure if there is an issue
+        /// writing the barcode. Returns ReturnCode.InvalidArgument if the barcode.Build() is not
+        /// a positive length.</returns>
+        public ReturnCode PrintBarcode(IBarcode barcode)
         {
             var payload = barcode.Build();
             if (payload.Length > 0)
             {
-                internalSend(payload);
+                return internalSend(payload);
             }
+
+            Logger?.Error("barcode.Build() has length 0.");
+            return ReturnCode.InvalidArgument;
         }
 
         /// <inheritdoc />
-        public override void SetImage(PrinterImage image, IDocument doc, int index)
+        public override ReturnCode SetImage(PrinterImage image, IDocument doc, int index)
         {
             while(index > doc.Sections.Count)
             {
@@ -178,6 +196,8 @@ namespace ThermalTalk
             doc.Sections[index] = new RelianceImageSection() {
                 Image = image,
             };
+
+            return ReturnCode.Success;
         }
 
         /// <inheritdoc />

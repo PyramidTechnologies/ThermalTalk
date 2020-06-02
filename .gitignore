@@ -16,3 +16,4 @@ packages/
 *.nupkg
 /ThermalTalk/build/ThermalTalk.XML
 .vs/
+.idea/

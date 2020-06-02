@@ -53,6 +53,11 @@ namespace ThermalTalk
         /// Gets the active font
         /// </summary>
         ThermalFonts Font { get; }
+        
+        /// <summary>
+        /// Gets or set the logger for IPrinter
+        /// </summary>
+        ILogger Logger { get; set; }
 
         /// <summary>
         /// Returns the sepcified status report for this printer
@@ -65,20 +70,20 @@ namespace ThermalTalk
         /// Sets the active font to this
         /// </summary>
         /// <param name="font">Font to use</param>
-        void SetFont(ThermalFonts font);
+        ReturnCode SetFont(ThermalFonts font);
 
         /// <summary>
         /// Applies the specified scalars
         /// </summary>
         /// <param name="w">Width scalar</param>
         /// <param name="h">Height scalar</param>
-        void SetScalars(FontWidthScalar w, FontHeighScalar h);
+        ReturnCode SetScalars(FontWidthScalar w, FontHeighScalar h);
 
         /// <summary>
         /// Applies the specified justification
         /// </summary>
         /// <param name="justification">Justification to use</param>
-        void SetJustification(FontJustification justification);
+        ReturnCode SetJustification(FontJustification justification);
 
         /// <summary>
         /// Activates effect for next print. This effect
@@ -87,7 +92,7 @@ namespace ThermalTalk
         /// printer has final say on the defined behavior. 
         /// </summary>
         /// <param name="effect">Font effect to apply</param>
-        void AddEffect(FontEffects effect);
+        ReturnCode AddEffect(FontEffects effect);
 
         /// <summary>
         /// Remove effect from the active effect list. If effect
@@ -95,31 +100,31 @@ namespace ThermalTalk
         /// will happen.
         /// </summary>
         /// <param name="effect">Effect to remove</param>
-        void RemoveEffect(FontEffects effect);
+        ReturnCode RemoveEffect(FontEffects effect);
 
         /// <summary>
         /// Remove all effects immediately. Only applies
         /// to data that has not yet been transmitted.
         /// </summary>
-        void ClearAllEffects();
+        ReturnCode ClearAllEffects();
 
         /// <summary>
         /// Sets all ESC/POS options to default
         /// </summary>
-        void Reinitialize();
+        ReturnCode Reinitialize();
 
         /// <summary>
         /// Print string as ASCII text. Any effects that are currently
         /// active will be applied to this string.
         /// </summary>
         /// <param name="str">ASCII stirng to print</param>
-        void PrintASCIIString(string str);
+        ReturnCode PrintASCIIString(string str);
 
         /// <summary>
         /// Prints the specified document
         /// </summary>
         /// <param name="doc">Document to print</param>
-        void PrintDocument(IDocument doc);
+        ReturnCode PrintDocument(IDocument doc);
 
         /// <summary>
         /// Sets this logo to a position inside doc specified by index.        
@@ -146,23 +151,24 @@ namespace ThermalTalk
         /// <param name="doc">Document to add</param>
         /// <param name="index">Index to insert. If this index exceeds the current length
         /// placeholders will be inserted until index is reached.</param>
-        void SetImage(PrinterImage image, IDocument doc, int index);
+        /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise</returns>
+        ReturnCode SetImage(PrinterImage image, IDocument doc, int index);
 
         /// <summary>
         /// Emit one newline character and return print
         /// position to start of line.
         /// </summary>
-        void PrintNewline();
+        ReturnCode PrintNewline();
 
         /// <summary>
         /// Mark ticket as complete and present
         /// </summary>
-        void FormFeed();
+        ReturnCode FormFeed();
 
         /// <summary>
         /// Send raw buffer to target printer.
         /// </summary>
         /// <param name="raw"></param>
-        void SendRaw(byte[] raw);
+        ReturnCode SendRaw(byte[] raw);
     }
 }

@@ -86,6 +86,7 @@
     <Compile Include="Helpers\NativeMethods.cs" />
     <Compile Include="Helpers\SerialPortUtils.cs" />
     <Compile Include="IDocument.cs" />
+    <Compile Include="ILogger.cs" />
     <Compile Include="Phoenix\PhoenixStatusRequests.cs" />
     <Compile Include="Reliance\RelianceImageSection.cs" />
     <Compile Include="Reliance\RelianceStatusRequests.cs" />
