@@ -40,7 +40,6 @@ namespace ThermalTalk
         /// <inheritdoc />
         protected BasePrinter()
         {
-            Logger?.Trace("Creating BasePrinter . . .");
             Justification = FontJustification.JustifyLeft;
             SetScalarCommand = new byte[0];
             InitPrinterCommand = new byte[0];
@@ -449,12 +448,16 @@ namespace ThermalTalk
                 Logger?.Warn("Warning: payload is empty . . .");
                 return ReturnCode.UnsupportedCommand;
             }
+
+            var data = string.Empty;
             
-            // for logging
-            var stringData = payload
-                .Select(x => x.ToString("X2"))
-                .Select(x => "0x" + x);
-            var data = string.Join(", ", stringData);
+            if (!(Logger is null))
+            {
+                // for logging
+                var stringData = payload
+                    .Select(x => $"0x{x:X2}");
+                data = string.Join(", ", stringData);
+            }
 
             try
             {

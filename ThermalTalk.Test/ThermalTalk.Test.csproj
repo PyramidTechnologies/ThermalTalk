@@ -66,6 +66,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FontEffectsTests.cs" />
     <Compile Include="ReliancePrinterTests.cs" />
+    <Compile Include="TestLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ThermalTalk\ThermalTalk.csproj">

@@ -2,7 +2,7 @@
 /*
 MIT License
 
-Copyright (c) 2017 Pyrramid Technologies
+Copyright (c) 2017 Pyramid Technologies
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -118,27 +118,31 @@ namespace ThermalTalk
                 return ReturnCode.Success;
             }
 
+            var result = ReturnCode.ExecutionFailure;
+
             // A == 11 CPI
             // B == 15 CPI
             // C == 20 CPI
             // Just change the CPI mode and then leave at Font A to avoid 
             // having multiple configurables to set/clear
-
             switch (font)
             {
                 case ThermalFonts.A:
-                    Logger.Trace("Attempting to set font to font CPI11.");
-                    return internalSend(CPI11);
+                    Logger?.Trace("Attempting to set font to font CPI11.");
+                    result = internalSend(CPI11);
+                    break;
                 case ThermalFonts.B:
-                    Logger.Trace("Attempting to set font to font CPI15.");
-                    return internalSend(CPI15);
+                    Logger?.Trace("Attempting to set font to font CPI15.");
+                    result = internalSend(CPI15);
+                    break;
                 case ThermalFonts.C:
-                    Logger.Trace("Attempting to set font to font CPI20.");
-                    return internalSend(CPI20);
-                default:
-                    Logger.Trace("Invalid font selected.");
-                    return ReturnCode.ExecutionFailure;
+                    Logger?.Trace("Attempting to set font to font CPI20.");
+                    result = internalSend(CPI20);
+                    break;
+
             }
+
+            return result;
         }
 
         /// <inheritdoc />

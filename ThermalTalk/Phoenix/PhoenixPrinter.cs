@@ -51,8 +51,6 @@ namespace ThermalTalk
         /// <param name="serialPortName">OS name of serial port</param>        
         public PhoenixPrinter(string serialPortName)
         {
-            Logger?.Trace("Creating new instance of Phoenix Printer on port: " + serialPortName);
-
             EnableCommands = new Dictionary<FontEffects, byte[]>()
             {
                 { FontEffects.None, new byte[0]},
@@ -154,21 +152,25 @@ namespace ThermalTalk
                 return ReturnCode.Success;
             }
 
+            var result = ReturnCode.ExecutionFailure;
+            
             switch (font)
             {
                 case ThermalFonts.A:
-                    Logger.Trace("Attempting to set font to font A.");
-                    return internalSend(FontACmd);
+                    Logger?.Trace("Attempting to set font to font A.");
+                    result =  internalSend(FontACmd);
+                    break;
                 case ThermalFonts.B:
-                    Logger.Trace("Attempting to set font to font B.");
-                    return internalSend(FontBCmd);
+                    Logger?.Trace("Attempting to set font to font B.");
+                    result = internalSend(FontBCmd);
+                    break;
                 case ThermalFonts.C:
-                    Logger.Trace("Attempting to set font to font C.");
-                    return internalSend(FontCCmd);
-                default:
-                    Logger.Trace("Invalid font selected.");
-                    return ReturnCode.ExecutionFailure;
+                    Logger?.Trace("Attempting to set font to font C.");
+                    result =  internalSend(FontCCmd);
+                    break;
             }
+
+            return result;
         }
 
         /// <summary>
