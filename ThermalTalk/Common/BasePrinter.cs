@@ -24,16 +24,13 @@ SOFTWARE.
  */
 #endregion
 
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
-
 namespace ThermalTalk
 {
     using System;
     using System.Collections.Generic;
     using System.Text;
     using ThermalTalk.Imaging;
+    using System.Linq;
 
     /// <inheritdoc />
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
@@ -43,7 +40,7 @@ namespace ThermalTalk
         /// <inheritdoc />
         protected BasePrinter()
         {
-            Logger?.Trace("Creating Base Printer . . .");
+            Logger?.Trace("Creating BasePrinter . . .");
             Justification = FontJustification.JustifyLeft;
             SetScalarCommand = new byte[0];
             InitPrinterCommand = new byte[0];

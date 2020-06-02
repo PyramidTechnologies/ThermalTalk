@@ -24,13 +24,12 @@ SOFTWARE.
  */
 #endregion
 
-using System;
-using System.Text;
-
 namespace ThermalTalk
 {
     using System.Collections.Generic;
     using ThermalTalk.Imaging;
+    using System;
+    using System.Text;
 
     /// <inheritdoc />
     public class PhoenixPrinter : BasePrinter
@@ -311,7 +310,7 @@ namespace ThermalTalk
             // PP-82 : Phoenix does not support the error status command
             if (r == PhoenixStatusRequests.ErrorStatus)
             {
-                Logger?.Trace("PhoenixStatusRequests.ErrorStatus is unsupported . . .");
+                Logger?.Warn("PhoenixStatusRequests.ErrorStatus is unsupported . . .");
                 return ReturnCode.UnsupportedCommand;
             }
 
