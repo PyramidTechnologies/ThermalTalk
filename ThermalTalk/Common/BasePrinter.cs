@@ -43,7 +43,7 @@ namespace ThermalTalk
         /// <inheritdoc />
         protected BasePrinter()
         {
-            Logger.Trace("Creating Base Printer . . .");
+            Logger?.Trace("Creating Base Printer . . .");
             Justification = FontJustification.JustifyLeft;
             SetScalarCommand = new byte[0];
             InitPrinterCommand = new byte[0];
@@ -172,7 +172,7 @@ namespace ThermalTalk
         /// </summary>
         public virtual ReturnCode Reinitialize()
         {
-            Logger.Trace("Restoring all default options and configurable . . .");
+            Logger?.Trace("Restoring all default options and configurable . . .");
             
             Justification = FontJustification.JustifyLeft;
             Width = FontWidthScalar.w1;
@@ -190,12 +190,12 @@ namespace ThermalTalk
         /// <param name="h">Height scalar</param>
         public virtual ReturnCode SetScalars(FontWidthScalar w, FontHeighScalar h)
         {
-            Logger.Trace("Setting font scalars . . .");
+            Logger?.Trace("Setting font scalars . . .");
             
             // If both scalars are set to "keep current" then do nothing
             if(w == FontWidthScalar.NOP && h == FontHeighScalar.NOP)
             {
-                Logger.Info("Both scalars are set to keep current . . .");
+                Logger?.Info("Both scalars are set to keep current . . .");
                 return ReturnCode.Success;
             }
 
@@ -220,12 +220,12 @@ namespace ThermalTalk
         /// <param name="justification">Justification to use</param>
         public virtual ReturnCode SetJustification(FontJustification justification)
         {
-            Logger.Trace("Setting justification . . .");
+            Logger?.Trace("Setting justification . . .");
             
             // If "keep current" justification is set, do nothing
             if(justification == FontJustification.NOP)
             {
-                Logger.Trace("Justification set to do nothing . . .");
+                Logger?.Trace("Justification set to do nothing . . .");
                 return ReturnCode.Success;
             }
 
@@ -246,7 +246,7 @@ namespace ThermalTalk
         /// <inheritdoc />
         public virtual ReturnCode AddEffect(FontEffects effect)
         {
-            Logger.Trace("Adding font effects . . .");
+            Logger?.Trace("Adding font effects . . .");
 
             var result = ReturnCode.Success;
             
@@ -277,7 +277,7 @@ namespace ThermalTalk
         /// <inheritdoc />
         public virtual ReturnCode RemoveEffect(FontEffects effect)
         {
-            Logger.Trace("Removing font effects . . .");
+            Logger?.Trace("Removing font effects . . .");
             
             var result = ReturnCode.Success;
             
@@ -293,7 +293,7 @@ namespace ThermalTalk
                         
                         if (ret != ReturnCode.Success)
                         {
-                            Logger.Error("Failed to remove all effects . . .");
+                            Logger?.Error("Failed to remove all effects . . .");
                             result = ReturnCode.ExecutionFailure;
                         }
                     }
@@ -307,7 +307,7 @@ namespace ThermalTalk
         /// <inheritdoc />
         public virtual ReturnCode ClearAllEffects()
         {
-            Logger.Trace("Clearing all font effects . . .");
+            Logger?.Trace("Clearing all font effects . . .");
 
             var result = ReturnCode.Success;
             
@@ -319,7 +319,7 @@ namespace ThermalTalk
                     
                     if (ret != ReturnCode.Success)
                     {
-                        Logger.Error("Failed to clear all effects . . .");
+                        Logger?.Error("Failed to clear all effects . . .");
                         result = ReturnCode.ExecutionFailure;
                     }
                 }
@@ -332,7 +332,7 @@ namespace ThermalTalk
         /// <inheritdoc />
         public virtual ReturnCode PrintASCIIString(string str)
         {
-            Logger.Trace("Printing the following ASCII string: " + str);
+            Logger?.Trace("Printing the following ASCII string: " + str);
             
             return internalSend(Encoding.ASCII.GetBytes(str));
         }
@@ -340,7 +340,7 @@ namespace ThermalTalk
         /// <inheritdoc />
         public virtual ReturnCode PrintDocument(IDocument doc)
         {
-            Logger.Trace("Printing document . . .");
+            Logger?.Trace("Printing document . . .");
 
             // Keep track of current settings so we can restore
             var oldJustification = Justification;
@@ -394,7 +394,7 @@ namespace ThermalTalk
         /// <inheritdoc />
         public virtual ReturnCode PrintNewline()
         {
-            Logger.Trace("Printing new line . . . ");
+            Logger?.Trace("Printing new line . . . ");
             
             return internalSend(NewLineCommand);
         }
@@ -402,7 +402,7 @@ namespace ThermalTalk
         /// <inheritdoc />
         public virtual ReturnCode FormFeed()
         {
-            Logger.Trace("Marking ticket as complete and presenting . . .");
+            Logger?.Trace("Marking ticket as complete and presenting . . .");
             
             return internalSend(FormFeedCommand);
         }
@@ -410,7 +410,7 @@ namespace ThermalTalk
         /// <inheritdoc />
         public virtual ReturnCode SendRaw(byte[] raw)
         {
-            Logger.Trace("Sending raw data . . .");
+            Logger?.Trace("Sending raw data . . .");
 
             return internalSend(raw);
         }
@@ -442,15 +442,18 @@ namespace ThermalTalk
         /// The port will be closed when the write completes or fails.
         /// </summary>
         /// <param name="payload"></param>
+        /// <returns>ReturnCode.Success if successful, ReturnCode.UnsupportedCommand if payload.Length == 0,
+        /// and ReturnCode.ExecutionFailure otherwise.</returns>
         protected ReturnCode internalSend(byte[] payload)
         {
             // Do not send empty packets
             if (payload.Length == 0)
             {
-                Logger.Warn("Warning: payload is empty . . .");
+                Logger?.Warn("Warning: payload is empty . . .");
                 return ReturnCode.UnsupportedCommand;
             }
             
+            // for logging
             var stringData = payload
                 .Select(x => x.ToString("X2"))
                 .Select(x => "0x" + x);
@@ -458,25 +461,25 @@ namespace ThermalTalk
 
             try
             {
-                Logger.Trace("Attempting to open connection");
+                Logger?.Trace("Attempting to open connection");
                 Connection.Open();
 
-                Logger.Trace("Attempting to send raw data: " + data);
+                Logger?.Trace("Attempting to send raw data: " + data);
                 Connection.Write(payload);
                 
                 return ReturnCode.Success;
             }
-            catch
+            catch(Exception e)
             {
-                /* Do nothing */
-                
-                Logger.Error("An exception was thrown attempting to send command.");
-                
+                Logger?.Error("The following exception was thrown while attempting to write the status:");
+                Logger?.Error(e.Message);
+                Logger?.Error(e.StackTrace);
+
                 return ReturnCode.ExecutionFailure;
             }
             finally
             {
-                Logger.Trace("Closing connection . . .");
+                Logger?.Trace("Closing connection . . .");
                 Connection.Close();
             }
             

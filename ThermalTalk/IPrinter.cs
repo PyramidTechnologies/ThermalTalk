@@ -151,6 +151,7 @@ namespace ThermalTalk
         /// <param name="doc">Document to add</param>
         /// <param name="index">Index to insert. If this index exceeds the current length
         /// placeholders will be inserted until index is reached.</param>
+        /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise</returns>
         ReturnCode SetImage(PrinterImage image, IDocument doc, int index);
 
         /// <summary>

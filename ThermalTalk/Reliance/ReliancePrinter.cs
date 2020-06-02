@@ -53,6 +53,7 @@ namespace ThermalTalk
         /// <param name="serialPortName">OS name of serial port</param>        
         public ReliancePrinter(string serialPortName)
         {
+            Logger?.Trace("Creating new instance of Reliance Printer on port: " + serialPortName);
 
             EnableCommands = new Dictionary<FontEffects, byte[]>()
             {
@@ -107,10 +108,15 @@ namespace ThermalTalk
         /// Sets the active font to this
         /// </summary>
         /// <param name="font">Font to use</param>
+        /// /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise.</returns>
         public override ReturnCode SetFont(ThermalFonts font)
         {
+            Logger?.Trace("Setting thermal fonts . . .");
+            
             if (font == ThermalFonts.NOP)
             {
+                Logger?.Trace("No change selected");
+                
                 return ReturnCode.Success;
             }
 
@@ -123,12 +129,16 @@ namespace ThermalTalk
             switch (font)
             {
                 case ThermalFonts.A:
+                    Logger.Trace("Attempting to set font to font CPI11.");
                     return internalSend(CPI11);
                 case ThermalFonts.B:
+                    Logger.Trace("Attempting to set font to font CPI15.");
                     return internalSend(CPI15);
                 case ThermalFonts.C:
+                    Logger.Trace("Attempting to set font to font CPI20.");
                     return internalSend(CPI20);
                 default:
+                    Logger.Trace("Invalid font selected.");
                     return ReturnCode.ExecutionFailure;
             }
         }
@@ -142,6 +152,7 @@ namespace ThermalTalk
         /// encoded. The rest of the characters to be encoded will be printed as regular ESC/POS characters on a new line.
         /// </summary>
         /// <param name="encodeThis">String to encode, max length = 154 bytes</param>
+        /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise.</returns>
         public override ReturnCode Print2DBarcode(string encodeThis)
         {
             var len = encodeThis.Length > 154 ? 154 : encodeThis.Length;
@@ -157,6 +168,9 @@ namespace ThermalTalk
         /// can be sent with the #SendRaw method.
         /// </summary>
         /// <param name="barcode">Barcode object</param>
+        /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure if there is an issue
+        /// writing the barcode. Returns ReturnCode.InvalidArgument if the barcode.Build() is not
+        /// a positive length.</returns>
         public ReturnCode PrintBarcode(IBarcode barcode)
         {
             var payload = barcode.Build();
@@ -165,6 +179,7 @@ namespace ThermalTalk
                 return internalSend(payload);
             }
 
+            Logger?.Error("barcode.Build() has length 0.");
             return ReturnCode.InvalidArgument;
         }
 
