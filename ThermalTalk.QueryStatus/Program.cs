@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Simple console app to query 
+    /// Simple console app to query the printer status
     /// </summary>
     internal class Program
     {
