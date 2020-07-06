@@ -40,10 +40,6 @@
         <Reference Include="System.Core" />
         <Reference Include="System.Data" />
         <Reference Include="System.Xml" />
-        <Reference Include="ThermalTalk, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\packages\ThermalTalk.2.0.0-beta\lib\net40\ThermalTalk.dll</HintPath>
-          <Private>True</Private>
-        </Reference>
         <Reference Include="ThermalTalk.Imaging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\packages\ThermalTalk.Imaging.1.0.0\lib\net40\ThermalTalk.Imaging.dll</HintPath>
           <Private>True</Private>
@@ -55,6 +51,12 @@
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\ThermalTalk\ThermalTalk.csproj">
+        <Project>{1c8b96d3-e723-4b9c-8884-3449c26384fb}</Project>
+        <Name>ThermalTalk</Name>
+      </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
