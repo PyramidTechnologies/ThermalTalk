@@ -1,4 +1,6 @@
-﻿namespace ThermalTalk.QueryStatus
+﻿using System.Linq;
+
+namespace ThermalTalk.QueryStatus
 {
     using System;
 
@@ -9,20 +11,29 @@
     {
         public static void Main(string[] args)
         {
-            const string reliancePort = "COM12";
+            var reliancePort = args.FirstOrDefault();
 
-            using (var printer = new ReliancePrinter(reliancePort))
+            Console.WriteLine($"The following portname was selected: {reliancePort}");
+            
+            try
             {
-                foreach (StatusTypes type in Enum.GetValues(typeof(StatusTypes)))
+                using (var printer = new ReliancePrinter(reliancePort))
                 {
-                    var status = printer.GetStatus(type);
+                    foreach (StatusTypes type in Enum.GetValues(typeof(StatusTypes)))
+                    {
+                        var status = printer.GetStatus(type);
 
-                    // name of status to query
-                    Console.WriteLine(Enum.GetName(typeof(StatusTypes), type));
+                        // name of status to query
+                        Console.WriteLine(Enum.GetName(typeof(StatusTypes), type));
                     
-                    // status
-                    Console.WriteLine(status.ToJSON());
+                        // status
+                        Console.WriteLine(status.ToJSON());
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"An exception was caught. Did you specify a valid port name? \n {e}");
             }
         }
     }
