@@ -13,7 +13,13 @@ namespace ThermalTalk.QueryStatus
         {
             var reliancePort = args.FirstOrDefault();
 
-            Console.WriteLine($"The following portname was selected: {reliancePort}");
+            Console.WriteLine($"The following port name was selected: {reliancePort}");
+
+            if (reliancePort is null)
+            {
+                Console.WriteLine("No port was specified. Please specify the port your reliance printer is on.");
+                return;
+            }
             
             try
             {
