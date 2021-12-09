@@ -28,6 +28,7 @@ namespace ThermalTalk
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Text;
     using ThermalTalk.Imaging;
     using System.Linq;
@@ -36,6 +37,8 @@ namespace ThermalTalk
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public abstract class BasePrinter : IPrinter
     {
+        protected MemoryStream _stream;
+        protected BinaryWriter _docBuffer;
 
         /// <inheritdoc />
         protected BasePrinter()
@@ -45,6 +48,9 @@ namespace ThermalTalk
             InitPrinterCommand = new byte[0];
             FormFeedCommand = new byte[0];
             NewLineCommand = new byte[0];
+
+            _stream = new MemoryStream();
+            _docBuffer = new BinaryWriter(_stream);
         }
 
         /// <summary>
@@ -96,7 +102,7 @@ namespace ThermalTalk
         protected Dictionary<FontEffects, byte[]> DisableCommands { get; set; }
 
         /// <summary>
-        /// Map justifcation commands and the specific byte command to apply them
+        /// Map justification commands and the specific byte command to apply them
         /// </summary>
         protected Dictionary<FontJustification, byte[]> JustificationCommands { get; set; }
 
@@ -175,7 +181,7 @@ namespace ThermalTalk
             Height = FontHeighScalar.h1;
             Effects = FontEffects.None;
 
-            return internalSend(InitPrinterCommand);
+            return AppendToDocBuffer(InitPrinterCommand);
         }
 
         /// <inheritdoc />
@@ -206,7 +212,7 @@ namespace ThermalTalk
             byte[] cmd = (byte[])SetScalarCommand.Clone();
 
             cmd[2] = (byte)(wb | hb);
-            return internalSend(cmd);
+            return AppendToDocBuffer(cmd);
         }
 
         /// <inheritdoc />
@@ -232,7 +238,7 @@ namespace ThermalTalk
                 byte[] cmd = JustificationCommands[justification];
                 if (cmd != null)
                 {
-                    return internalSend(cmd);
+                    return AppendToDocBuffer(cmd);
                 }
             }
 
@@ -256,7 +262,7 @@ namespace ThermalTalk
                 var cmd = EnableCommands[flag];
                 if (cmd.Length > 0)
                 {
-                    var ret = internalSend(cmd);
+                    var ret = AppendToDocBuffer(cmd);
 
                     if (ret != ReturnCode.Success)
                     {
@@ -285,7 +291,7 @@ namespace ThermalTalk
                     var cmd = DisableCommands[flag];
                     if (cmd.Length > 0)
                     {
-                        var ret = internalSend(cmd);
+                        var ret = AppendToDocBuffer(cmd);
                         
                         if (ret != ReturnCode.Success)
                         {
@@ -311,7 +317,7 @@ namespace ThermalTalk
             {
                 if (cmd.Length > 0)
                 {
-                    var ret = internalSend(cmd);
+                    var ret = AppendToDocBuffer(cmd);
                     
                     if (ret != ReturnCode.Success)
                     {
@@ -330,7 +336,7 @@ namespace ThermalTalk
         {
             Logger?.Trace("Printing the following ASCII string: " + str);
             
-            return internalSend(Encoding.ASCII.GetBytes(str));
+            return AppendToDocBuffer(Encoding.ASCII.GetBytes(str));
         }
 
         /// <inheritdoc />
@@ -343,8 +349,6 @@ namespace ThermalTalk
             var oldWidth = Width;
             var oldHeight = Height;
             var oldFont = Font;
-            
-            var results = new List<ReturnCode>();
             
             foreach (var sec in doc.Sections)
             {
@@ -360,28 +364,27 @@ namespace ThermalTalk
                     SetFont(sec.Font),
 
                     // Send the actual content
-                    internalSend(sec.GetContentBuffer(doc.CodePage)),
+                    AppendToDocBuffer(sec.GetContentBuffer(doc.CodePage)),
                 };
-                
+
 
                 if (sec.AutoNewline)
                 {
-                    subResults.Add(PrintNewline());
+                    PrintNewline();
                 }
 
                 // Remove effects for this section
-                subResults.Add(RemoveEffect(sec.Effects));
-                
-                results.AddRange(subResults);
+                RemoveEffect(sec.Effects);
             }
 
             // Undo all the settings we just set
-            results.Add(SetJustification(oldJustification));
-            results.Add(SetScalars(oldWidth, oldHeight));
-            results.Add(SetFont(oldFont));
+            SetJustification(oldJustification);
+            SetScalars(oldWidth, oldHeight);
+            SetFont(oldFont);
 
-            return results.Select(x => x != ReturnCode.Success).Any()
-                ? ReturnCode.ExecutionFailure : ReturnCode.Success;
+            // Transfer document to printer
+            var result = FormFeed();
+            return result;
         }
 
         /// <inheritdoc />
@@ -392,7 +395,7 @@ namespace ThermalTalk
         {
             Logger?.Trace("Printing new line . . . ");
             
-            return internalSend(NewLineCommand);
+            return AppendToDocBuffer(NewLineCommand);
         }
 
         /// <inheritdoc />
@@ -400,71 +403,22 @@ namespace ThermalTalk
         {
             Logger?.Trace("Marking ticket as complete and presenting . . .");
             
-            return internalSend(FormFeedCommand);
-        }
-
-        /// <inheritdoc />
-        public virtual ReturnCode SendRaw(byte[] raw)
-        {
-            Logger?.Trace("Sending raw data . . .");
-
-            return internalSend(raw);
-        }
-
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Close serial connection
-        /// </summary>
-        /// <param name="diposing">True to close connection</param>
-        protected virtual void Dispose(bool diposing)
-        {
-            if (Connection != null)
-            {
-                Connection.Dispose();
-            }
-        }
-
-        #region Protected
-        /// <summary>
-        /// Send payload over serial port. If port
-        /// is not open, this will open the port before writing.
-        /// The port will be closed when the write completes or fails.
-        /// </summary>
-        /// <param name="payload"></param>
-        /// <returns>ReturnCode.Success if successful, ReturnCode.UnsupportedCommand if payload.Length == 0,
-        /// and ReturnCode.ExecutionFailure otherwise.</returns>
-        protected ReturnCode internalSend(byte[] payload)
-        {
+            AppendToDocBuffer(FormFeedCommand);
+            
+            var payload = _stream.ToArray();
+            
             // Do not send empty packets
             if (payload.Length == 0)
             {
                 Logger?.Warn("Warning: payload is empty . . .");
                 return ReturnCode.UnsupportedCommand;
             }
-
-            var data = string.Empty;
             
-            if (!(Logger is null))
-            {
-                // for logging
-                var stringData = payload
-                    .Select(x => $"0x{x:X2}");
-                data = string.Join(", ", stringData);
-            }
-
             try
             {
                 Logger?.Trace("Attempting to open connection");
                 Connection.Open();
 
-                Logger?.Trace("Attempting to send raw data: " + data);
                 Connection.Write(payload);
                 
                 return ReturnCode.Success;
@@ -479,10 +433,58 @@ namespace ThermalTalk
             }
             finally
             {
+                // BinaryWriter closes the underlying stream on dispose 
+                _docBuffer.Dispose();
+                _stream = new MemoryStream();
+                _docBuffer = new BinaryWriter(_stream);
+                
                 Logger?.Trace("Closing connection . . .");
                 Connection.Close();
             }
+        }
+
+        /// <inheritdoc />
+        public virtual ReturnCode SendRaw(byte[] raw)
+        {
+            Logger?.Trace("Sending raw data . . .");
+
+            return AppendToDocBuffer(raw);
+        }
+
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Close serial connection
+        /// </summary>
+        /// <param name="disposing">True to close connection</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (Connection != null)
+            {
+                Connection.Dispose();
+            }
             
+            _docBuffer.Dispose();
+        }
+
+        #region Protected
+        /// <summary>
+        /// Append print command data to the end of the current document.
+        /// Document is not actually printed until <see cref="FormFeed"/> is called.
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns>ReturnCode.Success if successful, ReturnCode.UnsupportedCommand if payload.Length == 0,
+        /// and ReturnCode.ExecutionFailure otherwise.</returns>
+        protected ReturnCode AppendToDocBuffer(byte[] payload)
+        {
+            _docBuffer.Write(payload);
+            return ReturnCode.Success;
         }
         #endregion
     }

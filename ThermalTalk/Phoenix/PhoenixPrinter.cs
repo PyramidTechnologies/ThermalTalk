@@ -133,7 +133,7 @@ namespace ThermalTalk
             var printit = new byte[] {0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, 0x31};
 
             var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(encodeThis), printit);
-            return internalSend(fullCmd);
+            return AppendToDocBuffer(fullCmd);
         }
 
         /// <summary>
@@ -158,15 +158,15 @@ namespace ThermalTalk
             {
                 case ThermalFonts.A:
                     Logger?.Trace("Attempting to set font to font A.");
-                    result =  internalSend(FontACmd);
+                    result =  AppendToDocBuffer(FontACmd);
                     break;
                 case ThermalFonts.B:
                     Logger?.Trace("Attempting to set font to font B.");
-                    result = internalSend(FontBCmd);
+                    result = AppendToDocBuffer(FontBCmd);
                     break;
                 case ThermalFonts.C:
                     Logger?.Trace("Attempting to set font to font C.");
-                    result =  internalSend(FontCCmd);
+                    result =  AppendToDocBuffer(FontCCmd);
                     break;
             }
 
