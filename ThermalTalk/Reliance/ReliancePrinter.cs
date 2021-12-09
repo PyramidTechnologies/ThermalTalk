@@ -129,15 +129,15 @@ namespace ThermalTalk
             {
                 case ThermalFonts.A:
                     Logger?.Trace("Attempting to set font to font CPI11.");
-                    result = internalSend(CPI11);
+                    result = AppendToDocBuffer(CPI11);
                     break;
                 case ThermalFonts.B:
                     Logger?.Trace("Attempting to set font to font CPI15.");
-                    result = internalSend(CPI15);
+                    result = AppendToDocBuffer(CPI15);
                     break;
                 case ThermalFonts.C:
                     Logger?.Trace("Attempting to set font to font CPI20.");
-                    result = internalSend(CPI20);
+                    result = AppendToDocBuffer(CPI20);
                     break;
 
             }
@@ -161,7 +161,7 @@ namespace ThermalTalk
             var setup = new byte[] { 0x0A, 0x1C, 0x7D, 0x25, (byte)len };
 
             var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(encodeThis), new byte[] { 0x0A });
-            return internalSend(fullCmd);
+            return AppendToDocBuffer(fullCmd);
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace ThermalTalk
             var payload = barcode.Build();
             if (payload.Length > 0)
             {
-                return internalSend(payload);
+                return AppendToDocBuffer(payload);
             }
 
             Logger?.Error("barcode.Build() has length 0.");

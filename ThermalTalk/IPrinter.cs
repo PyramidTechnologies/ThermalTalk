@@ -117,7 +117,7 @@ namespace ThermalTalk
         /// Print string as ASCII text. Any effects that are currently
         /// active will be applied to this string.
         /// </summary>
-        /// <param name="str">ASCII stirng to print</param>
+        /// <param name="str">ASCII string to print</param>
         ReturnCode PrintASCIIString(string str);
 
         /// <summary>
