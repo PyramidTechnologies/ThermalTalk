@@ -27,6 +27,9 @@ namespace ThermalTalk
 {
     using ThermalTalk.Imaging;
 
+    /// <summary>
+    /// A printing interface for control-code based printing
+    /// </summary>
     interface IPrinter : System.IDisposable
     {
         /// <summary>
@@ -121,7 +124,8 @@ namespace ThermalTalk
         ReturnCode PrintASCIIString(string str);
 
         /// <summary>
-        /// Prints the specified document
+        /// Writes document to document buffer
+        /// Use <see cref="FormFeed"/> to print your document buffer
         /// </summary>
         /// <param name="doc">Document to print</param>
         ReturnCode PrintDocument(IDocument doc);
@@ -162,6 +166,8 @@ namespace ThermalTalk
 
         /// <summary>
         /// Mark ticket as complete and present
+        /// This function transmit the current document buffer to the printer
+        /// then clears the document buffer.
         /// </summary>
         ReturnCode FormFeed();
 
