@@ -489,7 +489,13 @@ namespace ThermalTalk
         /// <returns>ReturnCode.Success if successful, ReturnCode.UnsupportedCommand if payload.Length == 0,
         /// and ReturnCode.ExecutionFailure otherwise.</returns>
         protected ReturnCode AppendToDocBuffer(byte[] payload)
-        {
+        {            
+            if (payload is null)
+            {
+                Logger.Error($"Attempted to write null payload to document in {nameof(AppendToDocBuffer)}");
+                return ReturnCode.InvalidArgument;
+            }
+            
             _docBuffer.Write(payload);
             return ReturnCode.Success;
         }
