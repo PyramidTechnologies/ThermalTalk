@@ -35,7 +35,7 @@ namespace ThermalConsole
         static void Main(string[] args)
         {
             const string phoenixPort = "COM1";
-           const string reliancePort = "COM12";            
+            const string reliancePort = "COM12";            
 
             const int captureRate = 10; // number of seconds between capture
             

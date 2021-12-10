@@ -31,16 +31,20 @@ namespace ThermalTalk
     using System.IO;
     using System.Text;
     using ThermalTalk.Imaging;
-    using System.Linq;
 
-    /// <inheritdoc />
+    /// <summary>
+    /// A buffered printing interface that builds a document in memory. This document is referred to
+    /// as the document buffer. To print your document buffer, call <see cref="FormFeed"/>.
+    /// </summary>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public abstract class BasePrinter : IPrinter
     {
         protected MemoryStream _stream;
         protected BinaryWriter _docBuffer;
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Initialize common printer properties
+        /// </summary>
         protected BasePrinter()
         {
             Justification = FontJustification.JustifyLeft;
@@ -353,7 +357,7 @@ namespace ThermalTalk
             foreach (var sec in doc.Sections)
             {
 
-                // First apply all effects. The firwmare decides if any there
+                // First apply all effects. The firmware decides if any there
                 // are any conflicts and there is nothing we can do about that.
                 // Apply the rest of the settings before we send string
                 var subResults = new List<ReturnCode>
@@ -382,9 +386,7 @@ namespace ThermalTalk
             SetScalars(oldWidth, oldHeight);
             SetFont(oldFont);
 
-            // Transfer document to printer
-            var result = FormFeed();
-            return result;
+            return ReturnCode.Success;
         }
 
         /// <inheritdoc />
@@ -398,10 +400,15 @@ namespace ThermalTalk
             return AppendToDocBuffer(NewLineCommand);
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Writes document buffer to printer and clears the print buffer.
+        /// </summary>
+        /// <returns><see cref="ReturnCode.UnsupportedCommand"/> if the document buffer is empty.
+        /// If the document fails to transmit, <see cref="ReturnCode.ExecutionFailure"/> is returned.
+        /// Otherwise, <see cref="ReturnCode.Success"/></returns>
         public virtual ReturnCode FormFeed()
         {
-            Logger?.Trace("Marking ticket as complete and presenting . . .");
+            Logger?.Trace("Marking ticket as complete and presenting");
             
             AppendToDocBuffer(FormFeedCommand);
             
@@ -410,7 +417,7 @@ namespace ThermalTalk
             // Do not send empty packets
             if (payload.Length == 0)
             {
-                Logger?.Warn("Warning: payload is empty . . .");
+                Logger?.Warn("Warning: payload is empty");
                 return ReturnCode.UnsupportedCommand;
             }
             
@@ -438,7 +445,7 @@ namespace ThermalTalk
                 _stream = new MemoryStream();
                 _docBuffer = new BinaryWriter(_stream);
                 
-                Logger?.Trace("Closing connection . . .");
+                Logger?.Trace("Closing connection");
                 Connection.Close();
             }
         }
@@ -482,7 +489,13 @@ namespace ThermalTalk
         /// <returns>ReturnCode.Success if successful, ReturnCode.UnsupportedCommand if payload.Length == 0,
         /// and ReturnCode.ExecutionFailure otherwise.</returns>
         protected ReturnCode AppendToDocBuffer(byte[] payload)
-        {
+        {            
+            if (payload is null)
+            {
+                Logger.Error($"Attempted to write null payload to document in {nameof(AppendToDocBuffer)}");
+                return ReturnCode.InvalidArgument;
+            }
+            
             _docBuffer.Write(payload);
             return ReturnCode.Success;
         }

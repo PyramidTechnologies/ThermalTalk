@@ -19,3 +19,4 @@ packages/
 .idea/
 ThermalTalk.QueryStatus/bin/
 ThermalTalk.QueryStatus/obj/
+/*.user
