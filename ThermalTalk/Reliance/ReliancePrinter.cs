@@ -123,13 +123,13 @@ namespace ThermalTalk
             switch (font)
             {
                 case ThermalFonts.A:
-                    internalSend(CPI11);
+                    AppendToDocBuffer(CPI11);
                     break;
                 case ThermalFonts.B:
-                    internalSend(CPI15);
+                    AppendToDocBuffer(CPI15);
                     break;
                 case ThermalFonts.C:
-                    internalSend(CPI20);
+                    AppendToDocBuffer(CPI20);
                     break;
             }
         }
@@ -149,7 +149,7 @@ namespace ThermalTalk
             var setup = new byte[] { 0x0A, 0x1C, 0x7D, 0x25, (byte)len };
 
             var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(encodeThis), new byte[] { 0x0A });
-            internalSend(fullCmd);
+            AppendToDocBuffer(fullCmd);
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace ThermalTalk
             var payload = barcode.Build();
             if (payload.Length > 0)
             {
-                internalSend(payload);
+                AppendToDocBuffer(payload);
             }
         }
 
