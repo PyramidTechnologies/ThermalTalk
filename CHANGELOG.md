@@ -1,11 +1,18 @@
+# 1.5
+**bug fixes**
+* None
+
+*New*
+* Added document buffer for storing ESC/POS prior to writing to port
+
 # 1.4
-** bug fixes **
+**bug fixes**
 * Fixed IsTicketPresentAtOutput flag parse
 * Fixed HasError flag parse
 * Fixed HasFatalError flag parse
 * Fixed HasRecoverableError flag parse
 
-* New *
+*New*
 * Does not assume webcam number in CLI example project
 
 # 1.3

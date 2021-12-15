@@ -156,8 +156,10 @@ namespace ThermalTalk
 
         /// <summary>
         /// Mark ticket as complete and present
+        /// This function transmit the current document buffer to the printer
+        /// then clears the document buffer.
         /// </summary>
-        void FormFeed();
+        ReturnCode FormFeed();
 
         /// <summary>
         /// Send raw buffer to target printer.

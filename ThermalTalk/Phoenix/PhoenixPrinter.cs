@@ -131,7 +131,7 @@ namespace ThermalTalk
             var printit = new byte[] {0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, 0x31};
 
             var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(encodeThis), printit);
-            internalSend(fullCmd);
+            AppendToDocBuffer(fullCmd);
         }
 
         /// <summary>
@@ -148,13 +148,13 @@ namespace ThermalTalk
             switch (font)
             {
                 case ThermalFonts.A:
-                    internalSend(FontACmd);
+                    AppendToDocBuffer(FontACmd);
                     break;
                 case ThermalFonts.B:
-                    internalSend(FontBCmd);
+                    AppendToDocBuffer(FontBCmd);
                     break;
                 case ThermalFonts.C:
-                    internalSend(FontCCmd);
+                    AppendToDocBuffer(FontCCmd);
                     break;
             }
         }
