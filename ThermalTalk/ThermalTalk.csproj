@@ -1,6 +1,17 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <PropertyGroup>
+    <SemVer>2.0.0.0</SemVer>
+
+    <Title>ThermalTalk</Title>
+    <TargetFrameworks>net451;netstandard2.0;net5.0</TargetFrameworks>
+
+    <Authors>Pyramid Technologies</Authors>
+    <Company>Pyramid Technologies Inc.</Company>
+    <Description>PTI Thermal Printer API</Description>
+    <Copyright>$(Year) Pyramid Technologies</Copyright>
+  </PropertyGroup>
+  
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -9,7 +20,6 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ThermalTalk</RootNamespace>
     <AssemblyName>ThermalTalk</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -54,72 +64,19 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Windows.Forms" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System" />
+    <PackageReference Include="System.Core" />
+    <PackageReference Include="Microsoft.CSharp" />
+    <PackageReference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Barcodes\BarcodeTypes.cs" />
-    <Compile Include="Barcodes\Code128.cs" />
-    <Compile Include="Barcodes\Code39.cs" />
-    <Compile Include="Barcodes\HRIPositions.cs" />
-    <Compile Include="Barcodes\BaseBarcode.cs" />
-    <Compile Include="Barcodes\IBarcode.cs" />
-    <Compile Include="Barcodes\ITF.cs" />
-    <Compile Include="Common\BasePrinter.cs" />
-    <Compile Include="Common\BaseSerialPort.cs" />
-    <Compile Include="Common\BaseStatus.cs" />
-    <Compile Include="Common\CodePages.cs" />
-    <Compile Include="Common\FontEffects.cs" />
-    <Compile Include="Common\FontJustification.cs" />
-    <Compile Include="Common\ThermalFonts.cs" />
-    <Compile Include="Common\FontScalar.cs" />
-    <Compile Include="Common\RealTimeStatus.cs" />
-    <Compile Include="Common\StatusTypes.cs" />
-    <Compile Include="Helpers\Extensions.cs" />
-    <Compile Include="Helpers\Json.cs" />
-    <Compile Include="Helpers\NativeMethods.cs" />
-    <Compile Include="Helpers\SerialPortUtils.cs" />
-    <Compile Include="IDocument.cs" />
-    <Compile Include="ILogger.cs" />
-    <Compile Include="Phoenix\PhoenixStatusRequests.cs" />
-    <Compile Include="Reliance\RelianceImageSection.cs" />
-    <Compile Include="Reliance\RelianceStatusRequests.cs" />
-    <Compile Include="Templates\Placeholder.cs" />
-    <Compile Include="Templates\StandardDocument.cs" />
-    <Compile Include="Templates\ImageSection.cs" />
-    <Compile Include="ISection.cs" />
-    <Compile Include="IPrinter.cs" />
-    <Compile Include="ISerialConnection.cs" />
-    <Compile Include="Helpers\RawPrintHelper.cs" />
-    <Compile Include="Phoenix\PhoenixPrinter.cs" />
-    <Compile Include="Phoenix\PhoenixSerialPort.cs" />
-    <Compile Include="Reliance\RelianceSerialPort.cs" />
-    <Compile Include="Reliance\ReliancePrinter.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Common\ReturnCode.cs" />
-    <Compile Include="Templates\StandardSection.cs" />
+    <ProjectReference Include="..\ThermalTalk.Imaging\ThermalTalk.Imaging.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ThermalTalk.Imaging\ThermalTalk.Imaging.csproj">
-      <Project>{5440263f-5089-4050-9689-b2060192707e}</Project>
-      <Name>ThermalTalk.Imaging</Name>
-    </ProjectReference>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+    <PackageReference Include="System.IO.Ports" Version="6.0.0" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.IO.Ports" Version="6.0.0" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

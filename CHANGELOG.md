@@ -1,3 +1,10 @@
+# 2.0.0.0
+** bug fixes **
+* None
+
+* New *
+* Add support for net451, netstandard2.0, and net5.0
+
 # 1.4
 ** bug fixes **
 * Fixed IsTicketPresentAtOutput flag parse
