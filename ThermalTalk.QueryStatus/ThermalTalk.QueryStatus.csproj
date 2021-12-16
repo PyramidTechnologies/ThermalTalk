@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <SemVer>3.2.6</SemVer>
+        <LangVersion>latest</LangVersion>
+        <Year>2021</Year>
+        <TargetFrameworks>net451;netstandard2.0;net5.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <LangVersion>default</LangVersion>
+        <Copyright>Copyright © Pyramid Technologies $(Year)</Copyright>
+        <Version>$(SemVer)</Version>
+        <AssemblyVersion>$(SemVer)</AssemblyVersion>
+        <FileVersion>$(SemVer)</FileVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\ThermalTalk\ThermalTalk.csproj" />
+    </ItemGroup>
+
+</Project>

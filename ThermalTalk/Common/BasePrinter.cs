@@ -23,18 +23,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #endregion
+
 namespace ThermalTalk
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Text;
     using ThermalTalk.Imaging;
 
-    /// <inheritdoc />
+    /// <summary>
+    /// A buffered printing interface that builds a document in memory. This document is referred to
+    /// as the document buffer. To print your document buffer, call <see cref="FormFeed"/>.
+    /// </summary>
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public abstract class BasePrinter : IPrinter
     {
-        /// <inheritdoc />
+        protected MemoryStream _stream;
+        protected BinaryWriter _docBuffer;
+
+        /// <summary>
+        /// Initialize common printer properties
+        /// </summary>
         protected BasePrinter()
         {
             Justification = FontJustification.JustifyLeft;
@@ -42,6 +52,9 @@ namespace ThermalTalk
             InitPrinterCommand = new byte[0];
             FormFeedCommand = new byte[0];
             NewLineCommand = new byte[0];
+
+            _stream = new MemoryStream();
+            _docBuffer = new BinaryWriter(_stream);
         }
 
         /// <summary>
@@ -93,7 +106,7 @@ namespace ThermalTalk
         protected Dictionary<FontEffects, byte[]> DisableCommands { get; set; }
 
         /// <summary>
-        /// Map justifcation commands and the specific byte command to apply them
+        /// Map justification commands and the specific byte command to apply them
         /// </summary>
         protected Dictionary<FontJustification, byte[]> JustificationCommands { get; set; }
 
@@ -133,19 +146,22 @@ namespace ThermalTalk
         /// </summary>
         public ThermalFonts Font { get; private set; }
 
+        /// <inheritdoc />
+        public ILogger Logger { get; set; }
+
         /// <summary>
         /// Encodes the specified string as a center justified 2D barcode. 
         /// This 2D barcode is compliant with the QR Code® specicification and can be read by all 2D barcode readers.
         /// </summary>
         /// <param name="encodeThis">String to encode</param>
-        public abstract void Print2DBarcode(string encodeThis);    
+        public abstract ReturnCode Print2DBarcode(string encodeThis);    
 
         /// <inheritdoc />
         /// <summary>
         /// Sets the active font to this
         /// </summary>
         /// <param name="font">Font to use</param>
-        public abstract void SetFont(ThermalFonts font);
+        public abstract ReturnCode SetFont(ThermalFonts font);
 
         /// <inheritdoc />
         /// <summary>
@@ -160,14 +176,16 @@ namespace ThermalTalk
         /// Send the ESC/POS reinitialize command which restores all 
         /// default options, configurable, etc.
         /// </summary>
-        public virtual void Reinitialize()
+        public virtual ReturnCode Reinitialize()
         {
+            Logger?.Trace("Restoring all default options and configurable . . .");
+            
             Justification = FontJustification.JustifyLeft;
             Width = FontWidthScalar.w1;
             Height = FontHeighScalar.h1;
             Effects = FontEffects.None;
 
-            internalSend(InitPrinterCommand);
+            return AppendToDocBuffer(InitPrinterCommand);
         }
 
         /// <inheritdoc />
@@ -176,12 +194,15 @@ namespace ThermalTalk
         /// </summary>
         /// <param name="w">Width scalar</param>
         /// <param name="h">Height scalar</param>
-        public virtual void SetScalars(FontWidthScalar w, FontHeighScalar h)
+        public virtual ReturnCode SetScalars(FontWidthScalar w, FontHeighScalar h)
         {
+            Logger?.Trace("Setting font scalars . . .");
+            
             // If both scalars are set to "keep current" then do nothing
             if(w == FontWidthScalar.NOP && h == FontHeighScalar.NOP)
             {
-                return;
+                Logger?.Info("Both scalars are set to keep current . . .");
+                return ReturnCode.Success;
             }
 
             // Do not alter the scalars if param is set to x0 which means
@@ -195,7 +216,7 @@ namespace ThermalTalk
             byte[] cmd = (byte[])SetScalarCommand.Clone();
 
             cmd[2] = (byte)(wb | hb);
-            internalSend(cmd);
+            return AppendToDocBuffer(cmd);
         }
 
         /// <inheritdoc />
@@ -203,12 +224,15 @@ namespace ThermalTalk
         /// Applies the specified justification
         /// </summary>
         /// <param name="justification">Justification to use</param>
-        public virtual void SetJustification(FontJustification justification)
+        public virtual ReturnCode SetJustification(FontJustification justification)
         {
+            Logger?.Trace("Setting justification . . .");
+            
             // If "keep current" justification is set, do nothing
             if(justification == FontJustification.NOP)
             {
-                return;
+                Logger?.Trace("Justification set to do nothing . . .");
+                return ReturnCode.Success;
             }
 
             Justification = justification;
@@ -218,14 +242,20 @@ namespace ThermalTalk
                 byte[] cmd = JustificationCommands[justification];
                 if (cmd != null)
                 {
-                    internalSend(cmd);
+                    return AppendToDocBuffer(cmd);
                 }
             }
+
+            return ReturnCode.ExecutionFailure;
         }
 
         /// <inheritdoc />
-        public virtual void AddEffect(FontEffects effect)
+        public virtual ReturnCode AddEffect(FontEffects effect)
         {
+            Logger?.Trace("Adding font effects . . .");
+
+            var result = ReturnCode.Success;
+            
             foreach (var flag in effect.GetFlags())
             {
                 // Lookup enable command and send if non-empty
@@ -236,16 +266,27 @@ namespace ThermalTalk
                 var cmd = EnableCommands[flag];
                 if (cmd.Length > 0)
                 {
-                    internalSend(cmd);
+                    var ret = AppendToDocBuffer(cmd);
+
+                    if (ret != ReturnCode.Success)
+                    {
+                        result = ReturnCode.ExecutionFailure;
+                    }
                 }
             }
 
             Effects |= effect;
+
+            return result;
         }
 
         /// <inheritdoc />
-        public virtual void RemoveEffect(FontEffects effect)
+        public virtual ReturnCode RemoveEffect(FontEffects effect)
         {
+            Logger?.Trace("Removing font effects . . .");
+            
+            var result = ReturnCode.Success;
+            
             foreach (var flag in effect.GetFlags())
             {
                 // Lookup enable command and send if non-empty
@@ -254,54 +295,82 @@ namespace ThermalTalk
                     var cmd = DisableCommands[flag];
                     if (cmd.Length > 0)
                     {
-                        internalSend(cmd);
+                        var ret = AppendToDocBuffer(cmd);
+                        
+                        if (ret != ReturnCode.Success)
+                        {
+                            Logger?.Error("Failed to remove all effects . . .");
+                            result = ReturnCode.ExecutionFailure;
+                        }
                     }
                 }
             }
             Effects &= ~effect;
+
+            return result;
         }
 
         /// <inheritdoc />
-        public virtual void ClearAllEffects()
+        public virtual ReturnCode ClearAllEffects()
         {
+            Logger?.Trace("Clearing all font effects . . .");
+
+            var result = ReturnCode.Success;
+            
             foreach (var cmd in DisableCommands.Values)
             {
                 if (cmd.Length > 0)
                 {
-                    internalSend(cmd);
+                    var ret = AppendToDocBuffer(cmd);
+                    
+                    if (ret != ReturnCode.Success)
+                    {
+                        Logger?.Error("Failed to clear all effects . . .");
+                        result = ReturnCode.ExecutionFailure;
+                    }
                 }
             }
             Effects = FontEffects.None;
+
+            return result;
         }
 
         /// <inheritdoc />
-        public virtual void PrintASCIIString(string str)
+        public virtual ReturnCode PrintASCIIString(string str)
         {
-            internalSend(Encoding.ASCII.GetBytes(str));
+            Logger?.Trace("Printing the following ASCII string: " + str);
+            
+            return AppendToDocBuffer(Encoding.ASCII.GetBytes(str));
         }
 
         /// <inheritdoc />
-        public virtual void PrintDocument(IDocument doc)
+        public virtual ReturnCode PrintDocument(IDocument doc)
         {
+            Logger?.Trace("Printing document . . .");
+
             // Keep track of current settings so we can restore
             var oldJustification = Justification;
             var oldWidth = Width;
             var oldHeight = Height;
             var oldFont = Font;
-
+            
             foreach (var sec in doc.Sections)
             {
 
-                // First apply all effects. The firwmare decides if any there
+                // First apply all effects. The firmware decides if any there
                 // are any conflicts and there is nothing we can do about that.
                 // Apply the rest of the settings before we send string
-                AddEffect(sec.Effects);
-                SetJustification(sec.Justification);
-                SetScalars(sec.WidthScalar, sec.HeightScalar);
-                SetFont(sec.Font);
+                var subResults = new List<ReturnCode>
+                {
+                    AddEffect(sec.Effects),
+                    SetJustification(sec.Justification),
+                    SetScalars(sec.WidthScalar, sec.HeightScalar),
+                    SetFont(sec.Font),
 
-                // Send the actual content
-                internalSend(sec.GetContentBuffer(doc.CodePage));
+                    // Send the actual content
+                    AppendToDocBuffer(sec.GetContentBuffer(doc.CodePage)),
+                };
+
 
                 if (sec.AutoNewline)
                 {
@@ -316,27 +385,77 @@ namespace ThermalTalk
             SetJustification(oldJustification);
             SetScalars(oldWidth, oldHeight);
             SetFont(oldFont);
+
+            return ReturnCode.Success;
         }
 
         /// <inheritdoc />
-        public abstract void SetImage(PrinterImage image, IDocument doc, int index);
+        public abstract ReturnCode SetImage(PrinterImage image, IDocument doc, int index);
 
         /// <inheritdoc />
-        public virtual void PrintNewline()
+        public virtual ReturnCode PrintNewline()
         {
-            internalSend(NewLineCommand);
+            Logger?.Trace("Printing new line . . . ");
+            
+            return AppendToDocBuffer(NewLineCommand);
+        }
+
+        /// <summary>
+        /// Writes document buffer to printer and clears the print buffer.
+        /// </summary>
+        /// <returns><see cref="ReturnCode.UnsupportedCommand"/> if the document buffer is empty.
+        /// If the document fails to transmit, <see cref="ReturnCode.ExecutionFailure"/> is returned.
+        /// Otherwise, <see cref="ReturnCode.Success"/></returns>
+        public virtual ReturnCode FormFeed()
+        {
+            Logger?.Trace("Marking ticket as complete and presenting");
+            
+            AppendToDocBuffer(FormFeedCommand);
+            
+            var payload = _stream.ToArray();
+            
+            // Do not send empty packets
+            if (payload.Length == 0)
+            {
+                Logger?.Warn("Warning: payload is empty");
+                return ReturnCode.UnsupportedCommand;
+            }
+            
+            try
+            {
+                Logger?.Trace("Attempting to open connection");
+                Connection.Open();
+
+                Connection.Write(payload);
+                
+                return ReturnCode.Success;
+            }
+            catch(Exception e)
+            {
+                Logger?.Error("The following exception was thrown while attempting to write the status:");
+                Logger?.Error(e.Message);
+                Logger?.Error(e.StackTrace);
+
+                return ReturnCode.ExecutionFailure;
+            }
+            finally
+            {
+                // BinaryWriter closes the underlying stream on dispose 
+                _docBuffer.Dispose();
+                _stream = new MemoryStream();
+                _docBuffer = new BinaryWriter(_stream);
+                
+                Logger?.Trace("Closing connection");
+                Connection.Close();
+            }
         }
 
         /// <inheritdoc />
-        public virtual void FormFeed()
+        public virtual ReturnCode SendRaw(byte[] raw)
         {
-            internalSend(FormFeedCommand);
-        }
+            Logger?.Trace("Sending raw data . . .");
 
-        /// <inheritdoc />
-        public virtual void SendRaw(byte[] raw)
-        {
-            internalSend(raw);
+            return AppendToDocBuffer(raw);
         }
 
 
@@ -350,41 +469,35 @@ namespace ThermalTalk
         /// <summary>
         /// Close serial connection
         /// </summary>
-        /// <param name="diposing">True to close connection</param>
-        protected virtual void Dispose(bool diposing)
+        /// <param name="disposing">True to close connection</param>
+        protected virtual void Dispose(bool disposing)
         {
             if (Connection != null)
             {
                 Connection.Dispose();
             }
+            
+            _docBuffer.Dispose();
         }
 
         #region Protected
         /// <summary>
-        /// Send payload over serial port. If port
-        /// is not open, this will open the port before writing.
-        /// The port will be closed when the write completes or fails.
+        /// Append print command data to the end of the current document.
+        /// Document is not actually printed until <see cref="FormFeed"/> is called.
         /// </summary>
         /// <param name="payload"></param>
-        protected void internalSend(byte[] payload)
-        {
-            // Do not send empty packets
-            if (payload.Length == 0)
+        /// <returns>ReturnCode.Success if successful, ReturnCode.UnsupportedCommand if payload.Length == 0,
+        /// and ReturnCode.ExecutionFailure otherwise.</returns>
+        protected ReturnCode AppendToDocBuffer(byte[] payload)
+        {            
+            if (payload is null)
             {
-                return;
+                Logger.Error($"Attempted to write null payload to document in {nameof(AppendToDocBuffer)}");
+                return ReturnCode.InvalidArgument;
             }
-
-            try
-            {
-                Connection.Open();
-
-                Connection.Write(payload);
-            }
-            catch { /* Do nothing */ }
-            finally
-            {
-                Connection.Close();
-            }
+            
+            _docBuffer.Write(payload);
+            return ReturnCode.Success;
         }
         #endregion
     }

@@ -75,13 +75,8 @@ namespace ThermalTalk.Imaging.Test
                     inbmp.Save(memory, ImageFormat.Png);
                     memory.Position = 0;
 
-                    var id = new BitmapImage();
-                    id.BeginInit();
-                    id.StreamSource = memory;
-                    id.CacheOption = BitmapCacheOption.OnLoad;
-                    id.EndInit();
-
-                    Assert.IsTrue(ImageTestHelpers.CompareMemCmp(inbmp, id.ToBitmap()));
+                    var id = new Bitmap(memory);
+                    Assert.IsTrue(ImageTestHelpers.CompareMemCmp(inbmp, id));
                 }
             }
         }

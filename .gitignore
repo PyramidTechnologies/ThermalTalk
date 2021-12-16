@@ -16,3 +16,7 @@ packages/
 *.nupkg
 /ThermalTalk/build/ThermalTalk.XML
 .vs/
+.idea/
+ThermalTalk.QueryStatus/bin/
+ThermalTalk.QueryStatus/obj/
+/*.user
