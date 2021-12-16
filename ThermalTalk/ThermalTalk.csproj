@@ -9,7 +9,7 @@
     <Authors>Pyramid Technologies</Authors>
     <Company>Pyramid Technologies Inc.</Company>
     <Description>PTI Thermal Printer API</Description>
-    <Copyright>$(Year) Pyramid Technologies</Copyright>
+    <Copyright>2021 Pyramid Technologies</Copyright>
   </PropertyGroup>
   
   <PropertyGroup>
