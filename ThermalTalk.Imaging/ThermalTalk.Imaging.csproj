@@ -10,7 +10,7 @@
     <Authors>Pyramid Technologies</Authors>
     <Company>Pyramid Technologies Inc.</Company>
     <Description>Imaging module for ThermalTalk SDK</Description>
-    <Copyright>$(Year) Pyramid Technologies</Copyright>
+    <Copyright>2021 Pyramid Technologies</Copyright>
   </PropertyGroup>
   
   <PropertyGroup>
