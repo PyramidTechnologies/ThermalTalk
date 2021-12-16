@@ -61,7 +61,6 @@ namespace ThermalTalk
             _mPort.Handshake = Handshake.None;
             _mPort.WriteBufferSize = 4 * 1024;
             _mPort.ReadBufferSize = 4 * 1024;
-            _mPort.Encoding = System.Text.Encoding.GetEncoding("Windows-1252");
             _mPort.DtrEnable = true;
             _mPort.RtsEnable = true;
             _mPort.DiscardNull = false;
