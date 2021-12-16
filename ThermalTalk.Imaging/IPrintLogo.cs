@@ -23,6 +23,8 @@ SOFTWARE.
  */
 namespace ThermalTalk.Imaging
 {
+    using System;
+    using System.Drawing;
 
     public interface IPrintLogo : System.IDisposable
     {
@@ -48,7 +50,7 @@ namespace ThermalTalk.Imaging
         /// Observable bitmap image source that represents bitmap in its current state
         /// and will reflect any changes due to resize, dither, or inversion.
         /// </summary>
-        System.Windows.Media.Imaging.BitmapImage ImageData { get; }
+        Bitmap ImageData { get; }
 
         /// <summary>
         /// Width of this bitmap in pixels

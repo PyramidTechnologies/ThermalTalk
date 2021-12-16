@@ -31,7 +31,6 @@ namespace ThermalTalk.Imaging
     using System.Drawing.Imaging;
     using System.IO;
     using System.Runtime.InteropServices;
-    using System.Windows.Media.Imaging;
 
     public static class ImageExt
     {
@@ -140,24 +139,6 @@ namespace ThermalTalk.Imaging
 
             return result;
 
-        }
-
-        /// <summary>
-        /// Convert to a Bitmap in memory
-        /// </summary>
-        /// <param name="data">BitmapImage</param>
-        /// <returns>Bitmap</returns>
-        public static Bitmap ToBitmap(this BitmapImage data)
-        {
-            using (MemoryStream outStream = new MemoryStream())
-            {
-                BitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create(data));
-                enc.Save(outStream);
-                System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(outStream);
-
-                return new Bitmap(bitmap);
-            }
         }
 
         /// <summary>

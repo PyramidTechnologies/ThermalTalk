@@ -54,7 +54,7 @@ namespace ThermalTalk.Imaging.Test
 
                 logo.ApplyColorInversion();
 
-                inverted = logo.ImageData.ToBitmap();
+                inverted = logo.ImageData;
                 expected = Properties.Resources.black_bitmap;
 
                 // White should ivnert to black

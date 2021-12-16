@@ -30,8 +30,7 @@ namespace ThermalTalk.Imaging
     using System.Drawing;
     using System.Drawing.Imaging;
     using System.IO;
-    using System.Windows.Media.Imaging;
-
+    
     public class PrinterImage : ThermalTalk.Imaging.IPrintLogo
     {
         /// <summary>
@@ -68,7 +67,7 @@ namespace ThermalTalk.Imaging
         /// Returns a read-only version of the backing image data
         /// </summary>
         /// <remarks>Private access, use SetImageData</remarks>
-        public BitmapImage ImageData { get; private set; }
+        public Bitmap ImageData { get; private set; }
 
         /// <summary>
         /// Gets the current bitmap width in pixels
@@ -98,7 +97,7 @@ namespace ThermalTalk.Imaging
             var algo = (Algorithms)algorithm;
             var halftoneProcessor = DitherFactory.GetDitherer(algo, threshhold);
 
-            var bitmap = ImageData.ToBitmap();
+            var bitmap = ImageData;
 
             // The big grind
             var dithered = halftoneProcessor.GenerateDithered(bitmap);
@@ -119,7 +118,7 @@ namespace ThermalTalk.Imaging
         public void ApplyColorInversion()
         {
             IsInverted = !IsInverted;
-            var bitmap = ImageData.ToBitmap();
+            var bitmap = ImageData;
             bitmap.InvertColorChannels();
             SetImageData(bitmap);
         }
@@ -130,7 +129,7 @@ namespace ThermalTalk.Imaging
         /// <param name="outpath">Output path</param>
         public void ExportLogo(string outpath)
         {
-            ImageData.ToBitmap().Save(outpath);
+            ImageData.Save(outpath);
         }
 
         /// <summary>
@@ -140,7 +139,7 @@ namespace ThermalTalk.Imaging
         public void ExportLogoBin(string outpath)
         {
             // Append the bitmap data as a packed dot logo
-            var bmpData = ImageData.ToBitmap().Rasterize();
+            var bmpData = ImageData.Rasterize();
 
             // Write to file
             File.WriteAllBytes(outpath, bmpData);
@@ -182,7 +181,7 @@ namespace ThermalTalk.Imaging
             buffer.Add(yH);
 
             // Append the bitmap data as a packed dot logo
-            var bmpData = ImageData.ToBitmap().Rasterize();
+            var bmpData = ImageData.Rasterize();
             buffer.AddRange(bmpData);
 
             return buffer.ToArray();
@@ -206,10 +205,7 @@ namespace ThermalTalk.Imaging
         /// <returns></returns>
         public string AsBase64String()
         {
-            using(var bitmap = ImageData.ToBitmap())
-            {
-                return bitmap.ToBase64String();
-            };
+            return ImageData.ToBase64String();
         }
 
         /// <summary>
@@ -289,7 +285,7 @@ namespace ThermalTalk.Imaging
             Width = Width.RoundUp(8);
             Height = Height.RoundUp(8);
 
-            using (var bitmap = new Bitmap(ImageData.ToBitmap(), new Size(Width, Height)))
+            using (var bitmap = new Bitmap(ImageData, new Size(Width, Height)))
             {
                 SetImageData(bitmap);
             }
@@ -319,23 +315,14 @@ namespace ThermalTalk.Imaging
 
             // extract dimensions
             Width = bitmap.Width;
-            Height = bitmap.Height;    
+            Height = bitmap.Height;
 
             using (var memory = new MemoryStream())
             {
                 bitmap.Save(memory, ImageFormat.Png);
                 memory.Position = 0;
 
-                ImageData = new BitmapImage();
-                ImageData.BeginInit();
-                ImageData.StreamSource = memory;
-                ImageData.CacheOption = BitmapCacheOption.OnLoad;
-                ImageData.EndInit();           
-     
-                if(ImageData.CanFreeze)
-                {
-                    ImageData.Freeze();
-                }
+                ImageData = new Bitmap(bitmap);
             }
         }
 
@@ -347,10 +334,7 @@ namespace ThermalTalk.Imaging
 
         protected virtual void Dispose(bool disposing)
         {
-            if (ImageData != null)
-            {
-                ImageData.StreamSource.Close();
-            }
+            ImageData?.Dispose();
         }
     }
 }
