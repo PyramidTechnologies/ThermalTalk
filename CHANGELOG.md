@@ -1,3 +1,10 @@
+# 2.0.1.0
+** bug fixes **
+* #12 Phoenix OffLineStatus corrected
+
+* New *
+* Demo program now uses command line args instead of hard coded port name
+
 # 2.0.0.0
 ** bug fixes **
 * None
