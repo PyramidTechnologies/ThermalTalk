@@ -367,7 +367,7 @@ namespace ThermalTalk
                 case PhoenixStatusRequests.OffLineStatus:
 
                     // bit 6: 0- no error, 1- error        
-                    rts.HasError = (data[0] & 0x40) == 0;
+                    rts.HasError = (data[0] & 0x40) != 0;
 
                     break;
 

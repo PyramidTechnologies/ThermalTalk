@@ -34,9 +34,13 @@ namespace ThermalConsole
     {
         static void Main(string[] args)
         {
-            const string phoenixPort = "COM1";
-            const string reliancePort = "COM12";            
+            if (args.Length == 0)
+            {
+                Console.WriteLine("usage: ThermalConsole PORT");
+                return;
+            }
 
+            var portName = args[0];
             const int captureRate = 10; // number of seconds between capture
             
             Console.WriteLine("Starting Security Camera Sample");
@@ -100,8 +104,8 @@ namespace ThermalConsole
                 // support dynamic images over ESC/POS. Images will only 
                 // be transmitted through the print queue but no examples have
                 // been prepared for this.
-                //using (var printer = new PhoenixPrinter(phoenixPort))
-                using (var printer = new ReliancePrinter(reliancePort))
+                using (var printer = new PhoenixPrinter(portName))
+                //using (var printer = new ReliancePrinter(portName))
                 using(var image = Webcam.GrabPicture())
                 {
              
