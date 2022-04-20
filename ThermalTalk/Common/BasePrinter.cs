@@ -393,6 +393,19 @@ namespace ThermalTalk
         public abstract ReturnCode SetImage(PrinterImage image, IDocument doc, int index);
 
         /// <inheritdoc />
+        public ReturnCode SetBarcode(IBarcode barcode, IDocument doc, int index)
+        {
+            while (index > doc.Sections.Count)
+            {
+                doc.Sections.Add(new Placeholder());
+            }
+
+            doc.Sections[index] = new BarcodeSection(barcode);
+
+            return ReturnCode.Success;
+        }
+
+        /// <inheritdoc />
         public virtual ReturnCode PrintNewline()
         {
             Logger?.Trace("Printing new line . . . ");

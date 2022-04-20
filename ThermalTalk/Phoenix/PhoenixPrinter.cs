@@ -127,12 +127,13 @@ namespace ThermalTalk
         public override ReturnCode Print2DBarcode(string encodeThis)
         {
             Logger?.Trace("Encoding the following string as a barcode: " + encodeThis);
-            
-            var len = encodeThis.Length > 154 ? 154 : encodeThis.Length;
-            var setup = new byte[] { 0x1D, 0x28, 0x6B, (byte)len, 0x00, 0x31, 0x50 };
-            var printit = new byte[] {0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, 0x31};
 
-            var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(encodeThis), printit);
+            // Use all default values for barcode
+            var barcode = new TwoD(TwoD.Flavor.Phoenix)
+            {
+                EncodeThis = encodeThis
+            };
+            var fullCmd = barcode.Build();
             return AppendToDocBuffer(fullCmd);
         }
 
@@ -176,9 +177,10 @@ namespace ThermalTalk
         /// <summary>
         /// TODO: Phoenix does not currently supports ESC/POS images at this time.
         /// </summary>
-        /// <param name="image"></param>
-        /// <param name="doc"></param>
-        /// <param name="index"></param>
+        /// <param name="image">Image to add</param>
+        /// <param name="doc">Document to add</param>
+        /// <param name="index">Index to insert. If this index exceeds the current length
+        /// placeholders will be inserted until index is reached.</param>
         /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise.</returns>
         public override ReturnCode SetImage(PrinterImage image, IDocument doc, int index)
         {

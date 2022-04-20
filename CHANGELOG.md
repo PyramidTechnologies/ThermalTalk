@@ -1,3 +1,10 @@
+# 2.1.0.0
+** bug fixes **
+* None
+
+* New *
+* Add BarcodeSection and TwoD barcode type
+
 # 2.0.1.0
 ** bug fixes **
 * #12 Phoenix OffLineStatus corrected

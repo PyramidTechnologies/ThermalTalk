@@ -1,4 +1,5 @@
 ﻿#region Copyright & License
+
 /*
 MIT License
 
@@ -22,7 +23,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+
 #endregion
+
 namespace ThermalTalk
 {
     using ThermalTalk.Imaging;
@@ -56,7 +59,7 @@ namespace ThermalTalk
         /// Gets the active font
         /// </summary>
         ThermalFonts Font { get; }
-        
+
         /// <summary>
         /// Gets or set the logger for IPrinter
         /// </summary>
@@ -157,6 +160,16 @@ namespace ThermalTalk
         /// placeholders will be inserted until index is reached.</param>
         /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise</returns>
         ReturnCode SetImage(PrinterImage image, IDocument doc, int index);
+
+        /// <summary>
+        /// Sets this logo to a position inside doc specified by index.    
+        /// </summary>
+        /// <param name="barcode">Barcode to add</param>
+        /// <param name="doc">Receives barcode</param>
+        /// <param name="index">Index to insert. If this index exceeds the current length
+        /// placeholders will be inserted until index is reached.</param>
+        /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise</returns>
+        ReturnCode SetBarcode(IBarcode barcode, IDocument doc, int index);
 
         /// <summary>
         /// Emit one newline character and return print

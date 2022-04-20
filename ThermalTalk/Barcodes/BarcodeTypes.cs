@@ -22,5 +22,9 @@ namespace ThermalTalk
         /// Supported since 1.21 firmware
         /// </summary>
         ITF,
+        /// <summary>
+        /// 2D barcode generator
+        /// </summary>
+        TwoD
     }
 }
