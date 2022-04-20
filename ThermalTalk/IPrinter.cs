@@ -162,7 +162,7 @@ namespace ThermalTalk
         ReturnCode SetImage(PrinterImage image, IDocument doc, int index);
 
         /// <summary>
-        /// Sets this logo to a position inside doc specified by index.    
+        /// Sets this barcode to a position inside doc specified by index.    
         /// </summary>
         /// <param name="barcode">Barcode to add</param>
         /// <param name="doc">Receives barcode</param>
