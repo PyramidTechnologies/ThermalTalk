@@ -158,7 +158,7 @@ namespace ThermalTalk
         public override ReturnCode Print2DBarcode(string encodeThis)
         {
             // Use all default values for barcode
-            var barcode = new TwoD(TwoD.Flavor.Reliance)
+            var barcode = new TwoDBarcode(TwoDBarcode.Flavor.Reliance)
             {
                 EncodeThis = encodeThis
             };

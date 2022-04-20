@@ -129,7 +129,7 @@ namespace ThermalTalk
             Logger?.Trace("Encoding the following string as a barcode: " + encodeThis);
 
             // Use all default values for barcode
-            var barcode = new TwoD(TwoD.Flavor.Phoenix)
+            var barcode = new TwoDBarcode(TwoDBarcode.Flavor.Phoenix)
             {
                 EncodeThis = encodeThis
             };

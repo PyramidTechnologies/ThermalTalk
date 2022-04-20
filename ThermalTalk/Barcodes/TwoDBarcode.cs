@@ -5,7 +5,7 @@
     /// <summary>
     /// General 2D barcode
     /// </summary>
-    public class TwoD : IBarcode
+    public class TwoDBarcode : IBarcode
     {
         /// <summary>
         /// 2D barcode flavor
@@ -31,7 +31,7 @@
         /// so you must specify the flavor parameter.
         /// </summary>
         /// <param name="flavor">Printer flavor</param>
-        public TwoD(Flavor flavor)
+        public TwoDBarcode(Flavor flavor)
         {
             _flavor = flavor;
         }

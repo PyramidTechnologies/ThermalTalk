@@ -132,7 +132,7 @@ namespace ThermalConsole
                     printer.SetImage(image, document, 1);
                     
                     // Update barcode
-                    var barcode = new TwoD(TwoD.Flavor.Phoenix)
+                    var barcode = new TwoDBarcode(TwoDBarcode.Flavor.Phoenix)
                     {
                         EncodeThis = $"There have been {count} prints"
                     };
