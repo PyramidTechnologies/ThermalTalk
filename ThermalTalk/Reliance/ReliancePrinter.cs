@@ -190,7 +190,7 @@ namespace ThermalTalk
         /// <inheritdoc />
         public override ReturnCode SetImage(PrinterImage image, IDocument doc, int index)
         {
-            while(index > doc.Sections.Count)
+            while(index >= doc.Sections.Count)
             {
                 doc.Sections.Add(new Placeholder());
             }

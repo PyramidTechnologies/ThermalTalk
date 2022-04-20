@@ -395,7 +395,7 @@ namespace ThermalTalk
         /// <inheritdoc />
         public ReturnCode SetBarcode(IBarcode barcode, IDocument doc, int index)
         {
-            while (index > doc.Sections.Count)
+            while (index >= doc.Sections.Count)
             {
                 doc.Sections.Add(new Placeholder());
             }
