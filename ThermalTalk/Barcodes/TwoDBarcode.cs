@@ -74,7 +74,8 @@
         /// <returns>2D barcode generator command</returns>
         private byte[] BuildPhoenixFlavor()
         {
-            var len = EncodeThis.Length > 154 ? 154 : EncodeThis.Length;
+            EncodeThis = " " + EncodeThis;
+            var len = EncodeThis.Length > 154 ? 154 : EncodeThis.Length+1;
             var setup = new byte[] { 0x1D, 0x28, 0x6B, (byte)len, 0x00, 0x31, 0x50 };
             var printIt = new byte[] { 0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, 0x31 };
 
