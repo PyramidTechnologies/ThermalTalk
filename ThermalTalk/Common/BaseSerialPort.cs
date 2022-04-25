@@ -199,7 +199,6 @@ namespace ThermalTalk
                 foreach (var s in data.Split(_mChunkSize))
                 {
                     _mPort.Write(s, 0, s.Length);
-                    Thread.Sleep(10);
                 }
 
                 return data.Length;
