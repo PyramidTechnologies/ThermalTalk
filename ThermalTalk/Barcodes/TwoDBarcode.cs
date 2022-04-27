@@ -1,5 +1,6 @@
 ﻿namespace ThermalTalk
 {
+    using System.Linq;
     using System.Text;
 
     /// <summary>
@@ -74,11 +75,31 @@
         /// <returns>2D barcode generator command</returns>
         private byte[] BuildPhoenixFlavor()
         {
-            var len = EncodeThis.Length > 154 ? 154 : EncodeThis.Length;
-            var setup = new byte[] { 0x1D, 0x28, 0x6B, (byte)len, 0x00, 0x31, 0x50 };
-            var printIt = new byte[] { 0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, 0x31 };
+            var len = EncodeThis.Length > 32 ? 32 : EncodeThis.Length;
+            var pL = len + 3;
+            
+            var setup = new byte[] 
+            { 
+                0x1D, 0x28, 0x6B, 
+                (byte) pL, // pL
+                0x00, // pH
+                0x31, // cn 
+                0x50, // fn
+                0x31
+            };
+            var printIt = new byte[]
+            {
+                0x1D, 0x28, 0x6B, 
+                0x03, // pL
+                0x00, // pH
+                0x31, // cn
+                0x51, // fn
+                0x31
+            };
 
-            var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(EncodeThis), printIt);
+            var toEncode = EncodeThis.Take(len).ToArray();
+            
+            var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(toEncode), printIt);
             return fullCmd;
         }
 
