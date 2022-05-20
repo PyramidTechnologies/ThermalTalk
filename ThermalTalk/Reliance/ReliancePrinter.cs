@@ -157,10 +157,12 @@ namespace ThermalTalk
         /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise.</returns>
         public override ReturnCode Print2DBarcode(string encodeThis)
         {
-            var len = encodeThis.Length > 154 ? 154 : encodeThis.Length;
-            var setup = new byte[] { 0x0A, 0x1C, 0x7D, 0x25, (byte)len };
-
-            var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(encodeThis), new byte[] { 0x0A });
+            // Use all default values for barcode
+            var barcode = new TwoDBarcode(TwoDBarcode.Flavor.Reliance)
+            {
+                EncodeThis = encodeThis
+            };
+            var fullCmd = barcode.Build();
             return AppendToDocBuffer(fullCmd);
         }
 
@@ -188,7 +190,7 @@ namespace ThermalTalk
         /// <inheritdoc />
         public override ReturnCode SetImage(PrinterImage image, IDocument doc, int index)
         {
-            while(index > doc.Sections.Count)
+            while(index >= doc.Sections.Count)
             {
                 doc.Sections.Add(new Placeholder());
             }
