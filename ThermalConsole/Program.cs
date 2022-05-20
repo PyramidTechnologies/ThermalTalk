@@ -93,6 +93,7 @@ namespace ThermalConsole
 
             document.Sections.Add(header);
             document.Sections.Add(new Placeholder());  // Placeholder since we know we'll want an image here
+            document.Sections.Add(new Placeholder());  // Placeholder since we know we'll want a barcode here
             document.Sections.Add(timestamp);
             document.Sections.Add(printStatus);
 
@@ -129,6 +130,13 @@ namespace ThermalConsole
 
                     // Re-assign this image to the middle part of the document
                     printer.SetImage(image, document, 1);
+                    
+                    // Update barcode
+                    var barcode = new TwoDBarcode(TwoDBarcode.Flavor.Phoenix)
+                    {
+                        EncodeThis = $"There have been {count} prints"
+                    };
+                    printer.SetBarcode(barcode, document, 2);
 
                     // Send the whole document + image
                     printer.PrintDocument(document);
