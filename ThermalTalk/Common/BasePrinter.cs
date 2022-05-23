@@ -24,6 +24,8 @@ SOFTWARE.
  */
 #endregion
 
+using System.Threading;
+
 namespace ThermalTalk
 {
     using System;
@@ -39,8 +41,7 @@ namespace ThermalTalk
     [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
     public abstract class BasePrinter : IPrinter
     {
-        protected MemoryStream _stream;
-        protected BinaryWriter _docBuffer;
+        private List<BufferAction> _sections = new List<BufferAction>(); 
 
         /// <summary>
         /// Initialize common printer properties
@@ -52,9 +53,6 @@ namespace ThermalTalk
             InitPrinterCommand = new byte[0];
             FormFeedCommand = new byte[0];
             NewLineCommand = new byte[0];
-
-            _stream = new MemoryStream();
-            _docBuffer = new BinaryWriter(_stream);
         }
 
         /// <summary>
@@ -185,7 +183,10 @@ namespace ThermalTalk
             Height = FontHeighScalar.h1;
             Effects = FontEffects.None;
 
-            return AppendToDocBuffer(InitPrinterCommand);
+            return AppendToDocBuffer(new BufferAction
+            {
+                Buffer = InitPrinterCommand
+            });
         }
 
         /// <inheritdoc />
@@ -216,7 +217,10 @@ namespace ThermalTalk
             byte[] cmd = (byte[])SetScalarCommand.Clone();
 
             cmd[2] = (byte)(wb | hb);
-            return AppendToDocBuffer(cmd);
+            return AppendToDocBuffer(new BufferAction
+            {
+                Buffer = cmd
+            });
         }
 
         /// <inheritdoc />
@@ -242,7 +246,10 @@ namespace ThermalTalk
                 byte[] cmd = JustificationCommands[justification];
                 if (cmd != null)
                 {
-                    return AppendToDocBuffer(cmd);
+                    return AppendToDocBuffer(new BufferAction
+                    {
+                        Buffer = cmd
+                    });
                 }
             }
 
@@ -266,7 +273,10 @@ namespace ThermalTalk
                 var cmd = EnableCommands[flag];
                 if (cmd.Length > 0)
                 {
-                    var ret = AppendToDocBuffer(cmd);
+                    var ret = AppendToDocBuffer(new BufferAction
+                    {
+                        Buffer = cmd
+                    });
 
                     if (ret != ReturnCode.Success)
                     {
@@ -295,7 +305,10 @@ namespace ThermalTalk
                     var cmd = DisableCommands[flag];
                     if (cmd.Length > 0)
                     {
-                        var ret = AppendToDocBuffer(cmd);
+                        var ret = AppendToDocBuffer(new BufferAction
+                        {
+                            Buffer = cmd
+                        });
                         
                         if (ret != ReturnCode.Success)
                         {
@@ -321,7 +334,10 @@ namespace ThermalTalk
             {
                 if (cmd.Length > 0)
                 {
-                    var ret = AppendToDocBuffer(cmd);
+                    var ret = AppendToDocBuffer(new BufferAction
+                    {
+                        Buffer = cmd
+                    });
                     
                     if (ret != ReturnCode.Success)
                     {
@@ -340,7 +356,10 @@ namespace ThermalTalk
         {
             Logger?.Trace("Printing the following ASCII string: " + str);
             
-            return AppendToDocBuffer(Encoding.ASCII.GetBytes(str));
+            return AppendToDocBuffer(new BufferAction
+            {
+                Buffer = Encoding.ASCII.GetBytes(str),
+            });
         }
 
         /// <inheritdoc />
@@ -410,7 +429,10 @@ namespace ThermalTalk
         {
             Logger?.Trace("Printing new line . . . ");
             
-            return AppendToDocBuffer(NewLineCommand);
+            return AppendToDocBuffer(new BufferAction
+            {
+                Buffer = NewLineCommand,
+            });
         }
 
         /// <summary>
@@ -423,12 +445,14 @@ namespace ThermalTalk
         {
             Logger?.Trace("Marking ticket as complete and presenting");
             
-            AppendToDocBuffer(FormFeedCommand);
+            AppendToDocBuffer(new BufferAction
+            {
+                Buffer = FormFeedCommand
+            });
             
-            var payload = _stream.ToArray();
             
             // Do not send empty packets
-            if (payload.Length == 0)
+            if (_sections.Count == 0 || _sections[0].Buffer.Length == 0)
             {
                 Logger?.Warn("Warning: payload is empty");
                 return ReturnCode.UnsupportedCommand;
@@ -439,7 +463,11 @@ namespace ThermalTalk
                 Logger?.Trace("Attempting to open connection");
                 Connection.Open();
 
-                Connection.Write(payload);
+                foreach (var section in _sections)
+                {
+                    Connection.Write(section.Buffer);
+                    Thread.Sleep(section.AfterSendDelay);
+                }
                 
                 return ReturnCode.Success;
             }
@@ -453,10 +481,7 @@ namespace ThermalTalk
             }
             finally
             {
-                // BinaryWriter closes the underlying stream on dispose 
-                _docBuffer.Dispose();
-                _stream = new MemoryStream();
-                _docBuffer = new BinaryWriter(_stream);
+                _sections.Clear();
                 
                 Logger?.Trace("Closing connection");
                 Connection.Close();
@@ -464,7 +489,7 @@ namespace ThermalTalk
         }
 
         /// <inheritdoc />
-        public virtual ReturnCode SendRaw(byte[] raw)
+        public virtual ReturnCode SendRaw(BufferAction raw)
         {
             Logger?.Trace("Sending raw data . . .");
 
@@ -490,7 +515,7 @@ namespace ThermalTalk
                 Connection.Dispose();
             }
             
-            _docBuffer.Dispose();
+            // _docBuffer.Dispose();
         }
 
         #region Protected
@@ -501,15 +526,15 @@ namespace ThermalTalk
         /// <param name="payload"></param>
         /// <returns>ReturnCode.Success if successful, ReturnCode.UnsupportedCommand if payload.Length == 0,
         /// and ReturnCode.ExecutionFailure otherwise.</returns>
-        protected ReturnCode AppendToDocBuffer(byte[] payload)
+        protected ReturnCode AppendToDocBuffer(BufferAction payload)
         {            
-            if (payload is null)
+            if (payload is null || payload.Buffer is null)
             {
                 Logger.Error($"Attempted to write null payload to document in {nameof(AppendToDocBuffer)}");
                 return ReturnCode.InvalidArgument;
             }
             
-            _docBuffer.Write(payload);
+            _sections.Add(payload);
             return ReturnCode.Success;
         }
         #endregion

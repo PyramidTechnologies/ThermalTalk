@@ -70,6 +70,6 @@ namespace ThermalTalk
         /// </summary>
         /// <param name="codepage">Codepage to encode text</param>
         /// <returns></returns>
-        byte[] GetContentBuffer(CodePages codepage);
+        BufferAction GetContentBuffer(CodePages codepage);
     }
 }

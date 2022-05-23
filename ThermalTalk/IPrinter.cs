@@ -188,6 +188,6 @@ namespace ThermalTalk
         /// Send raw buffer to target printer.
         /// </summary>
         /// <param name="raw"></param>
-        ReturnCode SendRaw(byte[] raw);
+        ReturnCode SendRaw(BufferAction raw);
     }
 }

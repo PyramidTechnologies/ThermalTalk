@@ -24,6 +24,8 @@ SOFTWARE.
  */
 #endregion
 
+using System;
+
 namespace ThermalTalk
 {
     using System.Collections.Generic;
@@ -129,15 +131,24 @@ namespace ThermalTalk
             {
                 case ThermalFonts.A:
                     Logger?.Trace("Attempting to set font to font CPI11.");
-                    result = AppendToDocBuffer(CPI11);
+                    result = AppendToDocBuffer(new BufferAction
+                    {
+                        Buffer = CPI11,
+                    });
                     break;
                 case ThermalFonts.B:
                     Logger?.Trace("Attempting to set font to font CPI15.");
-                    result = AppendToDocBuffer(CPI15);
+                    result = AppendToDocBuffer(new BufferAction
+                    {
+                        Buffer = CPI15,
+                    });
                     break;
                 case ThermalFonts.C:
                     Logger?.Trace("Attempting to set font to font CPI20.");
-                    result = AppendToDocBuffer(CPI20);
+                    result = AppendToDocBuffer(new BufferAction
+                    {
+                        Buffer = CPI20,
+                    });
                     break;
 
             }
@@ -163,7 +174,11 @@ namespace ThermalTalk
                 EncodeThis = encodeThis
             };
             var fullCmd = barcode.Build();
-            return AppendToDocBuffer(fullCmd);
+            return AppendToDocBuffer(new BufferAction
+            {
+                Buffer = fullCmd,
+                AfterSendDelay = TimeSpan.FromMilliseconds(500)
+            });
         }
 
         /// <summary>
@@ -180,7 +195,11 @@ namespace ThermalTalk
             var payload = barcode.Build();
             if (payload.Length > 0)
             {
-                return AppendToDocBuffer(payload);
+                return AppendToDocBuffer(new BufferAction
+                {
+                    Buffer = payload,
+                    AfterSendDelay = TimeSpan.FromMilliseconds(500)
+                });
             }
 
             Logger?.Error("barcode.Build() has length 0.");

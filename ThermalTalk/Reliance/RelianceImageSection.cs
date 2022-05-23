@@ -32,9 +32,12 @@ namespace ThermalTalk
         /// </summary>
         /// <param name="codepage">Unused</param>
         /// <returns>byte array</returns>
-        public override byte[] GetContentBuffer(CodePages codepage)
+        public override BufferAction GetContentBuffer(CodePages codepage)
         {
-            return base.Image.GetAsRaster();
+            return new BufferAction
+            {
+                Buffer = base.Image.GetAsRaster(),
+            };
         }
     }
 }

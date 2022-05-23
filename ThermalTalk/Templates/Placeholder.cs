@@ -49,9 +49,12 @@ namespace ThermalTalk
         /// </summary>
         /// <param name="codepage">Unused</param>
         /// <returns>zero length byte array</returns>
-        public byte[] GetContentBuffer(CodePages codepage)
+        public BufferAction GetContentBuffer(CodePages codepage)
         {
-            return new byte[0];
+            return new BufferAction
+            {
+                Buffer = new byte[0]
+            };
         }
     }
 }

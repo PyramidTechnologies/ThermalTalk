@@ -1,4 +1,6 @@
-﻿namespace ThermalTalk
+﻿using System;
+
+namespace ThermalTalk
 {
     /// <summary>
     /// Create a new barcode section
@@ -38,9 +40,17 @@
         public bool AutoNewline { get; set; }
 
         /// <inheritdoc />
-        public byte[] GetContentBuffer(CodePages codepage)
+        public BufferAction GetContentBuffer(CodePages codepage)
         {
-            return _barcode?.Build() ?? new byte[0];
+            var delay = _barcode.BarcodeFlavor == TwoDBarcode.Flavor.Reliance
+                ? TimeSpan.FromMilliseconds(500)
+                : TimeSpan.Zero;
+            
+            return new BufferAction
+            {
+                Buffer = _barcode?.Build() ?? new byte[0],
+                AfterSendDelay = delay
+            };
         }
     }
 }

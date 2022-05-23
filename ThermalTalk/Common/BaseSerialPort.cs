@@ -69,16 +69,7 @@ namespace ThermalTalk
             // Virtual comm ports use a bulk transfer endpoint which is
             // typically 64 bytes in size. High speed can use 512 bytes but
             // I've never found a VCOM that implements this.
-            if (SerialPortUtils.IsVirtualComPort(portName))
-            {
-                _mChunkSize = 64;
-            }
-            else
-            {
-                // Good 'ol hardware RS-232 can handle a bit more but still be careful
-                // the target device might have a tiny circular buffer so keep this modest.
-                _mChunkSize = 256;
-            }
+            _mChunkSize = 64;
         }
 
         ~BaseSerialPort()

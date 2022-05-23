@@ -23,6 +23,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #endregion
+
+using System;
 using System.Text;
 namespace ThermalTalk
 {
@@ -45,12 +47,15 @@ namespace ThermalTalk
 
         public virtual bool AutoNewline { get; set; }
 
-        public virtual byte[] GetContentBuffer(CodePages codepage)
+        public virtual BufferAction GetContentBuffer(CodePages codepage)
         {
 
             if (string.IsNullOrEmpty(Content))
             {
-                return new byte[0];
+                return new BufferAction
+                {
+                    Buffer = new byte[0]
+                };
             }
 
             Encoding encoder;
@@ -76,7 +81,10 @@ namespace ThermalTalk
                     break;
             }
 
-            return encoder.GetBytes(Content);
+            return new BufferAction
+            {
+                Buffer = encoder.GetBytes(Content)
+            };
         }
     }
 }

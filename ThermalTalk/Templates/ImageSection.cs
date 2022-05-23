@@ -54,6 +54,6 @@ namespace ThermalTalk
         /// </summary>
         public PrinterImage Image { get; set; }
 
-        public abstract override byte[] GetContentBuffer(CodePages codepage);
+        public abstract override BufferAction GetContentBuffer(CodePages codepage);
     }
 }

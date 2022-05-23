@@ -10,6 +10,8 @@ namespace ThermalTalk
 {
     public interface IBarcode
     {
+        TwoDBarcode.Flavor BarcodeFlavor { get; }
+        
         /// <summary>
         /// String to encode
         /// </summary>

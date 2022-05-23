@@ -134,7 +134,10 @@ namespace ThermalTalk
                 EncodeThis = encodeThis
             };
             var fullCmd = barcode.Build();
-            return AppendToDocBuffer(fullCmd);
+            return AppendToDocBuffer(new BufferAction
+            {
+                Buffer = fullCmd
+            });
         }
 
         /// <summary>
@@ -159,15 +162,24 @@ namespace ThermalTalk
             {
                 case ThermalFonts.A:
                     Logger?.Trace("Attempting to set font to font A.");
-                    result =  AppendToDocBuffer(FontACmd);
+                    result =  AppendToDocBuffer(new BufferAction
+                    {
+                        Buffer = FontACmd
+                    });
                     break;
                 case ThermalFonts.B:
                     Logger?.Trace("Attempting to set font to font B.");
-                    result = AppendToDocBuffer(FontBCmd);
+                    result = AppendToDocBuffer(new BufferAction
+                    {
+                        Buffer = FontBCmd
+                    });
                     break;
                 case ThermalFonts.C:
                     Logger?.Trace("Attempting to set font to font C.");
-                    result =  AppendToDocBuffer(FontCCmd);
+                    result =  AppendToDocBuffer(new BufferAction
+                    {
+                        Buffer = FontCCmd
+                    });
                     break;
             }
 

@@ -24,7 +24,6 @@
             Reliance
         }
 
-        private readonly Flavor _flavor;
 
         /// <summary>
         /// Create a new 2D barcode
@@ -34,8 +33,10 @@
         /// <param name="flavor">Printer flavor</param>
         public TwoDBarcode(Flavor flavor)
         {
-            _flavor = flavor;
+            BarcodeFlavor = flavor;
         }
+
+        public Flavor BarcodeFlavor { get; }
 
         /// <inheritdoc />
         public string EncodeThis { get; set; }
@@ -58,7 +59,7 @@
         /// <inheritdoc />
         public byte[] Build()
         {
-            switch (_flavor)
+            switch (BarcodeFlavor)
             {
                 case Flavor.Phoenix:
                     return BuildPhoenixFlavor();
@@ -110,7 +111,7 @@
         private byte[] BuildRelianceFlavor()
         {
             var len = EncodeThis.Length > 154 ? 154 : EncodeThis.Length;
-            var setup = new byte[] { 0x0A, 0x1C, 0x7D, 0x25, (byte)len };
+            var setup = new byte[] { 0x0A, 0x1C, 0x7D, 0x25, (byte) len };
 
             var fullCmd = Extensions.Concat(setup, Encoding.ASCII.GetBytes(EncodeThis), new byte[] { 0x0A });
             return fullCmd;
