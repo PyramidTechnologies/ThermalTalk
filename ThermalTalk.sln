@@ -25,6 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{1634B50E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThermalTalk.QueryStatus", "ThermalTalk.QueryStatus\ThermalTalk.QueryStatus.csproj", "{87F96A82-C0C4-4C57-8FA4-A3C8A94BE01A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThermalTalk.BarcodePrinting", "ThermalTalk.BarcodePrinting\ThermalTalk.BarcodePrinting.csproj", "{4C36A898-6E31-4901-B1C8-E2B3AC53AF71}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +103,18 @@ Global
 		{87F96A82-C0C4-4C57-8FA4-A3C8A94BE01A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{87F96A82-C0C4-4C57-8FA4-A3C8A94BE01A}.Release|x64.ActiveCfg = Release|Any CPU
 		{87F96A82-C0C4-4C57-8FA4-A3C8A94BE01A}.Release|x64.Build.0 = Release|Any CPU
+		{4C36A898-6E31-4901-B1C8-E2B3AC53AF71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C36A898-6E31-4901-B1C8-E2B3AC53AF71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C36A898-6E31-4901-B1C8-E2B3AC53AF71}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{4C36A898-6E31-4901-B1C8-E2B3AC53AF71}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{4C36A898-6E31-4901-B1C8-E2B3AC53AF71}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4C36A898-6E31-4901-B1C8-E2B3AC53AF71}.Debug|x64.Build.0 = Debug|Any CPU
+		{4C36A898-6E31-4901-B1C8-E2B3AC53AF71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C36A898-6E31-4901-B1C8-E2B3AC53AF71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C36A898-6E31-4901-B1C8-E2B3AC53AF71}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4C36A898-6E31-4901-B1C8-E2B3AC53AF71}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4C36A898-6E31-4901-B1C8-E2B3AC53AF71}.Release|x64.ActiveCfg = Release|Any CPU
+		{4C36A898-6E31-4901-B1C8-E2B3AC53AF71}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

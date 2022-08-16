@@ -20,3 +20,5 @@ packages/
 ThermalTalk.QueryStatus/bin/
 ThermalTalk.QueryStatus/obj/
 /*.user
+**/obj/**
+**/bin/**

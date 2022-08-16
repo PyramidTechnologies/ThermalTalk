@@ -184,22 +184,33 @@ namespace ThermalTalk
         /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise.</returns>
         public override ReturnCode SetImage(PrinterImage image, IDocument doc, int index)
         {
-            while (index >= doc.Sections.Count)
+            
+            while(index >= doc.Sections.Count)
             {
                 doc.Sections.Add(new Placeholder());
             }
 
-            doc.Sections[index] = new StandardSection()
-            {
-                Content = "\nImage section is not supported on Phoenix\n",    
-                Effects = FontEffects.Bold,
-                HeightScalar = FontHeighScalar.h2,
-                WidthScalar = FontWidthScalar.w2,
-                Justification = FontJustification.JustifyCenter,
-                AutoNewline = true,
+            doc.Sections[index] = new PhoenixImageSection() {
+                Image = image,
             };
 
-            return ReturnCode.ExecutionFailure;
+            return ReturnCode.Success;
+            // while (index >= doc.Sections.Count)
+            // {
+            //     doc.Sections.Add(new Placeholder());
+            // }
+            //
+            // doc.Sections[index] = new StandardSection()
+            // {
+            //     Content = "\nImage section is not supported on Phoenix\n",    
+            //     Effects = FontEffects.Bold,
+            //     HeightScalar = FontHeighScalar.h2,
+            //     WidthScalar = FontWidthScalar.w2,
+            //     Justification = FontJustification.JustifyCenter,
+            //     AutoNewline = true,
+            // };
+            //
+            // return ReturnCode.ExecutionFailure;
         }
 
         /// <summary>
