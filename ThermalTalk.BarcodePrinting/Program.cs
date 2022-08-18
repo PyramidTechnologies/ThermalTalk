@@ -17,18 +17,48 @@ namespace ThermalTalk.BarcodePrinting
                                           "Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibu";
             
             // Connect to printer - CHANGE THIS TO YOUR PRINTER'S COM PORT
-            var printer = new PhoenixPrinter("COM26");
+            var printer = new PhoenixPrinter("COM14");
             
+            var document = new StandardDocument
+            {
+                CodePage = CodePages.CPSPACE,
+            };
+
+            var headerSection = new StandardSection
+            {
+                Content = "Header",
+                Justification = FontJustification.JustifyCenter,
+                HeightScalar = FontHeighScalar.h2,
+                WidthScalar = FontWidthScalar.w2,
+                Effects = FontEffects.Bold,
+                Font = ThermalFonts.A,
+                AutoNewline = true,
+            };
+            
+            var storeIdSection = new StandardSection
+            {
+                Content = "# STORE: 1234",
+                Justification = FontJustification.JustifyCenter,
+                HeightScalar = FontHeighScalar.h2,
+                WidthScalar = FontWidthScalar.w2,
+                Effects = FontEffects.Bold,
+                Font = ThermalFonts.A,
+                AutoNewline = true,
+            };
+
+            // add text
+            document.Sections.Add(headerSection);
+            document.Sections.Add(storeIdSection);
+
             // Use QRCoder library to generate QR code image
             var qrGenerator = new QRCodeGenerator();
             var qrData = qrGenerator.CreateQrCode(stringToEncode, QRCodeGenerator.ECCLevel.Q);
             var qrCode = new QRCode(qrData);
             var qrCodeImage = qrCode.GetGraphic(3);
-            
+
             // set printer image
             var printerImage = new PrinterImage(qrCodeImage);
-            var document = new StandardDocument();
-            printer.SetImage(printerImage, document, 0);
+            printer.SetImage(printerImage, document, 2);
 
             // Print sample image
             printer.PrintDocument(document);
