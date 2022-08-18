@@ -48,7 +48,6 @@ namespace ThermalTalk.BarcodePrinting
 
             // add text
             document.Sections.Add(headerSection);
-            document.Sections.Add(storeIdSection);
 
             // Use QRCoder library to generate QR code image
             var qrGenerator = new QRCodeGenerator();
@@ -58,7 +57,8 @@ namespace ThermalTalk.BarcodePrinting
 
             // set printer image
             var printerImage = new PrinterImage(qrCodeImage);
-            printer.SetImage(printerImage, document, 2);
+            printer.SetImage(printerImage, document, 1);
+            document.Sections.Add(storeIdSection);
 
             // Print sample image
             printer.PrintDocument(document);
