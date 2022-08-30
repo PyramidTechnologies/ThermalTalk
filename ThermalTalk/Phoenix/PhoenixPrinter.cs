@@ -174,14 +174,7 @@ namespace ThermalTalk
             return result;
         }
 
-        /// <summary>
-        /// TODO: Phoenix does not currently supports ESC/POS images at this time.
-        /// </summary>
-        /// <param name="image">Image to add</param>
-        /// <param name="doc">Document to add</param>
-        /// <param name="index">Index to insert. If this index exceeds the current length
-        /// placeholders will be inserted until index is reached.</param>
-        /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise.</returns>
+        /// <inheridoc/>
         public override ReturnCode SetImage(PrinterImage image, IDocument doc, int index)
         {
             
@@ -195,22 +188,6 @@ namespace ThermalTalk
             };
 
             return ReturnCode.Success;
-            // while (index >= doc.Sections.Count)
-            // {
-            //     doc.Sections.Add(new Placeholder());
-            // }
-            //
-            // doc.Sections[index] = new StandardSection()
-            // {
-            //     Content = "\nImage section is not supported on Phoenix\n",    
-            //     Effects = FontEffects.Bold,
-            //     HeightScalar = FontHeighScalar.h2,
-            //     WidthScalar = FontWidthScalar.w2,
-            //     Justification = FontJustification.JustifyCenter,
-            //     AutoNewline = true,
-            // };
-            //
-            // return ReturnCode.ExecutionFailure;
         }
 
         /// <summary>
