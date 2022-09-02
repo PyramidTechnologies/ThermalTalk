@@ -356,6 +356,7 @@ namespace ThermalTalk
             
             foreach (var sec in doc.Sections)
             {
+                var contentBuffer = sec.GetContentBuffer(doc.CodePage);
 
                 // First apply all effects. The firmware decides if any there
                 // are any conflicts and there is nothing we can do about that.
@@ -366,9 +367,9 @@ namespace ThermalTalk
                     SetJustification(sec.Justification),
                     SetScalars(sec.WidthScalar, sec.HeightScalar),
                     SetFont(sec.Font),
-
+                    
                     // Send the actual content
-                    AppendToDocBuffer(sec.GetContentBuffer(doc.CodePage)),
+                    AppendToDocBuffer(contentBuffer),
                 };
 
 

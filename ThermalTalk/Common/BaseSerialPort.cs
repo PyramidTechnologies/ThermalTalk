@@ -56,7 +56,7 @@ namespace ThermalTalk
 
             _mPort = new SerialPort(portName, baud, parity, databits, stopbits);            
             _mPort.Handshake = handshake;
-            _mPort.WriteTimeout = _mWriteTimeout = 500;
+            _mPort.WriteTimeout = _mWriteTimeout = 5000;
             _mPort.ReadTimeout = _mReadTimeout = 500;
             _mPort.Handshake = Handshake.None;
             _mPort.WriteBufferSize = 4 * 1024;
@@ -64,21 +64,7 @@ namespace ThermalTalk
             _mPort.DtrEnable = true;
             _mPort.RtsEnable = true;
             _mPort.DiscardNull = false;
-
-
-            // Virtual comm ports use a bulk transfer endpoint which is
-            // typically 64 bytes in size. High speed can use 512 bytes but
-            // I've never found a VCOM that implements this.
-            if (SerialPortUtils.IsVirtualComPort(portName))
-            {
-                _mChunkSize = 64;
-            }
-            else
-            {
-                // Good 'ol hardware RS-232 can handle a bit more but still be careful
-                // the target device might have a tiny circular buffer so keep this modest.
-                _mChunkSize = 256;
-            }
+            _mChunkSize = 64;
         }
 
         ~BaseSerialPort()

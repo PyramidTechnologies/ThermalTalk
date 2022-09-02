@@ -1,3 +1,11 @@
+# 2.1.1.0
+** bug fixes **
+* None
+
+* New *
+* Add image raster command for Phoenix
+* Increase write timeout to support printing larger raster images
+
 # 2.1.0.0
 ** bug fixes **
 * None
