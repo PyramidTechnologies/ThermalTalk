@@ -440,7 +440,14 @@ namespace ThermalTalk
                 Logger?.Trace("Attempting to open connection");
                 Connection.Open();
 
-                Connection.Write(payload);
+                var toWrite = payload.Length;
+                var written = Connection.Write(payload);
+
+                if (toWrite != written)
+                {
+                    Logger?.Error($"Failed to write all bytes to printer. Had {toWrite} but only wrote {written}");
+                    return ReturnCode.ExecutionFailure;
+                }
                 
                 return ReturnCode.Success;
             }
