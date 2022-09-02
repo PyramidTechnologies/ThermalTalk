@@ -56,7 +56,7 @@ namespace ThermalTalk
 
             _mPort = new SerialPort(portName, baud, parity, databits, stopbits);            
             _mPort.Handshake = handshake;
-            _mPort.WriteTimeout = _mWriteTimeout = 1500;
+            _mPort.WriteTimeout = _mWriteTimeout = 5000;
             _mPort.ReadTimeout = _mReadTimeout = 500;
             _mPort.Handshake = Handshake.None;
             _mPort.WriteBufferSize = 4 * 1024;
