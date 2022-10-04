@@ -17,7 +17,7 @@ namespace ThermalTalk.BarcodePrinting
                                           "Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibu";
             
             // Connect to printer - CHANGE THIS TO YOUR PRINTER'S COM PORT
-            var printer = new PhoenixPrinter("COM14");
+            var printer = new PhoenixPrinter("COM26");
             
             var document = new StandardDocument
             {
