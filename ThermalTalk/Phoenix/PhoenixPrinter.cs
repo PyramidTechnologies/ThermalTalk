@@ -39,8 +39,9 @@ namespace ThermalTalk
         const int DefaultBaudRate = 9600;
 
         private readonly byte[] FontACmd = { 0x1B, 0x50 };
-        private readonly byte[] FontBCmd = { 0x1B, 0x54 };
-        private readonly byte[] FontCCmd = { 0x1B, 0x55 };
+        private readonly byte[] FontBCmd = { 0x1B, 0x4D, 1 };
+        private readonly byte[] FontCCmd = { 0x1B, 0x54 };
+        private readonly byte[] FontDCmd = { 0x1B, 0x55 };
 
         /// <inheritdoc />
         /// <summary>
