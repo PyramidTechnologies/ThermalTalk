@@ -28,7 +28,7 @@ namespace ThermalTalk.TitleAlignment
                           "WEEKLY".PadLeft(thirdPadding) + 
                           "DAILY".PadLeft(fourthPadding),
                 Justification = FontJustification.JustifyLeft,
-                HeightScalar = FontHeighScalar.h1,
+                HeightScalar = FontHeighScalar.h2,
                 WidthScalar = FontWidthScalar.w1,
                 Effects = FontEffects.None,
                 Font = ThermalFonts.B,
@@ -44,6 +44,8 @@ namespace ThermalTalk.TitleAlignment
                           + date.ToString("dd-MM-yyyy").PadLeft(thirdPadding) 
                           + date.ToString("dd-MM-yyyy").PadLeft(fourthPadding),
                 AutoNewline = true,
+                HeightScalar = FontHeighScalar.h2,
+                WidthScalar = FontWidthScalar.w1,
                 Font = ThermalFonts.B,
             };
             document.Sections.Add(lastClearDate);
@@ -55,6 +57,8 @@ namespace ThermalTalk.TitleAlignment
                           + date.ToString("HH:mm:ss").PadLeft(thirdPadding) 
                           + date.ToString("HH:mm:ss").PadLeft(fourthPadding),
                 AutoNewline = true,
+                HeightScalar = FontHeighScalar.h2,
+                WidthScalar = FontWidthScalar.w1,
                 Font = ThermalFonts.B,
             };
             document.Sections.Add(lastClearTime);
