@@ -23,12 +23,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #endregion
+
 namespace ThermalTalk.Imaging
 {
+    using SkiaSharp;
     using System;
     using System.Collections.Generic;
-    using System.Drawing;
-    using System.Drawing.Imaging;
 
     public interface IDitherable
     {
@@ -58,7 +58,7 @@ namespace ThermalTalk.Imaging
         /// </summary>
         /// <param name="input">Input bitmap</param>
         /// <returns></returns>
-        Bitmap GenerateDithered(Bitmap input);
+        SKBitmap GenerateDithered(SKBitmap input);
     }
 
     /// <summary>
@@ -133,21 +133,30 @@ namespace ThermalTalk.Imaging
         /// </summary>
         /// <param name="bitmap">Input bitmap</param>
         /// <returns>New, dithered bitmap</returns>
-        public virtual Bitmap GenerateDithered(Bitmap bitmap)
+        /// <exception cref="ArgumentNullException">Bitmap is null.</exception>
+        public virtual SKBitmap GenerateDithered(SKBitmap bitmap)
         {
-            var bmpBuff = bitmap.ToBuffer();
-            var pixels = new List<Pixel>();
-
-            // Convert all bytes into pixels
-            foreach(var pix in bmpBuff.Split(4))
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap));
+            
+            byte[] buffer;
+            if (bitmap.ColorType == SKColorType.Bgra8888)
+                buffer = bitmap.Bytes;
+            else
             {
-                pixels.Add(new Pixel(pix));
+                using (var convertedBitmap = bitmap.Copy(SKColorType.Bgra8888))
+                    buffer = convertedBitmap.Bytes;
             }
 
+            // Convert all bytes into pixels
+            var pixels = new List<Pixel>();
+            foreach(var pix in buffer.Split(4))
+                pixels.Add(new Pixel(pix));
+
             // Dither away
-            for (int x = 0; x < bitmap.Height; x++)
+            for (var x = 0; x < bitmap.Height; x++)
             {
-                for (int y = 0; y < bitmap.Width; y++)
+                for (var y = 0; y < bitmap.Width; y++)
                 {
                     var index = x * bitmap.Width + y;
                     var colored = pixels[index];
@@ -161,9 +170,8 @@ namespace ThermalTalk.Imaging
             // Dump results into output
             var output = new byte[pixels.Count << 2];
             var j = 0;
-            for (var i = 0; i < pixels.Count; i++)
+            foreach (var p in pixels)
             {
-                var p = pixels[i];
                 output[j++] = p.B;
                 output[j++] = p.G;
                 output[j++] = p.R;
@@ -173,7 +181,7 @@ namespace ThermalTalk.Imaging
                 output[j++] = 0xFF;
             }
 
-            return output.AsBitmap(bitmap.Width, bitmap.Height);
+            return output.ToBitmap(bitmap.Width, bitmap.Height, bitmap.ColorType, bitmap.AlphaType);
         }
 
         /// <summary>
@@ -308,10 +316,9 @@ namespace ThermalTalk.Imaging
         /// </summary>
         /// <param name="bitmap"></param>
         /// <returns></returns>
-        public override Bitmap GenerateDithered(Bitmap bitmap)
+        public override SKBitmap GenerateDithered(SKBitmap bitmap)
         {
-            var rectangle = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-            return bitmap.Clone(rectangle, PixelFormat.Format1bppIndexed);
+            return bitmap.Copy(SKColorType.Gray8);
         }
     }
 

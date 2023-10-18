@@ -6,7 +6,7 @@
     <Version>2.0.0.0</Version>
 
     <Title>ThermalTalk.Imaging</Title>
-    <TargetFrameworks>net451;netstandard2.0;net5.0</TargetFrameworks>
+    <TargetFrameworks>net7.0;net6.0;net5.0;netstandard2.0</TargetFrameworks>
 
     <Authors>Pyramid Technologies</Authors>
     <Company>Pyramid Technologies Inc.</Company>
@@ -84,10 +84,8 @@
   <ItemGroup>
     <None Include="readme.md" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+  <ItemGroup>
+    <PackageReference Include="BmpSharp" Version="0.2.0" />
+    <PackageReference Include="SkiaSharp" Version="2.88.6" />
   </ItemGroup>
 </Project>

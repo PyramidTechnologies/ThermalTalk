@@ -42,7 +42,7 @@ namespace ThermalTalk
 
 
             // Force null terminated string
-            if (!EncodeThis.EndsWith("\0"))
+            if (EncodeThis[EncodeThis.Length - 1] != '\0')
             {
                 payload.Add(0);
             }

@@ -6,6 +6,7 @@
     [TestFixture]
     public class PhoenixPrinterTests
     {
+        // Change this to connected printer's port.
         private const string TEST_PORT = "COM1";
 
         [Test]

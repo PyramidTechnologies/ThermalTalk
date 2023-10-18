@@ -1,159 +1,94 @@
 ﻿using NUnit.Framework;
-using NUnit.Framework.Constraints;
-using System;
-using System.Drawing;
-using System.IO;
 
 namespace ThermalTalk.Imaging.Test
 {
     [TestFixture]
     public class PrintImageTests
     {
-
-        private const string baseDir = "test_data";
-
-        [OneTimeSetUp]
-        public void Setup()
+        [Test]
+        public void ApplyColorInversion()
         {
-            var dir = Path.GetDirectoryName(typeof(PrintImageTests).Assembly.Location);
-            Directory.SetCurrentDirectory(dir);
+            var expected = ResourceManager.Load("black_bitmap.bmp");
 
-            if (Directory.Exists(baseDir))
+            var bitmap = ResourceManager.Load("white_bitmap.bmp");
+            using (var image = new PrinterImage(bitmap))
             {
-                Directory.Delete(baseDir, true);
-            }
+                image.Resize(bitmap.Width, 0, true);
 
-            Directory.CreateDirectory(baseDir);
-        }
+                Assert.That(image.IsInverted, Is.False);
 
-        [OneTimeTearDown]
-        public void TearDown()
-        {
-            if (Directory.Exists(baseDir))
-            {
-                Directory.Delete(baseDir, true);
-            }
-        }
+                image.ApplyColorInversion();
+                var actual = image.ImageData;
+                Assert.Multiple(() =>
+                {
+                    Assert.That(image.IsInverted, Is.True);
+                    Assert.That(actual.Bytes, Is.EqualTo(expected.Bytes));
+                });
 
-        [Test()]
-        public void ApplyColorInversionTest()
-        {
-            // Input are expected are provided as resources, dithered is what
-            // we are testing
-            Bitmap input, inverted, expected;
-
-            input = Properties.Resources.white_bitmap;
-            var path = Path.Combine(baseDir, "white_inverse_test.bmp");
-            input.Save(path);
-            using (var logo = new PrinterImage(path))
-            {
-
-                logo.Resize(input.Width, 0, true);
-
-                Assert.IsFalse(logo.IsInverted);
-
-                logo.ApplyColorInversion();
-
-                inverted = logo.ImageData;
-                expected = Properties.Resources.black_bitmap;
-
-                // White should ivnert to black
-                Assert.IsTrue(ImageTestHelpers.CompareMemCmp(expected, inverted));
-                Assert.True(logo.IsInverted);
-
-                // Flip back to white, test that the inversion flag is cleared
-                logo.ApplyColorInversion();
-                Assert.IsFalse(logo.IsInverted);
-            };
-        }
-
-        [Test()]
-        public void ResizeWidthTest()
-        {
-            // Input are expected are provided as resources, dithered is what
-            // we are testing
-            Bitmap input = Properties.Resources.white_bitmap;
-            using (var logo = new PrinterImage(input))
-            {
-                // Use the RoundUp method since that is done internally
-                // in PrinterImage. This is to allow for Assert.AreEqual tests
-
-                // First scale down by 50%
-                var shrink = (input.Width / 2).RoundUp(8);
-                var expectedH = (input.Height / 2).RoundUp(8);
-                logo.Resize(shrink, 0, true);
-
-                Assert.AreEqual(shrink, logo.Width);
-                Assert.AreEqual(expectedH, logo.Height);
-
-                // Now double in size
-                var grow = (input.Width * 2).RoundUp(8);
-                expectedH = (input.Height * 2).RoundUp(8);
-                logo.Resize(grow, 0, true);
-
-                Assert.AreEqual(grow, logo.Width);
-                Assert.AreEqual(expectedH, logo.Height);
-            };
-        }
-
-        [Test()]
-        public void ResizeHeightTest()
-        {
-            // Input are expected are provided as resources, dithered is what
-            // we are testing
-            Bitmap input = Properties.Resources.white_bitmap;
-            using (var logo = new PrinterImage(input))
-            {
-                // Use the RoundUp method since that is done internally
-                // in PrinterImage. This is to allow for Assert.AreEqual tests
-
-                // First scale down by 50%
-                var shrink = (input.Height / 2).RoundUp(8);
-                var expectedW = (input.Width / 2).RoundUp(8);
-                logo.Resize(0, shrink, true);
-
-                Assert.AreEqual(shrink, logo.Height);
-                Assert.AreEqual(expectedW, logo.Width);
-
-                // Now double in size
-                var grow = (input.Height * 2).RoundUp(8);
-                expectedW = (input.Width * 2).RoundUp(8);
-                logo.Resize(0, grow, true);
-
-                Assert.AreEqual(grow, logo.Height);
-                Assert.AreEqual(expectedW, logo.Width);
-            };
-        }
-
-
-        [Test()]
-        public void ResizeNoneTest()
-        {
-            // Input are expected are provided as resources, dithered is what
-            // we are testing
-            Bitmap input = Properties.Resources.white_bitmap;
-            using (var logo = new PrinterImage(input))
-            {
-                var oldW = logo.Width.RoundUp(8);
-                var oldH = logo.Height.RoundUp(8);
-
-                logo.Resize(logo.Width, logo.Height, false);
-                Assert.AreEqual(oldW, logo.Width);
-                Assert.AreEqual(oldH, logo.Height);
+                image.ApplyColorInversion();
+                Assert.That(image.IsInverted, Is.False);
             }
         }
 
-        [Test()]
-        public void ResizeZeroExceptionTest()
+        [Test]
+        public void Resize(
+            [Values]
+            bool targetWidth,
+            [Values(
+                0.5f,
+                2.0f
+            )]
+            float sizeMultiplier)
         {
-            Bitmap input = Properties.Resources.white_bitmap;
-            using (var logo = new PrinterImage(input))
+            var bitmap = ResourceManager.Load("white_bitmap.bmp");
+            using (var image = new PrinterImage(bitmap))
             {
-                Assert.Throws<ImagingException>(() => logo.Resize(0, 0, true));           
+                // Use the RoundUp method since that is done internally in PrinterImage.
+                var expectedWidth = ((int)(image.Width * sizeMultiplier)).RoundUp(8);
+                var expectedHeight = ((int)(image.Height * sizeMultiplier)).RoundUp(8);
+
+                if (targetWidth)
+                    image.Resize(expectedWidth, 0, true);
+                else
+                    image.Resize(0, expectedHeight, true);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(image.Width, Is.EqualTo(expectedWidth));
+                    Assert.That(image.Height, Is.EqualTo(expectedHeight));
+                });
             }
-            using (var logo = new PrinterImage(input))
+        }
+
+        [Test]
+        public void ResizeToCurrentSize()
+        {
+            var bitmap = ResourceManager.Load("white_bitmap.bmp");
+            using (var image = new PrinterImage(bitmap))
             {
-                Assert.Throws<ImagingException>(() => logo.Resize(0, 0, false));
+                // Use the RoundUp method since that is done internally in PrinterImage.
+                var expectedWidth = bitmap.Width.RoundUp(8);
+                var expectedHeight = bitmap.Height.RoundUp(8);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(image.Width, Is.EqualTo(expectedWidth));
+                    Assert.That(image.Height, Is.EqualTo(expectedHeight));
+                });
+            }
+        }
+
+        [Test]
+        public void ResizeWithInvalidParameters()
+        {
+            var bitmap = ResourceManager.Load("white_bitmap.bmp");
+            using (var image = new PrinterImage(bitmap))
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.Throws<ImagingException>(() => image.Resize(0, 0, true));
+                    Assert.Throws<ImagingException>(() => image.Resize(0, 0, false));
+                });
             }
         }
     }

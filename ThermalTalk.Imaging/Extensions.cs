@@ -1,4 +1,5 @@
 ﻿#region Copyright & License
+
 /*
 MIT License
 
@@ -22,16 +23,47 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+
 #endregion
+
 namespace ThermalTalk.Imaging
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
 
     static class Extensions
     {
+        /// <summary>
+        /// Rounds this integer to the nearest positive multiple of N
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        public static int RoundUp(this int i, int N)
+        {
+            return (int)RoundUp(i, (uint)N);
+        }
+
+        /// <summary>
+        /// Rounds this integer to the nearest positive multiple of N
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        public static long RoundUp(this long i, int N)
+        {
+            return RoundUp(i, (uint)N);
+        }
+
+        /// <summary>
+        /// Rounds this integer to the nearest positive multiple of N
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        public static uint RoundUp(this uint i, int N)
+        {
+            return (uint)RoundUp(i, (uint)N);
+        }
+
         /// <summary>
         /// Split the given array into x number of smaller arrays, each of length len
         /// </summary>
@@ -90,40 +122,10 @@ namespace ThermalTalk.Imaging
                 var filler = Repeated<T>(val, newSize - arr.Length).ToArray();
                 var result = new T[newSize];
                 Array.Copy(arr, result, arr.Length);
-                Array.Copy(filler, 0, result, arr.Length-1, filler.Length);
+                Array.Copy(filler, 0, result, arr.Length - 1, filler.Length);
             }
-               
+
             return arr;
-        }        
-
-        /// <summary>
-        /// Rounds this integer to the nearest positive multiple of N
-        /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
-        public static int RoundUp(this int i, int N)
-        {
-            return (int)RoundUp(i, (uint)N);
-        }
-
-        /// <summary>
-        /// Rounds this integer to the nearest positive multiple of N
-        /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
-        public static long RoundUp(this long i, int N)
-        {
-            return RoundUp(i, (uint)N);
-        }
-
-        /// <summary>
-        /// Rounds this integer to the nearest positive multiple of N
-        /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
-        public static uint RoundUp(this uint i, int N)
-        {
-            return (uint)RoundUp(i, (uint)N);
         }
 
         /// <summary>

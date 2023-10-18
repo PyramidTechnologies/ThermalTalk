@@ -1,4 +1,5 @@
 ﻿#region Copyright & License
+
 /*
 MIT License
 
@@ -22,280 +23,194 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+
 #endregion
+
 namespace ThermalTalk.Imaging
 {
+    using SkiaSharp;
     using System;
-    using System.Collections.Generic;
-    using System.Drawing;
-    using System.Drawing.Imaging;
-    using System.IO;
     using System.Runtime.InteropServices;
 
     public static class ImageExt
     {
-        /// <summary>
-        /// Converts into a row-major byte array. If there is no image data
-        /// or the image is empty, the resulting array will be empty (zero length).
-        /// </summary>
-        /// <returns>byte[]</returns>
-        public static byte[] ToBuffer(this Bitmap bitmap)
-        {
-            if (bitmap == null || bitmap.Size.IsEmpty)
-            {
-                return new byte[0];
-            }
-
-            BitmapData bitmapData = null;
-
-            // This rectangle selects the entirety of the source bitmap for locking bits into memory
-            var rect = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-
-            try
-            {
-                // Acquire a lock on the image data so we can extra into our own byte stream
-                // Note: Currently only supports data as 32bit, 4 channel 8-bit color
-                bitmapData = bitmap.LockBits(
-                    rect,
-                    ImageLockMode.ReadOnly,
-                    PixelFormat.Format32bppPArgb);
-
-                // Create the output buffer
-                int length = Math.Abs(bitmapData.Stride) * bitmapData.Height;
-                byte[] results = new byte[length];
-
-                // Copy from unmanaged to managed memory
-                IntPtr ptr = bitmapData.Scan0;
-                Marshal.Copy(ptr, results, 0, length);
-
-                return results;
-
-            }
-            finally
-            {
-                if (bitmapData != null)
-                    bitmap.UnlockBits(bitmapData);
-            }
-        }
-
-        /// <summary>
-        /// Converts this buffer into a 32bpp ARGB bitmap. The width and 
-        /// height parameters must be the sum product of the imageData length.
-        /// You specifcy a buffer of length 1000, and a width of 10, the height 
-        /// must be 100.
-        /// </summary>
-        /// <param name="imageData"></param>
-        /// <param name="width">Width of resulting bitmap in bytes</param>
-        /// <param name="height">Height of resulting bitmap in bytes</param>
-        /// <returns>Bitmap instance. Be sure to dispose of it when you're done.</returns>
-        public static Bitmap AsBitmap(this byte[] imageData, int width, int height)
-        {
-            
-            Bitmap result = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-          
-            // Lock the entire bitmap
-            BitmapData bitmapData = result.LockBits(
-                new Rectangle(0, 0, width, height),
-                ImageLockMode.ReadWrite,
-                PixelFormat.Format32bppArgb);
-
-            // Since our data is provided in byte-expanded pixel mode, adjust the width to 4x
-            width = result.Width << 2;
-
-#if SAFE
-
-#error Safe mode not implemented
-
-#else
-            unsafe
-            {
-                // Get a pointer to the beginning of the pixel data region
-                // The upper-left corner
-                int* pixelPtr = (int*)bitmapData.Scan0;
-
-                // Iterate through rows and columns
-                for (int row = 0; row < height; row++)
-                {
-                    for (int col = 0; col < width; col += 4)
-                    {
-                        int index = row * width + col;
-                        int color = imageData[index++] |
-                                    imageData[index++] << 8 |
-                                    imageData[index++] << 16 |
-                                    imageData[index++] << 24;
-
-                        // Set the pixel (fast!)
-                        *pixelPtr = color;
-
-                        // Update the pointer
-                        pixelPtr++;
-                    }
-                }
-            }
-#endif
-
-            // Unlock the bitmap
-            result.UnlockBits(bitmapData);
-
-            return result;
-
-        }
-
-        /// <summary>
-        /// Inverts the pixels of this bitmap in place. Ignores alpha channel.
-        /// </summary>
-        /// <param name="bitmapImage"></param>
-        public static void InvertColorChannels(this Bitmap bitmapImage)
-        {
-            var rect = new Rectangle(0, 0, bitmapImage.Width, bitmapImage.Height);
-
-            var bmpRO = bitmapImage.LockBits(
-                rect,
-                ImageLockMode.ReadOnly,
-                PixelFormat.Format32bppPArgb);
-
-            var bmpLen = bmpRO.Stride * bmpRO.Height;
-            var bitmapBGRA = new byte[bmpLen];
-            Marshal.Copy(bmpRO.Scan0, bitmapBGRA, 0, bmpLen);
-            bitmapImage.UnlockBits(bmpRO);
-
-            // Copy ONLY the color channels and invert - black->white, white->black
-            for (int i = 0; i < bmpLen; i += 4)
-            {
-                bitmapBGRA[i] = (byte)(255 - bitmapBGRA[i]);
-                bitmapBGRA[i + 1] = (byte)(255 - bitmapBGRA[i + 1]);
-                bitmapBGRA[i + 2] = (byte)(255 - bitmapBGRA[i + 2]);
-            }
-
-            var bmpWO = bitmapImage.LockBits(
-                rect,
-                ImageLockMode.WriteOnly,
-                PixelFormat.Format32bppPArgb);
-
-            Marshal.Copy(bitmapBGRA, 0, bmpWO.Scan0, bmpLen);
-            bitmapImage.UnlockBits(bmpWO);
-        }
-
-
         private const string LogoDelimiter = "||||";
 
         /// <summary>
-        /// Converts this image into a base64 encoded string.
+        /// Converts bytes into a bitmap.
+        /// The width * height should equal byte length / bytes per pixel (i.e. 10 * 10 == 400 / 4).
         /// </summary>
-        /// <param name="bitmapImage">Source image</param>
-        /// <returns>string</returns>
-        public static string ToBase64String(this Bitmap bitmap)
+        /// <param name="buffer">Bytes.</param>
+        /// <param name="width">Width in pixels.</param>
+        /// <param name="height">Height in pixels.</param>
+        /// <param name="colorType">Interpretation of pixel components.</param>
+        /// <param name="alphaType">Interpretation of alpha component.</param>
+        /// <returns>
+        /// Disposable bitmap if buffer is not null nor empty, and no error occurs; otherwise, null.
+        /// </returns>
+        public static SKBitmap ToBitmap(this byte[] buffer, int width, int height, SKColorType colorType,
+            SKAlphaType alphaType)
         {
-            // Do not encode null or empty image
-            if (bitmap == null || (bitmap.Width == 0 && bitmap.Height == 0))
+            if (buffer == null || buffer.Length == 0)
+                return null;
+
+            var bitmap = new SKBitmap(width, height, colorType, alphaType);
+
+            if (width * height * bitmap.BytesPerPixel != buffer.Length)
+                return null;
+
+            var pixelsPointer = bitmap.GetPixels();
+            Marshal.Copy(buffer, 0, pixelsPointer, buffer.Length);
+
+            return bitmap;
+        }
+
+        /// <summary>
+        /// Inverts the pixels of bitmap in place. Ignores alpha channel.
+        /// </summary>
+        public static void InvertColorChannels(this SKBitmap bitmap)
+        {
+            using (var tempBitmap = bitmap.Copy(SKColorType.Rgba8888))
+            {
+                var buffer = tempBitmap.Bytes;
+                for (var i = 0; i < buffer.Length; i++)
+                {
+                    if (i % 4 == 3)
+                        continue;
+
+                    buffer[i] = (byte)(255 - buffer[i]);
+                }
+
+                var pixelsPointer = tempBitmap.GetPixels();
+                Marshal.Copy(buffer, 0, pixelsPointer, buffer.Length);
+
+                tempBitmap.CopyTo(bitmap, bitmap.ColorType);
+            }
+        }
+
+        /// <summary>
+        /// Converts bitmap into a base64 encoded string.
+        /// </summary>
+        /// <param name="bitmap">Bitmap.</param>
+        /// <param name="format">Encoded format.</param>
+        /// <returns>
+        /// Encoded string if bitmap is not null nor empty nor invalid, a valid format is passed, and no errors occur;
+        /// otherwise an empty string.
+        /// </returns>
+        /// <remarks>
+        /// Valid formats are <see cref="SKEncodedImageFormat.Png" />, <see cref="SKEncodedImageFormat.Jpeg" />,
+        /// <see cref="SKEncodedImageFormat.Webp" />, and <see cref="SKEncodedImageFormat.Bmp" />.
+        /// If <see cref="SKEncodedImageFormat.Bmp" /> is passed, the bitmap's color type will be converted to
+        /// <see cref="SKColorType.Bgra8888" />.
+        /// </remarks>
+        public static string ToBase64String(this SKBitmap bitmap, SKEncodedImageFormat format)
+        {
+            if (bitmap == null || bitmap.Width == 0 || bitmap.Height == 0)
+                return string.Empty;
+
+            try
+            {
+                var buffer = bitmap.Encode(format);
+                return buffer.Length == 0 ? string.Empty : Convert.ToBase64String(buffer);
+            }
+            catch
             {
                 return string.Empty;
             }
-
-            // Extract bitmap image into bitmap and save to memory
-            using (MemoryStream m = new MemoryStream())
-            {
-                bitmap.Save(m, ImageFormat.Bmp);
-                var imageBytes = m.ToArray();
-                
-                return Convert.ToBase64String(imageBytes);
-            } 
         }
 
         /// <summary>
         /// Converts base64 encoded string to bitmap.
         /// </summary>
-        /// <param name="content">string to convert</param>
-        /// <returns>Bitmap or null on error</returns>
-        public static Bitmap FromBase64String(string content)
+        /// <returns>
+        /// Disposable bitmap if the encoded string is not null nor empty, and no errors occur; otherwise, null.
+        /// </returns>
+        public static SKBitmap ToBitmap(this string base64)
         {
+            if (string.IsNullOrEmpty(base64))
+                return null;
+
             try
             {
-                var raw = Convert.FromBase64String(content);
-
-                // Do not dispose of stream. Bitmap now owns it and will close it when disposed.
-                var ms = new MemoryStream(raw, 0, raw.Length);
-                return Bitmap.FromStream(ms, true) as Bitmap;                          
+                var buffer = Convert.FromBase64String(base64);
+                return SKBitmap.Decode(buffer);
             }
             catch
-            {                
+            {
                 return null;
             }
         }
 
         /// <summary>
-        /// Creates an MSB ordered, bit-reversed buffer of the logo data located in this bitmap.
-        /// The input data's pixels are reduced into an 8bpp image. That means that 8 PC bitmap
-        /// pixels are reduced into 8 bits in the resulting buffer. These bits are delivered in 
-        /// reverse order (0x80: 0b10000000 -> 0x00000001).
-        /// If ANY of the pixel's RGB values are non-zero, the corresponding bit index will be set
-        /// in the output buffer. The alpha channel has no effect on the output buffer.
-        /// The bitmap is read from the top left of the bitmap to the bottom right.
+        /// Converts a bitmap into data for a thermal printer raster image.
+        /// Each bit represents a pixel where 1 is black and 0 is white.
+        /// A colored pixel in the bitmap is considered black whilst a white pixel is considered white.
         /// </summary>
-        /// <param name="bitmapImage">Bitmap</param>
-        /// <returns>MSB ordered, bit-reversed Buffer</returns>
-        public static byte[] Rasterize(this Bitmap bitmapImage)
+        /// <returns>Nonempty byte array if bitmap is not null nor empty; otherwise, an empty array.</returns>
+        public static byte[] Rasterize(this SKBitmap bitmap)
         {
-            // Define an area in which the bitmap bits will be locked in managed memory
-            var rect = new Rectangle(0, 0, bitmapImage.Width, bitmapImage.Height);
-            var bmpReadOnly = bitmapImage.LockBits(
-                rect,
-                ImageLockMode.ReadOnly,
-                PixelFormat.Format32bppPArgb);
+            if (bitmap == null || bitmap.Width == 0 || bitmap.Height == 0)
+                return Array.Empty<byte>();
 
-
-            var bmpLen = bmpReadOnly.Stride * bmpReadOnly.Height;
-            var bmpChannels = new byte[bmpLen];
-            Marshal.Copy(bmpReadOnly.Scan0, bmpChannels, 0, bmpLen);
-            bitmapImage.UnlockBits(bmpReadOnly);
-
-
-            // Split into bitmap into N number of rows where each row is
-            // as wide as the input bitmap's pixel count.
-            var rowWidth = bmpReadOnly.Width;
-            var pixels = bmpChannels.Split(bmpReadOnly.Stride);
-            var byteWidth = (int)Math.Ceiling((double)rowWidth / 8);
-            var tmpBuff = new List<Pixel>();
-
-            // Result buffer - Use array because we use | operator in byte reversal
-            var outBuffer = new byte[byteWidth * bmpReadOnly.Height];
-            var outIndex = 0;
-
-            // Read 1 row (aka stride) or 4-byte pixels at a time
-            foreach (var row in pixels)
+            byte[] input;
+            if (bitmap.ColorType == SKColorType.Gray8)
+                input = bitmap.Bytes;
+            else
             {
-                // Read 1st of every 4 bytes from source[colorIndex] in order into temp buffer
-                foreach (var pix in row.Split(4))
-                {
-                    tmpBuff.Add(new Pixel(pix));
-                }
-
-                // Reverse the pixel byte, 0b10000010 -> 0x01000001
-                for (var set = 0; set < byteWidth; set++)
-                {
-                    // Max bit tells us what bit to start shifting from
-                    var maxBit = Math.Min(7, rowWidth - (set * 8) - 1);
-
-                    // Read up to 8 bytes at a time in LSB->MSB so they are transmitted MSB->LSB to printer
-                    // set offset groups into bytes
-                    for (int b = maxBit, bb = 0; b >= 0; b--, bb++)
-                    {
-                        // Read rows right to left
-                        var px = tmpBuff[b + (set * 8)];
-
-                        // Firmware black == 1, White == 0
-                        outBuffer[outIndex] |= (byte)((px.IsNotWhite() ? 1 : 0) << bb);
-                    }
-
-                    // Increments after every byte
-                    outIndex++;
-                }
-
-                tmpBuff.Clear();
+                using (var convertedBitmap = bitmap.Copy(SKColorType.Gray8))
+                    input = convertedBitmap.Bytes;
             }
 
+            var rasterByteWidth = (int)Math.Ceiling((float)bitmap.Width / 8);
+            var output = new byte[rasterByteWidth * bitmap.Height];
 
-            return outBuffer;
-        }    
+            for (var y = 0; y < bitmap.Height; y++)
+            {
+                for (var x = 0; x < bitmap.Width; x++)
+                {
+                    var pixelIndex = y * bitmap.Width + x;
+                    var printPixel = input[pixelIndex] < 255 ? 1 : 0;
+                    
+                    var byteIndex = y * rasterByteWidth + x / 8;
+                    output[byteIndex] |= (byte)(printPixel << (7 - x % 8));
+                }
+            }
+
+            return output;
+        }
+
+        /// <summary>
+        /// Encodes bitmap using the specified format.
+        /// </summary>
+        /// <param name="bitmap">Bitmap.</param>
+        /// <param name="format">File format used to encode.</param>
+        /// <returns>
+        /// Encoded bytes if bitmap is not null nor empty, and a valid format is passed; otherwise, an empty array.
+        /// </returns>
+        public static byte[] Encode(this SKBitmap bitmap, SKEncodedImageFormat format)
+        {
+            if (bitmap == null || bitmap.Width == 0 || bitmap.Height == 0)
+                return Array.Empty<byte>();
+
+            switch (format)
+            {
+                case SKEncodedImageFormat.Bmp:
+                    BmpSharp.Bitmap bmp;
+                    if (bitmap.ColorType == SKColorType.Bgra8888)
+                        bmp = new BmpSharp.Bitmap(bitmap.Width, bitmap.Height, bitmap.Bytes,
+                            BmpSharp.BitsPerPixelEnum.RGBA32);
+                    else
+                    {
+                        using (var convertedBitmap = bitmap.Copy(SKColorType.Bgra8888))
+                            bmp = new BmpSharp.Bitmap(convertedBitmap.Width, convertedBitmap.Height,
+                                convertedBitmap.Bytes, BmpSharp.BitsPerPixelEnum.RGBA32);
+                    }
+
+                    return bmp.GetBmpBytes(true);
+
+                default:
+                    return bitmap.Encode(format, 100)?.ToArray() ?? Array.Empty<byte>();
+            }
+        }
     }
 }

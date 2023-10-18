@@ -70,13 +70,13 @@ namespace ThermalTalk.Imaging
         }
 
         /// <summary>
-        /// White is defined as 255,255,255 on the RGB pallete. Returns
+        /// White is defined as 255,255,255 on the RGB palette. Returns
         /// true if any RGB value is not 255.
         /// </summary>
         /// <returns>True if this pixel is non-white</returns>
         internal bool IsNotWhite()
         {
-            var m = (A + R + G) / 3;
+            var m = (B + R + G) / 3;
             return m != 255;
         }
     }
