@@ -2,8 +2,8 @@
 <!--  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />-->
 
   <PropertyGroup>
-    <SemVer>2.0.0.0</SemVer>
-    <Version>2.0.0.0</Version>
+    <SemVer>3.0.0.0</SemVer>
+    <Version>3.0.0.0</Version>
 
     <Title>ThermalTalk.Imaging</Title>
     <TargetFrameworks>net7.0;net6.0;net5.0;netstandard2.0</TargetFrameworks>

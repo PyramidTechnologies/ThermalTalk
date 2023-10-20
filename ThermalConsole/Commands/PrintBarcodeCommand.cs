@@ -54,7 +54,7 @@ namespace ThermalConsole.Commands
             var qrGenerator = new QRCodeGenerator();
             var qrData = qrGenerator.CreateQrCode(settings.Text!, QRCodeGenerator.ECCLevel.Q);
             var qrCode = new BitmapByteQRCode(qrData);
-            var qrBmpBytes = qrCode.GetGraphic(1);
+            var qrBmpBytes = qrCode.GetGraphic(3);
             using var qrCodeBitmap = SKBitmap.Decode(qrBmpBytes);
 
             // Set printer image.
