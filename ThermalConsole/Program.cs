@@ -1,151 +1,40 @@
-﻿#region Copyright & License
-/*
-MIT License
+﻿using Spectre.Console;
+using Spectre.Console.Cli;
+using ThermalConsole.Commands;
 
-Copyright (c) 2017 Pyramid Technologies
+AnsiConsole.Write(new FigletText("Thermal Console"));
+AnsiConsole.WriteLine();
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+// Build the app.
+var app = new CommandApp();
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
- */
-#endregion
-using System;
-using System.Threading;
-using ThermalTalk;
-using ThermalTalk.Imaging;
-
-namespace ThermalConsole
+// Add commands.
+app.Configure(config =>
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            if (args.Length == 0)
-            {
-                Console.WriteLine("usage: ThermalConsole PORT");
-                return;
-            }
+    config.AddCommand<QueryCommand>("query")
+        .WithDescription("Query the printer for its status.")
+        .WithExample("query", "reliance", "COM11")
+        .WithExample("query", "phoenix", "COM10");
 
-            var portName = args[0];
-            const int captureRate = 10; // number of seconds between capture
-            
-            Console.WriteLine("Starting Security Camera Sample");
+    config.AddCommand<PrintBarcodeCommand>("printcode")
+        .WithDescription("Print a barcode based on given text.")
+        .WithExample("printcode", "reliance", "COM11", "Forever by your side.")
+        .WithExample("printcode", "phoenix", "COM10", "Rise from the ashes.");
 
+    config.AddCommand<CaptureCommand>("capture")
+        .WithDescription("Capture an image from the 1st available webcam and print it.")
+        .WithExample("capture", "reliance", "COM11")
+        .WithExample("capture", "phoenix", "COM10");
+});
 
-            // Setup the header with double width, double height, center justified
-            var header = new StandardSection()
-            {
-                Justification = FontJustification.JustifyCenter,
-                HeightScalar = FontHeighScalar.h2,
-                WidthScalar = FontWidthScalar.w2,
-                Font = ThermalFonts.A,
-                AutoNewline = true,
-            };
+// Modify arguments here if desired.
+// args = new[] { "query", "reliance", "COM11" };
+// args = new[]
+// {
+//     "printcode", "reliance", "COM11",
+//     "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibu"
+// };
+// args = new[] { "capture", "reliance", "COM11" };
 
-
-
-            // Setup timestamp at normal scalar with bold, underline, and centered
-            var timestamp = new StandardSection()
-            {
-                Justification = FontJustification.JustifyCenter,
-                HeightScalar = FontHeighScalar.h1,
-                WidthScalar = FontWidthScalar.w1,
-                Effects = FontEffects.Italic | FontEffects.Underline,
-                Font = ThermalFonts.B,
-                AutoNewline = true,
-            };
-
-            // Print Status is shown as a JSON object
-            var printStatus = new StandardSection()
-            {
-                Justification = FontJustification.JustifyLeft,
-                HeightScalar = FontHeighScalar.h1,
-                WidthScalar = FontWidthScalar.w1,
-                Font = ThermalFonts.C,
-                AutoNewline = true,
-            };
-
-            // Document template
-            // Capture #{}
-            // Image....
-            // Image....
-            // Image...
-            // Timestamp
-            var document = new StandardDocument()
-            {
-                // Don't forget to set your codepage!
-                CodePage = CodePages.CPSPACE,
-            };
-
-            document.Sections.Add(header);
-            document.Sections.Add(new Placeholder());  // Placeholder since we know we'll want an image here
-            document.Sections.Add(new Placeholder());  // Placeholder since we know we'll want a barcode here
-            document.Sections.Add(timestamp);
-            document.Sections.Add(printStatus);
-
-            int count = 1;
-            while (true)
-            {
-
-                // Select one printer or the other. Phoenix does not currently 
-                // support dynamic images over ESC/POS. Images will only 
-                // be transmitted through the print queue but no examples have
-                // been prepared for this.
-                using (var printer = new PhoenixPrinter(portName))
-                //using (var printer = new ReliancePrinter(portName))
-                using(var image = Webcam.GrabPicture())
-                {
-             
-                    var now = DateTime.Now;
-                    Console.WriteLine("Image #{0} taken at {1}", count, now);
-
-
-                    // Resize image if we want. This will follow ESC/POS justification
-                    //logo.Resize(640, 480);
-                    image.ApplyDithering(Algorithms.JarvisJudiceNinke, 128);
-
-                    // Print the header document, update with new capture number
-                    header.Content = string.Format("Capture #{0} (ЫВФАЫВМОЫВАП)", count);
-
-                    // Printer the timestamp document
-                    timestamp.Content = string.Format("{0}: {1}", count++, now);
-
-                    // Get the latest printer status. Note that reliance and phoenix have
-                    // slightly different args to this get status command
-                    printStatus.Content = printer.GetStatus(StatusTypes.FullStatus).ToJSON(true);
-
-                    // Re-assign this image to the middle part of the document
-                    printer.SetImage(image, document, 1);
-                    
-                    // Update barcode
-                    var barcode = new TwoDBarcode(TwoDBarcode.Flavor.Phoenix)
-                    {
-                        EncodeThis = $"There have been {count} prints"
-                    };
-                    printer.SetBarcode(barcode, document, 2);
-
-                    // Send the whole document + image
-                    printer.PrintDocument(document);
-                    printer.FormFeed();
-
-                    // Wait for next capture period
-                    Thread.Sleep(captureRate * 1000);
-                }
-            }
-        }
-    }
-}
+// Execute the app.
+return app.Run(args);

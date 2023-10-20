@@ -1,177 +1,103 @@
 ﻿using NUnit.Framework;
+using SkiaSharp;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Windows.Media.Imaging;
 
 namespace ThermalTalk.Imaging.Test
 {
     [TestFixture]
     public class ImageExtTests
     {
-        /// <summary>
-        /// Given a known bitmap, esnure that it generates the correct colorspace buffer with full opacity
-        /// </summary>
-        [Test()]
-        public void BitmapToBufferTest()
+        [Test, Sequential]
+        public void InvertBitmapColors(
+            [Values(
+                "gray_bitmap.bmp",
+                "white_bitmap.bmp",
+                "black_bitmap.bmp",
+                "red_bitmap.bmp",
+                "green_bitmap.bmp",
+                "blue_bitmap.bmp")]
+            string fileName,
+            [Values(
+                new byte[] { 127, 127, 127, 255 },
+                new byte[] { 0, 0, 0, 255 },
+                new byte[] { 255, 255, 255, 255 },
+                new byte[] { 255, 255, 0, 255 },
+                new byte[] { 255, 0, 255, 255 },
+                new byte[] { 0, 255, 255, 255 }
+            )]
+            byte[] invertedBgra)
         {
-            var inbmp = Properties.Resources.gray_bitmap;
-            var expectedBuff = ImageTestHelpers.BGRAGenerator(new byte[] { 128, 128, 128, 255 }, inbmp.Height * inbmp.Width);
-            Assert.AreEqual(ImageConvertResults.Success, ImageTestHelpers.TestBitmapConversion(inbmp, expectedBuff));
+            var bitmap = ResourceManager.Load(fileName);
 
-            inbmp = Properties.Resources.white_bitmap;
-            expectedBuff = ImageTestHelpers.BGRAGenerator(new byte[] { 255, 255, 255, 255 }, inbmp.Height * inbmp.Width);
-            Assert.AreEqual(ImageConvertResults.Success, ImageTestHelpers.TestBitmapConversion(inbmp, expectedBuff));
+            var expectedBuff = RepeatBgra(invertedBgra, bitmap.Width * bitmap.Height);
 
-            inbmp = Properties.Resources.black_bitmap;
-            expectedBuff = ImageTestHelpers.BGRAGenerator(new byte[] { 0, 0, 0, 255 }, inbmp.Height * inbmp.Width);
-            Assert.AreEqual(ImageConvertResults.Success, ImageTestHelpers.TestBitmapConversion(inbmp, expectedBuff));
+            bitmap.InvertColorChannels();
+            var actualBuff = bitmap.Bytes;
 
-            inbmp = Properties.Resources.red_bitmap;
-            expectedBuff = ImageTestHelpers.BGRAGenerator(new byte[] { 0, 0, 255, 255 }, inbmp.Height * inbmp.Width);
-            Assert.AreEqual(ImageConvertResults.Success, ImageTestHelpers.TestBitmapConversion(inbmp, expectedBuff));
+            Assert.That(actualBuff, Is.EqualTo(expectedBuff));
+        }
 
-            inbmp = Properties.Resources.green_bitmap;
-            expectedBuff = ImageTestHelpers.BGRAGenerator(new byte[] { 0, 255, 0, 255 }, inbmp.Height * inbmp.Width);
-            Assert.AreEqual(ImageConvertResults.Success, ImageTestHelpers.TestBitmapConversion(inbmp, expectedBuff));
+        [Test]
+        public void ConvertBitmapToBase64()
+        {
+            var bitmap = ResourceManager.Load("logo.bw.bmp");
+            var expected = bitmap.Bytes;
 
-            inbmp = Properties.Resources.blue_bitmap;
-            expectedBuff = ImageTestHelpers.BGRAGenerator(new byte[] { 255, 0, 0, 255 }, inbmp.Height * inbmp.Width);
-            Assert.AreEqual(ImageConvertResults.Success, ImageTestHelpers.TestBitmapConversion(inbmp, expectedBuff));
+            var base64 = bitmap.ToBase64String(SKEncodedImageFormat.Bmp);
+            var actual = base64.ToBitmap().Bytes;
 
+            Assert.That(actual, Is.EqualTo(expected));
+        }
+
+        [Test, Sequential]
+        public void RasterizeBitmap(
+            [Values(
+                "gray_bitmap.bmp",
+                "white_bitmap.bmp",
+                "black_bitmap.bmp",
+                "red_bitmap.bmp",
+                "green_bitmap.bmp",
+                "blue_bitmap.bmp")]
+            string fileName,
+            [Values(
+                255,
+                0,
+                255,
+                255,
+                255,
+                255
+            )]
+            byte printedPixels)
+        {
+            var bitmap = ResourceManager.Load(fileName);
+
+            var expectedBuff = Extensions.Repeated(printedPixels, bitmap.Width * bitmap.Height / 8).ToArray();
+            var actualBuff = bitmap.Rasterize();
+
+            Assert.That(actualBuff, Is.EqualTo(expectedBuff));
         }
 
         /// <summary>
-        /// Ensure null or empty bitmap are not processed
+        /// Fills a repeated BGRA pattern into a buffer of count bytes.
+        /// Byte order is Blue, Green, Red, Alpha.
         /// </summary>
-        [Test()]
-        public void BitmapToBufferNullTest()
+        /// <param name="bgra">4-byte BGRA code.</param>
+        /// <param name="count">Number of times to repeat pattern.</param>
+        /// <returns>New buffer.</returns>
+        private static byte[] RepeatBgra(byte[] bgra, int count)
         {
-            Bitmap inbmpNull = null;
-            var expectedBuff = new byte[0];
+            if (bgra.Length != 4)
+                throw new ArgumentException("pattern length must be 4");
 
+            if (count <= 0)
+                throw new ArgumentException("count be greater than zero");
 
-            var actualBuff = inbmpNull.ToBuffer();
-            Assert.AreEqual(expectedBuff, actualBuff);
-        }
+            var result = new byte[bgra.Length * count];
 
-        [Test()]
-        public void BitmapImageToBitmapTest()
-        {
-            var bmps = new List<Bitmap>();
-            bmps.Add(Properties.Resources.gray_bitmap);
-            bmps.Add(Properties.Resources.white_bitmap);
-            bmps.Add(Properties.Resources.black_bitmap);
-            bmps.Add(Properties.Resources.red_bitmap);
-            bmps.Add(Properties.Resources.green_bitmap);
-            bmps.Add(Properties.Resources.blue_bitmap);
+            for (var i = 0; i < result.Length; i += 4)
+                Array.Copy(bgra, 0, result, i, 4);
 
-            foreach (var inbmp in bmps)
-            {
-                using (var memory = new MemoryStream())
-                {
-                    inbmp.Save(memory, ImageFormat.Png);
-                    memory.Position = 0;
-
-                    var id = new Bitmap(memory);
-                    Assert.IsTrue(ImageTestHelpers.CompareMemCmp(inbmp, id));
-                }
-            }
-        }
-
-
-        /// <summary>
-        /// Given a known bitmap, esnure that it generates the correct colorspace buffer with full opacity
-        /// </summary>
-        [Test()]
-        public void BitmapInvertColorChannelsTest()
-        {
-            var inbmp = Properties.Resources.gray_bitmap;
-            var expectedBuff = ImageTestHelpers.BGRAGenerator(new byte[] { 128, 128, 128, 255 }, inbmp.Height * inbmp.Width);
-            inbmp.InvertColorChannels();
-            var actualBuff = inbmp.ToBuffer();
-            Assert.AreEqual(expectedBuff, actualBuff);
-
-            inbmp = Properties.Resources.white_bitmap;
-            expectedBuff = ImageTestHelpers.BGRAGenerator(new byte[] { 0, 0, 0, 255 }, inbmp.Height * inbmp.Width);
-            inbmp.InvertColorChannels();
-            actualBuff = inbmp.ToBuffer();
-            Assert.AreEqual(expectedBuff, actualBuff);
-
-            inbmp = Properties.Resources.black_bitmap;
-            expectedBuff = ImageTestHelpers.BGRAGenerator(new byte[] { 255, 255, 255, 255 }, inbmp.Height * inbmp.Width);
-            inbmp.InvertColorChannels();
-            actualBuff = inbmp.ToBuffer();
-            Assert.AreEqual(expectedBuff, actualBuff);
-
-            inbmp = Properties.Resources.red_bitmap;
-            expectedBuff = ImageTestHelpers.BGRAGenerator(new byte[] { 255, 255, 0, 255 }, inbmp.Height * inbmp.Width);
-            inbmp.InvertColorChannels();
-            actualBuff = inbmp.ToBuffer();
-            Assert.AreEqual(expectedBuff, actualBuff);
-
-            inbmp = Properties.Resources.green_bitmap;
-            expectedBuff = ImageTestHelpers.BGRAGenerator(new byte[] { 255, 0, 255, 255 }, inbmp.Height * inbmp.Width);
-            inbmp.InvertColorChannels();
-            actualBuff = inbmp.ToBuffer();
-            Assert.AreEqual(expectedBuff, actualBuff);
-
-            inbmp = Properties.Resources.blue_bitmap;
-            expectedBuff = ImageTestHelpers.BGRAGenerator(new byte[] { 0, 255, 255, 255 }, inbmp.Height * inbmp.Width);
-            inbmp.InvertColorChannels();
-            actualBuff = inbmp.ToBuffer();
-            Assert.AreEqual(expectedBuff, actualBuff);
-        }
-
-
-        [Test()]
-        public void BitmapToLogoBufferSimpleTest()
-        {
-            var inbmp = Properties.Resources.gray_bitmap;
-            var expectedBuff = Extensions.Repeated<byte>(255, (inbmp.Height * inbmp.Width) >> 3).ToArray();
-            var actualBuff = inbmp.Rasterize();
-            Assert.AreEqual(expectedBuff, actualBuff);
-
-            inbmp = Properties.Resources.white_bitmap;
-            expectedBuff = Extensions.Repeated<byte>(0, (inbmp.Height * inbmp.Width) >> 3).ToArray();
-            actualBuff = inbmp.Rasterize();
-            Assert.AreEqual(expectedBuff, actualBuff);
-
-            inbmp = Properties.Resources.black_bitmap;
-            expectedBuff = Extensions.Repeated<byte>(255, (inbmp.Height * inbmp.Width) >> 3).ToArray();
-            actualBuff = inbmp.Rasterize();
-            Assert.AreEqual(expectedBuff, actualBuff);
-
-            inbmp = Properties.Resources.red_bitmap;
-            expectedBuff = Extensions.Repeated<byte>(255, (inbmp.Height * inbmp.Width) >> 3).ToArray();
-            actualBuff = inbmp.Rasterize();
-            Assert.AreEqual(expectedBuff, actualBuff);
-
-            inbmp = Properties.Resources.green_bitmap;
-            expectedBuff = Extensions.Repeated<byte>(255, (inbmp.Height * inbmp.Width) >> 3).ToArray();
-            actualBuff = inbmp.Rasterize();
-            Assert.AreEqual(expectedBuff, actualBuff);
-
-            inbmp = Properties.Resources.blue_bitmap;
-            expectedBuff = Extensions.Repeated<byte>(255, (inbmp.Height * inbmp.Width) >> 3).ToArray();
-            actualBuff = inbmp.Rasterize();
-            Assert.AreEqual(expectedBuff, actualBuff);
-        }
-
-        [Test()]
-        public void BitmapToBase64StringTest()
-        {
-            var bitmap = Properties.Resources.logo_bw;
-            var expected = bitmap.ToBuffer();
-
-            var content = bitmap.ToBase64String();
-            var restored = ImageExt.FromBase64String(content);
-
-            var actual = restored.ToBuffer();
-            Assert.AreEqual(expected, actual);
-
+            return result;
         }
     }
 }

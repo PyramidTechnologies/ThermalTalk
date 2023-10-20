@@ -39,6 +39,7 @@ namespace ThermalTalk
         #endregion
 
         #region Constructor
+
         public PhoenixSerialPort(string portName)
             : this(portName, DefaultBaudRate)
         { }
