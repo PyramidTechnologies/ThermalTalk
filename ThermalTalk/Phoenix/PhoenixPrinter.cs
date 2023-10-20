@@ -1,4 +1,5 @@
 ﻿#region Copyright & License
+
 /*
 MIT License
 
@@ -22,66 +23,83 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+
 #endregion
 
 namespace ThermalTalk
 {
+    using System;
     using System.Collections.Generic;
     using ThermalTalk.Imaging;
-    using System;
-    using System.Text;
 
     /// <inheritdoc />
     public class PhoenixPrinter : BasePrinter
     {
-               
-        const int DefaultReadTimeout = 1500; /// ms
-        const int DefaultBaudRate = 9600;
+        // Milliseconds
+        private const int DefaultReadTimeout = 1500;
+        private const int DefaultBaudRate = 9600;
 
         private readonly byte[] FontACmd = { 0x1B, 0x50 };
         private readonly byte[] FontBCmd = { 0x1B, 0x54 };
         private readonly byte[] FontCCmd = { 0x1B, 0x55 };
 
-        /// <inheritdoc />
+        #region Constructors
+
         /// <summary>
-        /// Constructs a new instance of PhoenixPrinter. This printer
-        /// acts as a handle to all features and functions. If the serial port parameter
-        /// is provided, the serial connection will be opened immediately.
+        /// Constructs a new instance of PhoenixPrinter.
         /// </summary>
         /// <param name="serialPortName">OS name of serial port</param>        
-        public PhoenixPrinter(string serialPortName)
+        public PhoenixPrinter(string serialPortName) : this()
+        {
+            if (string.IsNullOrEmpty(serialPortName))
+                return;
+
+            Logger?.Trace("Creating new instance of Phoenix Printer on port: " + serialPortName);
+
+            // User wants a serial port
+            Connection = new PhoenixSerialPort(serialPortName, PrintSerialBaudRate)
+            {
+                ReadTimeoutMS = DefaultReadTimeout
+            };
+        }
+
+        /// <summary>
+        /// Constructs a new instance of PhoenixPrinter.
+        /// </summary>
+        /// <param name="connection">Serial connection.</param>
+        public PhoenixPrinter(ISerialConnection connection = null)
         {
             EnableCommands = new Dictionary<FontEffects, byte[]>()
             {
-                { FontEffects.None, new byte[0]},
-                { FontEffects.Bold, new byte[] { 0x1B, 0x45, 0x1 }},
-                { FontEffects.Italic, new byte[] { 0x1B, 0x34, 0x1 }},
-                { FontEffects.Underline, new byte[] { 0x1B, 0x2D, 0x1 }},
-                { FontEffects.Rotated, new byte[] { 0x1B, 0x56, 0x1 }},
-                { FontEffects.Reversed, new byte[] { 0x1D, 0x42, 0x1 }},
-                { FontEffects.UpsideDown, new byte[] { 0x1B, 0x7B, 0x1 }},
+                { FontEffects.None, new byte[0] },
+                { FontEffects.Bold, new byte[] { 0x1B, 0x45, 0x1 } },
+                { FontEffects.Italic, new byte[] { 0x1B, 0x34, 0x1 } },
+                { FontEffects.Underline, new byte[] { 0x1B, 0x2D, 0x1 } },
+                { FontEffects.Rotated, new byte[] { 0x1B, 0x56, 0x1 } },
+                { FontEffects.Reversed, new byte[] { 0x1D, 0x42, 0x1 } },
+                { FontEffects.UpsideDown, new byte[] { 0x1B, 0x7B, 0x1 } },
             };
 
             DisableCommands = new Dictionary<FontEffects, byte[]>()
             {
-                { FontEffects.None, new byte[0]},
-                { FontEffects.Bold, new byte[] { 0x1B, 0x45, 0x0 }},
-                { FontEffects.Italic, new byte[] { 0x1B, 0x34, 0x0 }},
-                { FontEffects.Underline, new byte[] { 0x1B, 0x2D, 0x0 }},
-                { FontEffects.Rotated, new byte[] { 0x1B, 0x56, 0x0 }},
-                { FontEffects.Reversed, new byte[] { 0x1D, 0x42, 0x0 }},
-                { FontEffects.UpsideDown, new byte[] { 0x1B, 0x7B, 0x0 }},
+                { FontEffects.None, new byte[0] },
+                { FontEffects.Bold, new byte[] { 0x1B, 0x45, 0x0 } },
+                { FontEffects.Italic, new byte[] { 0x1B, 0x34, 0x0 } },
+                { FontEffects.Underline, new byte[] { 0x1B, 0x2D, 0x0 } },
+                { FontEffects.Rotated, new byte[] { 0x1B, 0x56, 0x0 } },
+                { FontEffects.Reversed, new byte[] { 0x1D, 0x42, 0x0 } },
+                { FontEffects.UpsideDown, new byte[] { 0x1B, 0x7B, 0x0 } },
             };
 
             JustificationCommands = new Dictionary<FontJustification, byte[]>()
             {
-                { FontJustification.NOP, new byte[0]},
-                { FontJustification.JustifyLeft, new byte[] { 0x1B, 0x61, 0x00 }},
-                { FontJustification.JustifyCenter, new byte[] { 0x1B, 0x61, 0x01 }},
-                { FontJustification.JustifyRight, new byte[] { 0x1B, 0x61, 0x02 }},
+                { FontJustification.NOP, new byte[0] },
+                { FontJustification.JustifyLeft, new byte[] { 0x1B, 0x61, 0x00 } },
+                { FontJustification.JustifyCenter, new byte[] { 0x1B, 0x61, 0x01 } },
+                { FontJustification.JustifyRight, new byte[] { 0x1B, 0x61, 0x02 } },
             };
 
-            SetScalarCommand = new byte[] { 0x1D, 0x21, 0x00};  // last byte set by tx func
+            SetScalarCommand = new byte[] { 0x1D, 0x21, 0x00 }; // last byte set by tx func
             FormFeedCommand = new byte[] { 0x1B, 0x64, 0x14, 0x1B, 0x6D };
             NewLineCommand = new byte[] { 0x0A };
             InitPrinterCommand = new byte[] { 0x1B, 0x40 };
@@ -89,17 +107,15 @@ namespace ThermalTalk
             PrintSerialReadTimeout = DefaultReadTimeout;
             PrintSerialBaudRate = DefaultBaudRate;
 
-            // User wants a serial port
-            if (string.IsNullOrEmpty(serialPortName))
-            {
+            if (connection == null)
                 return;
-            }
 
-            Connection = new PhoenixSerialPort(serialPortName, PrintSerialBaudRate)
-            {
-                ReadTimeoutMS = DefaultReadTimeout
-            };
+            Logger?.Trace("Creating new instance of Phoenix Printer on port: " + connection.Name);
+
+            Connection = connection;
         }
+
+        #endregion
 
         /// <summary>
         /// Updates the formfeed line count to n.
@@ -111,7 +127,7 @@ namespace ThermalTalk
         public void SetFormFeedLineCount(byte n)
         {
             Logger?.Trace("Setting form feed line count to: " + n);
-            
+
             FormFeedCommand[2] = n;
         }
 
@@ -145,21 +161,21 @@ namespace ThermalTalk
         public override ReturnCode SetFont(ThermalFonts font)
         {
             Logger?.Trace("Setting thermal fonts . . .");
-            
+
             if (font == ThermalFonts.NOP)
             {
                 Logger?.Trace("No change selected");
-                
+
                 return ReturnCode.Success;
             }
 
             var result = ReturnCode.ExecutionFailure;
-            
+
             switch (font)
             {
                 case ThermalFonts.A:
                     Logger?.Trace("Attempting to set font to font A.");
-                    result =  AppendToDocBuffer(FontACmd);
+                    result = AppendToDocBuffer(FontACmd);
                     break;
                 case ThermalFonts.B:
                     Logger?.Trace("Attempting to set font to font B.");
@@ -167,7 +183,7 @@ namespace ThermalTalk
                     break;
                 case ThermalFonts.C:
                     Logger?.Trace("Attempting to set font to font C.");
-                    result =  AppendToDocBuffer(FontCCmd);
+                    result = AppendToDocBuffer(FontCCmd);
                     break;
             }
 
@@ -177,13 +193,13 @@ namespace ThermalTalk
         /// <inheridoc/>
         public override ReturnCode SetImage(PrinterImage image, IDocument doc, int index)
         {
-            
-            while(index >= doc.Sections.Count)
+            while (index >= doc.Sections.Count)
             {
                 doc.Sections.Add(new Placeholder());
             }
 
-            doc.Sections[index] = new PhoenixImageSection() {
+            doc.Sections[index] = new PhoenixImageSection()
+            {
                 Image = image,
             };
 
@@ -198,9 +214,9 @@ namespace ThermalTalk
         /// <param name="h">New scalar (1x, 2x, nop)</param>
         /// /// <returns>ReturnCode.Success if successful, ReturnCode.ExecutionFailure otherwise.</returns>
         public override ReturnCode SetScalars(FontWidthScalar w, FontHeighScalar h)
-        {           
+        {
             var newWidth = Width;
-            if(w == FontWidthScalar.NOP || w == FontWidthScalar.w1 || w == FontWidthScalar.w2)
+            if (w == FontWidthScalar.NOP || w == FontWidthScalar.w1 || w == FontWidthScalar.w2)
             {
                 newWidth = w;
             }
@@ -230,12 +246,12 @@ namespace ThermalTalk
         /// <param name="type">StatusRequest type</param>
         /// <returns>Instance of PhoenixStatus</returns>
         public override StatusReport GetStatus(StatusTypes type)
-        {         
+        {
             ReturnCode ret;
 
             // Translate generic status to phoenix status
             PhoenixStatusRequests r;
-            switch(type)
+            switch (type)
             {
                 case StatusTypes.PrinterStatus:
                     r = PhoenixStatusRequests.Status;
@@ -246,7 +262,8 @@ namespace ThermalTalk
                     break;
 
                 case StatusTypes.ErrorStatus:
-                    return StatusReport.Invalid();;
+                    return StatusReport.Invalid();
+                    ;
                     break;
 
                 case StatusTypes.PaperStatus:
@@ -255,7 +272,8 @@ namespace ThermalTalk
 
                 case StatusTypes.MovementStatus:
                     // Not supported on Phoenix
-                    return StatusReport.Invalid();;
+                    return StatusReport.Invalid();
+                    ;
 
                 case StatusTypes.FullStatus:
                     r = PhoenixStatusRequests.FullStatus;
@@ -296,7 +314,6 @@ namespace ThermalTalk
         /// if r == PhoenixStatusRequests.ErrorStatus. </returns>
         private ReturnCode internalGetStatus(PhoenixStatusRequests r, StatusReport rts)
         {
-            
             Logger?.Trace("Attempting to get status of printer . . .");
 
             // PP-82 : Phoenix does not support the error status command
@@ -320,23 +337,20 @@ namespace ThermalTalk
                 var written = Connection.Write(command);
 
                 System.Threading.Thread.Sleep(250);
-                
+
                 // Collect the response
                 data = Connection.Read(respLen);
-
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger?.Error("The following exception was thrown while attempting to write the status:");
                 Logger?.Error(e.Message);
                 Logger?.Error(e.StackTrace);
 
                 return ReturnCode.ExecutionFailure;
-
             }
             finally
             {
-                
                 Connection.Close();
             }
 
@@ -372,7 +386,7 @@ namespace ThermalTalk
                     rts.HasRecoverableError = (data[0] & 0x40) == 1;
                     break;
 
-                case PhoenixStatusRequests.PaperRollStatus:   
+                case PhoenixStatusRequests.PaperRollStatus:
                     // bit 5,6: 0- okay, 96- Not okay
                     rts.IsPaperPresent = (data[0] & 0x60) == 0;
                     break;
@@ -383,6 +397,6 @@ namespace ThermalTalk
             }
 
             return ReturnCode.Success;
-        }  
+        }
     }
 }
