@@ -2,8 +2,9 @@
 # deploy.ps1
 #
 
-del *.nupkg
-nuget pack ../ThermalTalk/ThermalTalk.csproj -Prop Configuration=Release
-nuget pack ../ThermalTalk.Imaging/ThermalTalk.Imaging.csproj -Prop Configuration=Release
+Remove-Item *.nupkg
 
-nuget push *.nupkg -Source https://www.nuget.org/api/v2/package
+dotnet pack ThermalTalk/ThermalTalk.csproj --configuration Release
+dotnet pack ThermalTalk.Imaging/ThermalTalk.Imaging.csproj --configuration Release
+
+dotnet nuget push *.nupkg -source https://www.nuget.org/api/v2/package

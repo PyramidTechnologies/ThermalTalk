@@ -15,8 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{1634B50E
 		CONTRIBUTING.md = CONTRIBUTING.md
 		nuget\deploy.ps1 = nuget\deploy.ps1
 		README.md = README.md
-		ThermalTalk.Imaging\ThermalTalk.Imaging.nuspec = ThermalTalk.Imaging\ThermalTalk.Imaging.nuspec
-		ThermalTalk\ThermalTalk.nuspec = ThermalTalk\ThermalTalk.nuspec
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ThermalTalk.Imaging.Test", "ThermalTalk.Imaging.Test\ThermalTalk.Imaging.Test.csproj", "{17162E0C-9394-452A-83A1-657B02F4BF66}"

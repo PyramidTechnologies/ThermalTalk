@@ -1,19 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  
-  <PropertyGroup>
+<PropertyGroup>
+    <TargetFrameworks>net7.0;net6.0;net5.0;netstandard2.0</TargetFrameworks>
     <SemVer>3.0.0.0</SemVer>
-    <Version>3.0.0.0</Version>
+    <VersionPrefix>3.0.0.0</VersionPrefix>
+    <VersionSuffix>beta</VersionSuffix>
 
     <Title>ThermalTalk</Title>
-    <TargetFrameworks>net7.0;net6.0;net5.0;netstandard2.0</TargetFrameworks>
-
     <Authors>Pyramid Technologies</Authors>
     <Company>Pyramid Technologies Inc.</Company>
-    <Description>PTI Thermal Printer API</Description>
-    <Copyright>2021 Pyramid Technologies</Copyright>
-  </PropertyGroup>
-  
-  <PropertyGroup>
+    <Copyright>2023 Pyramid Technologies</Copyright>
+    <Description>
+        SDK for developing thermal printer applications based on Reliance and Phoenix printers. This supports realtime status reports, font effects, and imaging.
+    </Description>
+    <PackageTags>Serial USB RS-232 Thermal Printer</PackageTags>
+    <PackageReleaseNotes>Supported frameworks were altered.</PackageReleaseNotes>
+    <PackageProjectUrl>https://github.com/PyramidTechnologies/ThermalTalk</PackageProjectUrl>
+    <PackageIconUrl>https://pyramidacceptors.com/favicon.ico</PackageIconUrl>
+    <PackageLicenseUrl>https://pti.mit-license.org/</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+</PropertyGroup>
+
+<ItemGroup>
+    <None Include="build\ThermalTalk.XML" Pack="true" PackagePath="lib"/>
+    <None Include="build\**" Pack="true" PackagePath="build"/>
+</ItemGroup>
+
+<PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{1C8B96D3-E723-4B9C-8884-3449C26384FB}</ProjectGuid>
@@ -22,9 +34,9 @@
     <RootNamespace>ThermalTalk</RootNamespace>
     <AssemblyName>ThermalTalk</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <TargetFrameworkProfile/>
+</PropertyGroup>
+<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -35,8 +47,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Debug\ThermalTalk.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+</PropertyGroup>
+<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -45,8 +57,8 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>build\ThermalTalk.XML</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x64\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
@@ -54,8 +66,8 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
@@ -63,18 +75,18 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="System.IO.Ports" Version="7.0.0" Condition="'$(TargetFramework)' == 'net7.0'" />
-    <PackageReference Include="System.IO.Ports" Version="7.0.0" Condition="'$(TargetFramework)' == 'net6.0'" />
-    <PackageReference Include="System.IO.Ports" Version="5.0.1" Condition="'$(TargetFramework)' == 'net5.0'" />
-    <PackageReference Include="System.IO.Ports" Version="5.0.1" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ThermalTalk.Imaging\ThermalTalk.Imaging.csproj" />
-  </ItemGroup>
+</PropertyGroup>
+<ItemGroup>
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0"/>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
+    <PackageReference Include="System.IO.Ports" Version="7.0.0" Condition="'$(TargetFramework)' == 'net7.0'"/>
+    <PackageReference Include="System.IO.Ports" Version="7.0.0" Condition="'$(TargetFramework)' == 'net6.0'"/>
+    <PackageReference Include="System.IO.Ports" Version="5.0.1" Condition="'$(TargetFramework)' == 'net5.0'"/>
+    <PackageReference Include="System.IO.Ports" Version="5.0.1" Condition="'$(TargetFramework)' == 'netstandard2.0'"/>
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0"/>
+</ItemGroup>
+<ItemGroup>
+    <ProjectReference Include="..\ThermalTalk.Imaging\ThermalTalk.Imaging.csproj"/>
+</ItemGroup>
 </Project>
