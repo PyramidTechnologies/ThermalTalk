@@ -1,10 +1,17 @@
 #
 # deploy.ps1
+# Execute in solution directory.
 #
 
-Remove-Item *.nupkg
+$PackageFiles = Get-ChildItem -Filter *.nupkg -Recurse
+foreach ($File in $PackageFiles) {
+    Remove-Item $PackageFile.FullName
+}
 
 dotnet pack ThermalTalk/ThermalTalk.csproj --configuration Release
 dotnet pack ThermalTalk.Imaging/ThermalTalk.Imaging.csproj --configuration Release
 
-dotnet nuget push *.nupkg -source https://www.nuget.org/api/v2/package
+$PackageFiles = Get-ChildItem -Filter *.nupkg -Recurse
+foreach ($File in $PackageFiles) {
+    dotnet nuget push $File.FullName -source https://www.nuget.org/api/v2/package
+}
