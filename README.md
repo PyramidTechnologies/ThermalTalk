@@ -14,6 +14,11 @@ Additionally, ThermalTalk and ThermalTalk.Imaging no longer support .NET Framewo
 .NET Standard 2.0, .NET 5, .NET 6, and .NET 7.
 To understand the new changes, check out the ThermalConsole console project.
 
+To provide more flexibility, `ReliancePrinter` and `PhoenixPrinter` can be initialized with an `ISerialConnection`
+object for communicating with serial ports. `ThermalUwp` showcases an alternative implementation of `ISerialConnection`
+in a Universal Windows Platform (UWP) application, which relies on `Windows.Devices.SerialCommunication` rather than
+`System.IO.Ports`.
+
 If you require the old behavior, please see the v2.1.1.0 branch. We'll leave v2.1.1.0 on Nuget but it will not be supported.
 
 ## v2.0 Changes

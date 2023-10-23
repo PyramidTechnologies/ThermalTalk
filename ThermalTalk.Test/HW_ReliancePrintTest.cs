@@ -28,6 +28,7 @@ namespace ThermalTalk.Test
     [TestFixture()]
     public class HW_ReliancePrintTest
     {
+        // Change this to connected printer's port.
         private const string TEST_PORT = "COM4";
 
         [Test()]
