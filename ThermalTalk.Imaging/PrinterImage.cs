@@ -23,12 +23,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 #endregion
+
 namespace ThermalTalk.Imaging
 {
+    using SkiaSharp;
     using System;
     using System.Collections.Generic;
-    using System.Drawing;
-    using System.Drawing.Imaging;
     using System.IO;
     
     public class PrinterImage : ThermalTalk.Imaging.IPrintLogo
@@ -40,34 +40,31 @@ namespace ThermalTalk.Imaging
         public PrinterImage(string sourcePath)
         {
             if (string.IsNullOrEmpty(sourcePath))
-            {
                 throw new ArgumentException("sourcePath must be a non-empty string.");
-            }
 
             SetImageData(sourcePath);
         }
 
-
         /// <summary>
-        /// Construct a new logo from source image
+        /// Constructs a new logo from source image
         /// </summary>
-        /// <param name="sourcePath">Source image</param>
-        public PrinterImage(Bitmap source)
+        /// <param name="source">Source bitmap.</param>
+        public PrinterImage(SKBitmap source)
         {
             SetImageData(source);
         }
-
-
+        
         ~PrinterImage()
         {
             Dispose(false);
         }
+        
         #region Properties
         /// <summary>
         /// Returns a read-only version of the backing image data
         /// </summary>
         /// <remarks>Private access, use SetImageData</remarks>
-        public Bitmap ImageData { get; private set; }
+        public SKBitmap ImageData { get; private set; }
 
         /// <summary>
         /// Gets the current bitmap width in pixels
@@ -89,13 +86,11 @@ namespace ThermalTalk.Imaging
         /// </summary>
         public bool IsInverted { get; private set; }
         #endregion
-
-
-        public void ApplyDithering(Algorithms algorithm, byte threshhold)
+        
+        public void ApplyDithering(Algorithms algorithm, byte threshold)
         {
             // Create an instance of the specified dithering algorithm
-            var algo = (Algorithms)algorithm;
-            var halftoneProcessor = DitherFactory.GetDitherer(algo, threshhold);
+            var halftoneProcessor = DitherFactory.GetDitherer(algorithm, threshold);
 
             var bitmap = ImageData;
 
@@ -127,9 +122,35 @@ namespace ThermalTalk.Imaging
         /// Save the current state of this logo as a bitmap at the specified path
         /// </summary>
         /// <param name="outpath">Output path</param>
+        /// <remarks>Supported file formats are BMP, JPEG, PNG, abd WEBP.</remarks>
         public void ExportLogo(string outpath)
         {
-            ImageData.Save(outpath);
+            using (var stream = File.OpenWrite(outpath))
+            {
+                var extension = Path.GetExtension(outpath);
+            
+                byte[] buffer;
+                switch (extension)
+                {
+                    case ".bmp":
+                        buffer = ImageData.Encode(SKEncodedImageFormat.Bmp);
+                        break;
+                    case ".jpg":
+                    case ".jpeg":
+                        buffer = ImageData.Encode(SKEncodedImageFormat.Jpeg);
+                        break;
+                    case ".png":
+                        buffer = ImageData.Encode(SKEncodedImageFormat.Png);
+                        break;
+                    case ".webp":
+                        buffer = ImageData.Encode(SKEncodedImageFormat.Webp);
+                        break;
+                    default:
+                        return;
+                }
+            
+                stream.Write(buffer, 0, buffer.Length);   
+            }
         }
 
         /// <summary>
@@ -205,19 +226,17 @@ namespace ThermalTalk.Imaging
         /// <returns></returns>
         public string AsBase64String()
         {
-            return ImageData.ToBase64String();
+            return ImageData.ToBase64String(SKEncodedImageFormat.Bmp);
         }
 
         /// <summary>
-        /// Set the bitmap data from an encoded base64 string
+        /// Set the bitmap data from an encoded base64 string. Data will be null on error.
         /// </summary>
         /// <param name="base64">Base64 encoded string</param>
         public void FromBase64String(string base64)
         {
-            using(Bitmap bitmap = ImageExt.FromBase64String(base64))
-            {
+            using (var bitmap = SKBitmap.Decode(base64))
                 SetImageData(bitmap);
-            }
         }
 
         /// <summary>
@@ -240,7 +259,6 @@ namespace ThermalTalk.Imaging
         /// <exception cref="ImagingException">Raised if invalid dimensions are specified</exception>
         public void Resize(int pixelWidth, int pixelHeight, bool maintainAspectRatio=false)
         {
-
             if (maintainAspectRatio)
             {
                 if (pixelWidth > 0)
@@ -285,45 +303,45 @@ namespace ThermalTalk.Imaging
             Width = Width.RoundUp(8);
             Height = Height.RoundUp(8);
 
-            using (var bitmap = new Bitmap(ImageData, new Size(Width, Height)))
+            using (var bitmap = new SKBitmap(Width, Height, ImageData.ColorType, ImageData.AlphaType))
             {
+                ImageData.ScalePixels(bitmap, SKFilterQuality.High);
                 SetImageData(bitmap);
             }
         }
 
         /// <summary>
-        /// Opens image located at sourcepath. Scales image down to MaxWidth if required.
-        /// Images smaller than MaxWidth will not be scaled up. Result is stored in ImageData field.
+        /// Sets <see cref="ImageData"/>.
+        /// Scales image down to MaxWidth if required. Images smaller than MaxWidth will not be scaled up.
         /// Final result CRC is calculated and assigned to CRC32 field.
         /// </summary>
-        /// <param name="sourcePath">String path to source image</param>
+        /// <param name="sourcePath">Path to source image.</param>
         private void SetImageData(string sourcePath)
         {
-            using (Bitmap bitmap = (Bitmap)Image.FromFile(sourcePath))
+            using (var bitmap = SKBitmap.Decode(sourcePath))
             {
+                if (bitmap == null)
+                    throw new ImagingException($"Could not load image at {sourcePath}.");
+                    
                 SetImageData(bitmap);
             }
         }
-
+        
         /// <summary>
-        /// Opens image located at sourcepath. Scales image down to MaxWidth if required.
-        /// Images smaller than MaxWidth will not be scaled up. Result is stored in ImageData field.
+        /// <inheritdoc cref="SetImageData(string)"/>
         /// </summary>
-        /// <param name="sourcePath">String path to source image</param>>
-        private void SetImageData(Bitmap bitmap)
+        /// <param name="bitmap">Image bitmap.</param>
+        private void SetImageData(SKBitmap bitmap)
         {
-
-            // extract dimensions
+            if (bitmap == ImageData)
+                return;
+            
+            // Extract dimensions.
             Width = bitmap.Width;
             Height = bitmap.Height;
 
-            using (var memory = new MemoryStream())
-            {
-                bitmap.Save(memory, ImageFormat.Png);
-                memory.Position = 0;
-
-                ImageData = new Bitmap(bitmap);
-            }
+            ImageData?.Dispose();
+            ImageData = bitmap.Copy();
         }
 
         public void Dispose()

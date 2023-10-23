@@ -1,4 +1,5 @@
 ﻿#region Copyright & License
+
 /*
 MIT License
 
@@ -22,8 +23,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+
 #endregion
+
 using System.Text;
+
 namespace ThermalTalk
 {
     /// <summary>
@@ -31,6 +35,11 @@ namespace ThermalTalk
     /// </summary>
     public class StandardSection : ISection
     {
+        static StandardSection()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        }
+        
         public virtual string Content { get; set; }
 
         public virtual FontEffects Effects { get; set; }
@@ -47,14 +56,13 @@ namespace ThermalTalk
 
         public virtual byte[] GetContentBuffer(CodePages codepage)
         {
-
             if (string.IsNullOrEmpty(Content))
             {
                 return new byte[0];
             }
 
             Encoding encoder;
-            switch(codepage)
+            switch (codepage)
             {
                 case CodePages.CP771:
                     // This is the most similar to 771

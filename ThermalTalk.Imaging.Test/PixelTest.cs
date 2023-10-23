@@ -2,66 +2,71 @@
 
 namespace ThermalTalk.Imaging.Test
 {
-    [TestFixture]
     public class PixelTest
     {
         [Test]
-        public void PixelCtorTest()
+        public void InitializePixel()
         {
             var pxDefault = new Pixel();
-            Assert.IsNotNull(pxDefault);
-            Assert.AreEqual(0, pxDefault.A);
-            Assert.AreEqual(0, pxDefault.R);
-            Assert.AreEqual(0, pxDefault.G);
-            Assert.AreEqual(0, pxDefault.B);
+            Assert.Multiple(() =>
+            {
+                Assert.That(pxDefault.A, Is.EqualTo(0));
+                Assert.That(pxDefault.R, Is.EqualTo(0));
+                Assert.That(pxDefault.G, Is.EqualTo(0));
+                Assert.That(pxDefault.B, Is.EqualTo(0));
+            });
 
-            var pxByte = new Pixel((byte)0, (byte)1, (byte)2, (byte)3);
-            Assert.IsNotNull(pxDefault);
-            Assert.AreEqual(0, pxByte.A);
-            Assert.AreEqual(1, pxByte.R);
-            Assert.AreEqual(2, pxByte.G);
-            Assert.AreEqual(3, pxByte.B);
+            var pxByteCreated = new Pixel((byte)0, (byte)1, (byte)2, (byte)3);
+            Assert.Multiple(() =>
+            {
+                Assert.That(pxByteCreated.A, Is.EqualTo(0));
+                Assert.That(pxByteCreated.R, Is.EqualTo(1));
+                Assert.That(pxByteCreated.G, Is.EqualTo(2));
+                Assert.That(pxByteCreated.B, Is.EqualTo(3));
+            });
 
-            var pxInt = new Pixel(0, 1, 2, 3);
-            Assert.IsNotNull(pxDefault);
-            Assert.AreEqual(0, pxInt.A);
-            Assert.AreEqual(1, pxInt.R);
-            Assert.AreEqual(2, pxInt.G);
-            Assert.AreEqual(3, pxInt.B);
+            var pxIntCreated = new Pixel(0, 1, 2, 3);
+            Assert.Multiple(() =>
+            {
+                Assert.That(pxIntCreated.A, Is.EqualTo(0));
+                Assert.That(pxIntCreated.R, Is.EqualTo(1));
+                Assert.That(pxIntCreated.G, Is.EqualTo(2));
+                Assert.That(pxIntCreated.B, Is.EqualTo(3));
+            });
 
-            var pxBytes = new Pixel(new byte[] { 0, 1, 2, 3 });
-            Assert.IsNotNull(pxDefault);
-            Assert.AreEqual(0, pxInt.A);
-            Assert.AreEqual(1, pxInt.R);
-            Assert.AreEqual(2, pxInt.G);
-            Assert.AreEqual(3, pxInt.B);
+            var pxArrayCreated = new Pixel(new byte[] { 3, 2, 1, 0 });
+            Assert.Multiple(() =>
+            {
+                Assert.That(pxArrayCreated.A, Is.EqualTo(0));
+                Assert.That(pxArrayCreated.R, Is.EqualTo(1));
+                Assert.That(pxArrayCreated.G, Is.EqualTo(2));
+                Assert.That(pxArrayCreated.B, Is.EqualTo(3));
+            });
         }
 
-        [Test]
-        public void PixelWhiteTest()
+        [Test, Sequential]
+        public void IsPixelNotWhite(
+            [Values(
+                new byte[] { 0, 0, 0, 0 },
+                new byte[] { 255, 0, 0, 0 },
+                new byte[] { 0, 255, 0, 0 },
+                new byte[] { 0, 0, 255, 0 },
+                new byte[] { 0, 0, 0, 255 },
+                new byte[] { 255, 255, 255, 255 },
+                new byte[] { 255, 255, 255, 0 })]
+            byte[] bgra,
+            [Values(
+                true,
+                true,
+                true,
+                true,
+                true,
+                false,
+                false)]
+            bool isNotWhite)
         {
-            Pixel input;
-
-            input = new Pixel(new byte[] { 0, 0, 0, 0 });   // Black/0 alpha is NOT white
-            Assert.True(input.IsNotWhite());
-
-            input = new Pixel(new byte[] { 255, 0, 0, 0 }); // Black/Full alpha is NOT white
-            Assert.True(input.IsNotWhite());
-
-            input = new Pixel(new byte[] { 0, 255, 0, 0 }); // Blue/0 alpha is NOT white
-            Assert.True(input.IsNotWhite());
-
-            input = new Pixel(new byte[] { 0, 0, 255, 0 }); // Green/0 alpha is NOT white
-            Assert.True(input.IsNotWhite());
-
-            input = new Pixel(new byte[] { 0, 0, 0, 255 }); // Red/0 alpha is NOT white
-            Assert.True(input.IsNotWhite());
-
-            input = new Pixel(new byte[] { 255, 255, 255, 255 }); // White/Full alpha is white
-            Assert.False(input.IsNotWhite());
-
-            input = new Pixel(new byte[] { 0, 255, 255, 255 });   // White/0 alpha is white
-            Assert.False(input.IsNotWhite());
+            var input = new Pixel(bgra);
+            Assert.That(input.IsNotWhite(), Is.EqualTo(isNotWhite));
         }
     }
 }

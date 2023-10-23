@@ -21,11 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+
 namespace ThermalTalk.Imaging
 {
-    using System;
-    using System.Drawing;
-
+    using SkiaSharp;
+    
     public interface IPrintLogo : System.IDisposable
     {
         /// <summary>
@@ -50,7 +50,7 @@ namespace ThermalTalk.Imaging
         /// Observable bitmap image source that represents bitmap in its current state
         /// and will reflect any changes due to resize, dither, or inversion.
         /// </summary>
-        Bitmap ImageData { get; }
+        SKBitmap ImageData { get; }
 
         /// <summary>
         /// Width of this bitmap in pixels

@@ -1,9 +1,17 @@
 #
 # deploy.ps1
+# Execute in solution directory.
 #
 
-del *.nupkg
-nuget pack ../ThermalTalk/ThermalTalk.csproj -Prop Configuration=Release
-nuget pack ../ThermalTalk.Imaging/ThermalTalk.Imaging.csproj -Prop Configuration=Release
+$PackageFiles = Get-ChildItem -Filter *.nupkg -Recurse
+foreach ($File in $PackageFiles) {
+    Remove-Item $PackageFile.FullName
+}
 
-nuget push *.nupkg -Source https://www.nuget.org/api/v2/package
+dotnet pack ThermalTalk/ThermalTalk.csproj --configuration Release
+dotnet pack ThermalTalk.Imaging/ThermalTalk.Imaging.csproj --configuration Release
+
+$PackageFiles = Get-ChildItem -Filter *.nupkg -Recurse
+foreach ($File in $PackageFiles) {
+    dotnet nuget push $File.FullName -source https://www.nuget.org/api/v2/package
+}
