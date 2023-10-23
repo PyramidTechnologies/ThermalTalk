@@ -1,4 +1,5 @@
 ﻿#region Copyright & License
+
 /*
 MIT License
 
@@ -22,12 +23,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+
 #endregion
 
 namespace ThermalTalk
 {
     using System.Collections.Generic;
-    using System.Text;
     using ThermalTalk.Imaging;
 
     /// <inheritdoc />
@@ -36,71 +37,87 @@ namespace ThermalTalk
     /// </summary>
     public class ReliancePrinter : BasePrinter
     {
-        const int DefaultReadTimeout = 1000; /// ms
-        const int DefaultBaudRate = 19200;
+        // Milliseconds
+        private const int DefaultReadTimeout = 1000;
+        private const int DefaultBaudRate = 19200;
 
         private readonly byte[] CPI11 = { 0x1B, 0xC1, 0x00 };
         private readonly byte[] CPI15 = { 0x1B, 0xC1, 0x01 };
         private readonly byte[] CPI20 = { 0x1B, 0xC1, 0x02 };
 
+        #region Constructors
+
         /// <summary>
-        /// Constructs a new instance of ReliancePrinter. This printer
-        /// acts as a handle to all features and functions. If the serial port parameter
-        /// is provided, the serial connection will be opened immediately.
+        /// Constructs a new instance of ReliancePrinter.
         /// </summary>
-        /// <param name="serialPortName">OS name of serial port</param>        
-        public ReliancePrinter(string serialPortName)
+        /// <param name="serialPortName">OS name of serial port.</param>        
+        public ReliancePrinter(string serialPortName) : this()
         {
+            if (string.IsNullOrEmpty(serialPortName))
+                return;
+
             Logger?.Trace("Creating new instance of Reliance Printer on port: " + serialPortName);
 
+            // User wants a serial port.
+            Connection = new RelianceSerialPort(serialPortName, PrintSerialBaudRate)
+            {
+                ReadTimeoutMS = DefaultReadTimeout
+            };
+        }
+
+        /// <summary>
+        /// Constructs a new instance of ReliancePrinter.
+        /// </summary>
+        /// <param name="connection">Serial connection.</param>
+        public ReliancePrinter(ISerialConnection connection = null)
+        {
             EnableCommands = new Dictionary<FontEffects, byte[]>()
             {
-                { FontEffects.None, new byte[0]},
-                { FontEffects.Bold, new byte[] { 0x1B, 0x45, 0x1 }},
-                { FontEffects.Italic, new byte[] { 0x1B, 0x34, 0x1 }},
-                { FontEffects.Underline, new byte[] { 0x1B, 0x2D, 0x1 }},
-                { FontEffects.Rotated, new byte[] { 0x1B, 0x56, 0x1 }},
-                { FontEffects.Reversed, new byte[] { 0x1D, 0x42, 0x1 }},
-                { FontEffects.UpsideDown, new byte[] { 0x1B, 0x7B, 0x1 }},
+                { FontEffects.None, new byte[0] },
+                { FontEffects.Bold, new byte[] { 0x1B, 0x45, 0x1 } },
+                { FontEffects.Italic, new byte[] { 0x1B, 0x34, 0x1 } },
+                { FontEffects.Underline, new byte[] { 0x1B, 0x2D, 0x1 } },
+                { FontEffects.Rotated, new byte[] { 0x1B, 0x56, 0x1 } },
+                { FontEffects.Reversed, new byte[] { 0x1D, 0x42, 0x1 } },
+                { FontEffects.UpsideDown, new byte[] { 0x1B, 0x7B, 0x1 } },
             };
 
             DisableCommands = new Dictionary<FontEffects, byte[]>()
             {
-                { FontEffects.None, new byte[0]},
-                { FontEffects.Bold, new byte[] { 0x1B, 0x45, 0x0 }},
-                { FontEffects.Italic, new byte[] { 0x1B, 0x34, 0x0 }},
-                { FontEffects.Underline, new byte[] { 0x1B, 0x2D, 0x0 }},
-                { FontEffects.Rotated, new byte[] { 0x1B, 0x56, 0x0 }},
-                { FontEffects.Reversed, new byte[] { 0x1D, 0x42, 0x0 }},
-                { FontEffects.UpsideDown, new byte[] { 0x1B, 0x7B, 0x0 }},
+                { FontEffects.None, new byte[0] },
+                { FontEffects.Bold, new byte[] { 0x1B, 0x45, 0x0 } },
+                { FontEffects.Italic, new byte[] { 0x1B, 0x34, 0x0 } },
+                { FontEffects.Underline, new byte[] { 0x1B, 0x2D, 0x0 } },
+                { FontEffects.Rotated, new byte[] { 0x1B, 0x56, 0x0 } },
+                { FontEffects.Reversed, new byte[] { 0x1D, 0x42, 0x0 } },
+                { FontEffects.UpsideDown, new byte[] { 0x1B, 0x7B, 0x0 } },
             };
 
             JustificationCommands = new Dictionary<FontJustification, byte[]>()
-            {           
-                { FontJustification.NOP, new byte[0]},
-                { FontJustification.JustifyLeft, new byte[] { 0x1B, 0x61, 0x00 }},
-                { FontJustification.JustifyCenter, new byte[] { 0x1B, 0x61, 0x01 }},
-                { FontJustification.JustifyRight, new byte[] { 0x1B, 0x61, 0x02 }},
+            {
+                { FontJustification.NOP, new byte[0] },
+                { FontJustification.JustifyLeft, new byte[] { 0x1B, 0x61, 0x00 } },
+                { FontJustification.JustifyCenter, new byte[] { 0x1B, 0x61, 0x01 } },
+                { FontJustification.JustifyRight, new byte[] { 0x1B, 0x61, 0x02 } },
             };
 
-            SetScalarCommand = new byte[] { 0x1D, 0x21, 0x00};  // last byte set by tx func
+            SetScalarCommand = new byte[] { 0x1D, 0x21, 0x00 }; // last byte set by tx func
             FormFeedCommand = new byte[] { 0x0C };
             NewLineCommand = new byte[] { 0x0A };
             InitPrinterCommand = new byte[] { 0x1B, 0x40 };
 
-            // User wants a serial port
-            if (!string.IsNullOrEmpty(serialPortName))
-            {            
-                PrintSerialReadTimeout = DefaultReadTimeout;
-                PrintSerialBaudRate = DefaultBaudRate;
+            PrintSerialReadTimeout = DefaultReadTimeout;
+            PrintSerialBaudRate = DefaultBaudRate;
 
-                Connection = new RelianceSerialPort(serialPortName, PrintSerialBaudRate)
-                {
-                    ReadTimeoutMS = DefaultReadTimeout
-                };
+            if (connection == null)
+                return;
 
-            }
+            Logger?.Trace("Creating new instance of Reliance Printer on port: " + connection.Name);
+
+            Connection = connection;
         }
+
+        #endregion
 
         /// <summary>
         /// Sets the active font to this
@@ -110,11 +127,11 @@ namespace ThermalTalk
         public override ReturnCode SetFont(ThermalFonts font)
         {
             Logger?.Trace("Setting thermal fonts . . .");
-            
+
             if (font == ThermalFonts.NOP)
             {
                 Logger?.Trace("No change selected");
-                
+
                 return ReturnCode.Success;
             }
 
@@ -139,7 +156,6 @@ namespace ThermalTalk
                     Logger?.Trace("Attempting to set font to font CPI20.");
                     result = AppendToDocBuffer(CPI20);
                     break;
-
             }
 
             return result;
@@ -190,12 +206,13 @@ namespace ThermalTalk
         /// <inheritdoc />
         public override ReturnCode SetImage(PrinterImage image, IDocument doc, int index)
         {
-            while(index >= doc.Sections.Count)
+            while (index >= doc.Sections.Count)
             {
                 doc.Sections.Add(new Placeholder());
             }
 
-            doc.Sections[index] = new RelianceImageSection() {
+            doc.Sections[index] = new RelianceImageSection()
+            {
                 Image = image,
             };
 
@@ -262,24 +279,25 @@ namespace ThermalTalk
 
                 // Collect the response
                 data = Connection.Read(respLen);
-
             }
             catch
-            { /* Do nothing */ }
+            {
+                /* Do nothing */
+            }
             finally
             {
                 Connection.Close();
             }
-            
+
             // Invalid response
-            if(data.Length != respLen)
+            if (data.Length != respLen)
             {
                 return StatusReport.Invalid();
             }
 
             var rts = new StatusReport();
 
-            switch(r)
+            switch (r)
             {
                 case RelianceStatusRequests.Status:
                     // bit 3: 0- online, 1- offline        
@@ -298,18 +316,18 @@ namespace ThermalTalk
 
                     // bit 6: 0- no error, 1- error        
                     rts.HasError = (data[0] & 0x40) == 0x40;
-                 
+
                     break;
 
                 case RelianceStatusRequests.ErrorStatus:
                     // bit 3: 0- okay, 1- Not okay    
-                    rts.IsCutterOkay = (data[0] & 8) == 0;    
+                    rts.IsCutterOkay = (data[0] & 8) == 0;
 
                     // bit 5: 0- No fatal (non-recoverable) error, 1- Fatal error        
-                    rts.HasFatalError = (data[0] & 0x20) == 0x20;    
-    
+                    rts.HasFatalError = (data[0] & 0x20) == 0x20;
+
                     // bit 6: 0- No recoverable error, 1- Recoverable error        
-                    rts.HasRecoverableError = (data[0] & 0x40) == 0x40; 
+                    rts.HasRecoverableError = (data[0] & 0x40) == 0x40;
                     break;
 
                 case RelianceStatusRequests.PaperRollStatus:
@@ -317,14 +335,14 @@ namespace ThermalTalk
                     rts.IsPaperLevelOkay = (data[0] & 0x0C) == 0;
 
                     // bit 5,6: 0- okay, 96- Not okay
-                    rts.IsPaperPresent = (data[0] & 0x60) == 0;                    
+                    rts.IsPaperPresent = (data[0] & 0x60) == 0;
                     break;
 
                 case RelianceStatusRequests.PrintStatus:
                     // bit 2: 0- motor off, 1: motor on        
                     rts.IsPaperMotorOff = (data[0] & 4) == 0;
                     // bit 5: 0- paper present, 1: motor stopped because out of paper
-                    
+
                     rts.IsPaperPresent = (data[0] & 4) == 0;
                     break;
 
@@ -349,7 +367,7 @@ namespace ThermalTalk
                     rts.IsPowerSupplyVoltageOkay = (data[4] & 0x08) == 0;
                     rts.IsPaperPathClear = (data[4] & 0x40) == 0;
 
-                    rts.IsCutterOkay = (data[5] & 0x01) == 0; 
+                    rts.IsCutterOkay = (data[5] & 0x01) == 0;
                     break;
 
                 default:

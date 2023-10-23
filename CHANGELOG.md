@@ -1,3 +1,14 @@
+# 3.0.0.0
+**Bug Fixes**
+* None
+
+**New**
+* Replace `System.Drawing` library with `SkiaSharp`
+* Add ability to initialize `ReliancePrinter` and `PhoenixPrinter` with `ISerialConnection` instance
+* Add support for .NET 7.0 and 6.0; drop support for .NET Framework 4.5.1
+* Combine console samples into 1 app
+* Add UWP sample
+
 # 2.1.1.0
 ** bug fixes **
 * None

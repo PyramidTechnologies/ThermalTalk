@@ -486,11 +486,7 @@ namespace ThermalTalk
         /// <param name="disposing">True to close connection</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (Connection != null)
-            {
-                Connection.Dispose();
-            }
-            
+            Connection?.Dispose();
             _docBuffer.Dispose();
         }
 

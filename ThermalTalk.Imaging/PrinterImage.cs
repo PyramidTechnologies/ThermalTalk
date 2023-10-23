@@ -311,15 +311,20 @@ namespace ThermalTalk.Imaging
         }
 
         /// <summary>
-        /// Sets <see cref="ImageData"/>. Scales image down to MaxWidth if required.
-        /// Images smaller than MaxWidth will not be scaled up. Result is stored in ImageData field.
+        /// Sets <see cref="ImageData"/>.
+        /// Scales image down to MaxWidth if required. Images smaller than MaxWidth will not be scaled up.
         /// Final result CRC is calculated and assigned to CRC32 field.
         /// </summary>
         /// <param name="sourcePath">Path to source image.</param>
         private void SetImageData(string sourcePath)
         {
             using (var bitmap = SKBitmap.Decode(sourcePath))
+            {
+                if (bitmap == null)
+                    throw new ImagingException($"Could not load image at {sourcePath}.");
+                    
                 SetImageData(bitmap);
+            }
         }
         
         /// <summary>
@@ -328,12 +333,12 @@ namespace ThermalTalk.Imaging
         /// <param name="bitmap">Image bitmap.</param>
         private void SetImageData(SKBitmap bitmap)
         {
+            if (bitmap == ImageData)
+                return;
+            
             // Extract dimensions.
             Width = bitmap.Width;
             Height = bitmap.Height;
-
-            if (bitmap == ImageData)
-                return;
 
             ImageData?.Dispose();
             ImageData = bitmap.Copy();
