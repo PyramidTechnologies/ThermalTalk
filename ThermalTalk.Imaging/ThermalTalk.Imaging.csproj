@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 <!--  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />-->
 <PropertyGroup>
-    <TargetFrameworks>net7.0;net6.0;net5.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net5.0;net6.0;net7.0;netstandard2.0;net10.0;net8.0;net9.0</TargetFrameworks>
     <SemVer>3.0.0.0</SemVer>
     <VersionPrefix>3.0.0.0</VersionPrefix>
     <VersionSuffix>beta</VersionSuffix>

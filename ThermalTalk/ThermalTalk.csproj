@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 <PropertyGroup>
-    <TargetFrameworks>net7.0;net6.0;net5.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net5.0;net6.0;net7.0;netstandard2.0;net10.0;net8.0;net9.0</TargetFrameworks>
     <SemVer>3.0.0.0</SemVer>
     <VersionPrefix>3.0.0.0</VersionPrefix>
     <VersionSuffix>beta</VersionSuffix>
@@ -80,13 +80,30 @@
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0"/>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
-    <PackageReference Include="System.IO.Ports" Version="7.0.0" Condition="'$(TargetFramework)' == 'net7.0'"/>
-    <PackageReference Include="System.IO.Ports" Version="7.0.0" Condition="'$(TargetFramework)' == 'net6.0'"/>
-    <PackageReference Include="System.IO.Ports" Version="5.0.1" Condition="'$(TargetFramework)' == 'net5.0'"/>
-    <PackageReference Include="System.IO.Ports" Version="5.0.1" Condition="'$(TargetFramework)' == 'netstandard2.0'"/>
     <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0"/>
 </ItemGroup>
 <ItemGroup>
     <ProjectReference Include="..\ThermalTalk.Imaging\ThermalTalk.Imaging.csproj"/>
+</ItemGroup>
+<ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+  <PackageReference Include="System.IO.Ports" Version="5.0.1" />
+</ItemGroup>
+<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+  <PackageReference Include="System.IO.Ports" Version="7.0.0" />
+</ItemGroup>
+<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+  <PackageReference Include="System.IO.Ports" Version="7.0.0" />
+</ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+        <PackageReference Include="System.IO.Ports" Version="10.0.1" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+        <PackageReference Include="System.IO.Ports" Version="10.0.1" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+        <PackageReference Include="System.IO.Ports" Version="10.0.1" />
+    </ItemGroup>
+<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+  <PackageReference Include="System.IO.Ports" Version="5.0.1" />
 </ItemGroup>
 </Project>
